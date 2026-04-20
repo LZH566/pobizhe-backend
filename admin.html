@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>破壁者 - 管理员后台</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        /* 头部 */
+        .header {
+            background: linear-gradient(135deg, #2E7D32, #4CAF50);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+        /* 统计卡片 */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #2E7D32;
+        }
+        .stat-label {
+            color: #666;
+            margin-top: 8px;
+        }
+        /* 标签页 */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .tab {
+            padding: 10px 25px;
+            background: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .tab:hover {
+            background: #e8f5e9;
+        }
+        .tab.active {
+            background: #2E7D32;
+            color: white;
+        }
+        /* 申请列表 */
+        .applications {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .app-item {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .app-item:hover {
+            background: #f9f9f9;
+        }
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .app-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .app-shop {
+            color: #2E7D32;
+            margin-left: 10px;
+        }
+        .status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status-pending {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+        .status-approved {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+        .status-rejected {
+            background: #FFEBEE;
+            color: #D32F2F;
+        }
+        .app-detail {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        .app-detail.show {
+            display: block;
+        }
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        .detail-item {
+            margin-bottom: 8px;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #555;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        .detail-value {
+            color: #333;
+            word-break: break-all;
+        }
+        .review-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn-approve {
+            background: #2E7D32;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+        .btn-reject {
+            background: #D32F2F;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+        .remark-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-top: 10px;
+            resize: vertical;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+        /* API 设置区域 */
+        .api-setting {
+            background: #e8f5e9;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .api-setting input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-family: monospace;
+            min-width: 250px;
+        }
+        .api-setting button {
+            background: #2E7D32;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .stat-number {
+                font-size: 1.5rem;
+            }
+            .app-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 头部 -->
+    <div class="header">
+        <h2><i class="fas fa-store me-2"></i>破壁者 - 商家入驻管理后台</h2>
+        <p class="mb-0 opacity-75">查看、审核和管理商家入驻申请</p>
+    </div>
+
+    <!-- API 地址设置 -->
+    <div class="api-setting">
+        <i class="fas fa-link"></i>
+        <span>后端API地址：</span>
+        <input type="text" id="apiUrl" placeholder="https://pobizhe-backend.vercel.app" value="https://pobizhe-backend.vercel.app">
+        <button onclick="setApiUrl()"><i class="fas fa-save me-1"></i>保存</button>
+        <small class="text-muted">默认为您的 Vercel 后端地址</small>
+    </div>
+
+    <!-- 统计卡片 -->
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-number" id="statTotal">-</div>
+            <div class="stat-label">总申请数</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="statPending">-</div>
+            <div class="stat-label">待审核</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="statApproved">-</div>
+            <div class="stat-label">已通过</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="statRejected">-</div>
+            <div class="stat-label">已拒绝</div>
+        </div>
+    </div>
+
+    <!-- 标签页 -->
+    <div class="tabs">
+        <button class="tab active" data-status="all">全部</button>
+        <button class="tab" data-status="pending">待审核</button>
+        <button class="tab" data-status="approved">已通过</button>
+        <button class="tab" data-status="rejected">已拒绝</button>
+    </div>
+
+    <!-- 申请列表 -->
+    <div class="applications" id="applications">
+        <div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载中...</div>
+    </div>
+</div>
+
+<script>
+    // API 基础地址
+    let API_BASE = localStorage.getItem('ADMIN_API_BASE') || 'https://pobizhe-backend.vercel.app';
+    let currentStatus = 'all';
+    
+    // 设置 API 地址
+    function setApiUrl() {
+        const input = document.getElementById('apiUrl');
+        API_BASE = input.value.trim();
+        localStorage.setItem('ADMIN_API_BASE', API_BASE);
+        alert('API 地址已保存，将重新加载数据');
+        loadStatistics();
+        loadApplications();
+    }
+    
+    // 加载统计数据
+    async function loadStatistics() {
+        try {
+            const response = await fetch(`${API_BASE}/api/merchant/statistics`);
+            const result = await response.json();
+            if (result.success) {
+                document.getElementById('statTotal').textContent = result.data.total || 0;
+                document.getElementById('statPending').textContent = result.data.pending || 0;
+                document.getElementById('statApproved').textContent = result.data.approved || 0;
+                document.getElementById('statRejected').textContent = result.data.rejected || 0;
+            }
+        } catch (error) {
+            console.error('加载统计失败:', error);
+            document.getElementById('statTotal').textContent = '错误';
+        }
+    }
+    
+    // 加载申请列表
+    async function loadApplications() {
+        const container = document.getElementById('applications');
+        container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载中...</div>';
+        
+        try {
+            let url = `${API_BASE}/api/merchant/applications?page=1&pageSize=50`;
+            if (currentStatus !== 'all') {
+                url += `&status=${currentStatus}`;
+            }
+            const response = await fetch(url);
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                renderApplications(result.data);
+            } else {
+                container.innerHTML = '<div class="loading">暂无申请数据</div>';
+            }
+        } catch (error) {
+            console.error('加载申请失败:', error);
+            container.innerHTML = '<div class="loading"><i class="fas fa-exclamation-triangle me-2"></i>连接失败，请检查API地址</div>';
+        }
+    }
+    
+    // 渲染申请列表
+    function renderApplications(applications) {
+        const container = document.getElementById('applications');
+        
+        if (!applications || applications.length === 0) {
+            container.innerHTML = '<div class="loading">暂无申请记录</div>';
+            return;
+        }
+        
+        container.innerHTML = applications.map(app => `
+            <div class="app-item" onclick="toggleDetail(${app.id})">
+                <div class="app-header">
+                    <div>
+                        <span class="app-name">${escapeHtml(app.name)}</span>
+                        <span class="app-shop">｜ ${escapeHtml(app.shop_name)}</span>
+                    </div>
+                    <span class="status status-${app.status}">
+                        ${app.status === 'pending' ? '待审核' : app.status === 'approved' ? '已通过' : '已拒绝'}
+                    </span>
+                </div>
+                <div style="font-size: 13px; color: #666;">
+                    📞 ${app.phone} | 🏷️ ${app.category || '未填写'} | 📅 ${new Date(app.created_at).toLocaleDateString()}
+                </div>
+                <div class="app-detail" id="detail-${app.id}">
+                    <div class="detail-grid">
+                        <div class="detail-item"><div class="detail-label">身份证号</div><div class="detail-value">${escapeHtml(app.id_card)}</div></div>
+                        <div class="detail-item"><div class="detail-label">银行卡号</div><div class="detail-value">${escapeHtml(app.bank_card) || '未填写'}</div></div>
+                        <div class="detail-item"><div class="detail-label">开户行</div><div class="detail-value">${escapeHtml(app.bank_name) || '未填写'}</div></div>
+                        <div class="detail-item"><div class="detail-label">产地</div><div class="detail-value">${escapeHtml(app.origin)}</div></div>
+                        <div class="detail-item"><div class="detail-label">结算周期</div><div class="detail-value">${app.settlement_period || '未设置'}</div></div>
+                        <div class="detail-item"><div class="detail-label">主体类型</div><div class="detail-value">${getEntityTypeText(app.entity_type)}</div></div>
+                        <div class="detail-item"><div class="detail-label">申请时间</div><div class="detail-value">${new Date(app.created_at).toLocaleString()}</div></div>
+                    </div>
+                    <textarea id="remark-${app.id}" class="remark-input" placeholder="审核备注（可选）" rows="2">${escapeHtml(app.review_remark || '')}</textarea>
+                    <div class="review-buttons">
+                        ${app.status !== 'approved' ? `<button class="btn-approve" onclick="event.stopPropagation(); reviewApplication(${app.id}, 'approved')">✅ 通过审核</button>` : ''}
+                        ${app.status !== 'rejected' ? `<button class="btn-reject" onclick="event.stopPropagation(); reviewApplication(${app.id}, 'rejected')">❌ 拒绝</button>` : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // 获取主体类型文本
+    function getEntityTypeText(type) {
+        const map = {
+            'personal': '个人农户',
+            'familyFarm': '家庭农场',
+            'cooperative': '合作社',
+            'company': '企业'
+        };
+        return map[type] || type || '未填写';
+    }
+    
+    // 切换详情显示
+    function toggleDetail(id) {
+        const detail = document.getElementById(`detail-${id}`);
+        if (detail) {
+            detail.classList.toggle('show');
+        }
+    }
+    
+    // 审核申请
+    async function reviewApplication(id, status) {
+        const remark = document.getElementById(`remark-${id}`)?.value || '';
+        
+        if (!confirm(`确定要将该申请${status === 'approved' ? '通过' : '拒绝'}吗？`)) {
+            return;
+        }
+        
+        try {
+            const response = await fetch(`${API_BASE}/api/merchant/review/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status, reviewRemark: remark })
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                alert('审核完成');
+                loadStatistics();
+                loadApplications();
+            } else {
+                alert('操作失败：' + (result.message || '未知错误'));
+            }
+        } catch (error) {
+            console.error('审核失败:', error);
+            alert('网络错误，请重试');
+        }
+    }
+    
+    // HTML 转义
+    function escapeHtml(text) {
+        if (!text) return '';
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // 标签页切换
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            currentStatus = tab.dataset.status;
+            loadApplications();
+        });
+    });
+    
+    // 初始化页面
+    document.getElementById('apiUrl').value = API_BASE;
+    loadStatistics();
+    loadApplications();
+</script>
+</body>
+</html>
