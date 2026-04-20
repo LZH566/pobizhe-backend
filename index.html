@@ -2325,18 +2325,41 @@
 	            </div>
 	            
 	            <div class="row mb-3">
-	                <div class="col-md-6">
+	                <div class="col-md-12">
 	                    <label class="form-label">主营品类 <span class="text-danger">*</span></label>
-	                    <select class="form-select" id="applyCategory">
-	                        <option value="水果">水果</option>
-	                        <option value="蔬菜">蔬菜</option>
-	                        <option value="干货">干货</option>
-	                        <option value="禽蛋">禽蛋</option>
-	                        <option value="粮油">粮油米面</option>
-	                        <option value="其他">其他</option>
-	                    </select>
+	                    <div class="d-flex gap-3 flex-wrap">
+	                        <div class="form-check">
+	                            <input class="form-check-input" type="checkbox" value="水果" id="categoryFruit">
+	                            <label class="form-check-label" for="categoryFruit">🍎 水果</label>
+	                        </div>
+	                        <div class="form-check">
+	                            <input class="form-check-input" type="checkbox" value="蔬菜" id="categoryVegetable">
+	                            <label class="form-check-label" for="categoryVegetable">🥬 蔬菜</label>
+	                        </div>
+	                        <div class="form-check">
+	                            <input class="form-check-input" type="checkbox" value="干货" id="categoryDry">
+	                            <label class="form-check-label" for="categoryDry">🥜 干货</label>
+	                        </div>
+	                        <div class="form-check">
+	                            <input class="form-check-input" type="checkbox" value="禽蛋" id="categoryEgg">
+	                            <label class="form-check-label" for="categoryEgg">🥚 禽蛋</label>
+	                        </div>
+	                        <div class="form-check">
+	                            <input class="form-check-input" type="checkbox" value="粮油" id="categoryGrain">
+	                            <label class="form-check-label" for="categoryGrain">🌾 粮油米面</label>
+	                        </div>
+	                        <div class="form-check">
+	                            <input class="form-check-input" type="checkbox" value="水产" id="categorySeafood">
+	                            <label class="form-check-label" for="categorySeafood">🐟 水产海鲜</label>
+	                        </div>
+	                        <div class="form-check">
+	                            <input class="form-check-input" type="checkbox" value="其他" id="categoryOther">
+	                            <label class="form-check-label" for="categoryOther">📦 其他</label>
+	                        </div>
+	                    </div>
+	                    <div class="form-text text-muted">可多选您经营的所有品类</div>
 	                </div>
-	                <div class="col-md-6">
+	                <div class="col-md-6 mt-3">
 	                    <label class="form-label">产地 <span class="text-danger">*</span></label>
 	                    <div class="input-group">
 	                        <input type="text" class="form-control" id="applyOrigin" placeholder="省/市/县/镇">
@@ -5126,7 +5149,17 @@
 		        bankName: document.getElementById('applyBankName').value,
 		        settlementPeriod: document.getElementById('applySettlementPeriod').value,
 		        shopName: document.getElementById('applyShopName').value,
-		        category: document.getElementById('applyCategory').value,
+		        category: (() => {
+		            const categories = [];
+		            if (document.getElementById('categoryFruit')?.checked) categories.push('水果');
+		            if (document.getElementById('categoryVegetable')?.checked) categories.push('蔬菜');
+		            if (document.getElementById('categoryDry')?.checked) categories.push('干货');
+		            if (document.getElementById('categoryEgg')?.checked) categories.push('禽蛋');
+		            if (document.getElementById('categoryGrain')?.checked) categories.push('粮油米面');
+		            if (document.getElementById('categorySeafood')?.checked) categories.push('水产海鲜');
+		            if (document.getElementById('categoryOther')?.checked) categories.push('其他');
+		            return categories.join('、');
+		        })(),
 		        origin: document.getElementById('applyOrigin').value,
 		        certifications: {
 		            green: document.getElementById('certGreen')?.checked || false,
