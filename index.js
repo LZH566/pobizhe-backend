@@ -4,7 +4,19 @@ const { createClient } = require("@supabase/supabase-js");
 require("dotenv").config();
 
 const app = express();
-app.use(cors());
+
+// 允许所有来源的CORS配置
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  }),
+);
+
+// 处理 OPTIONS 预检请求
+app.options("*", cors());
+
 app.use(express.json());
 
 // 从环境变量读取 Supabase 配置
