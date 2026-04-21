@@ -4695,7 +4695,12 @@
 		
 		// ========== 商家入驻申请功能 ==========
 		function openMerchantApplyModal() {
-		    document.getElementById('merchantApplyModal').classList.add('show');
+		    // 打开统一的注册模态框，并显示商家入驻选项卡
+		    const modal = document.getElementById('authModal');
+		    if (modal) {
+		        modal.classList.add('show');
+		        switchAuthTab('merchant');  // 切换到商家入驻面板
+		    }
 		}
 		
 		function closeMerchantApplyModal() {
