@@ -5302,6 +5302,64 @@
 		        }
 		    }
 		    
+		    // ========== 新增：收集平台搭建调研资料 ==========
+		    application.surveyData = {
+		        // 1. 基础运营信息
+		        entityType: document.getElementById('surveyEntityType')?.value,
+		        tools: document.getElementById('surveyTools')?.value,
+		        webManage: document.getElementById('surveyWebManage')?.value,
+		        settlement: document.getElementById('surveySettlement')?.value,
+		        // 2. 商品与供应链信息 - 商品类目
+		        categories: {
+		            fruit: document.getElementById('catFruitSurvey')?.checked || false,
+		            veg: document.getElementById('catVegSurvey')?.checked || false,
+		            dry: document.getElementById('catDrySurvey')?.checked || false,
+		            egg: document.getElementById('catEggSurvey')?.checked || false
+		        },
+		        // 预售/拼团模式
+		        needPresale: document.getElementById('needPresaleSurvey')?.checked || false,
+		        needGroup: document.getElementById('needGroupSurvey')?.checked || false,
+		        // 售卖规格
+		        saleUnits: {
+		            jin: document.getElementById('unitJinSurvey')?.checked || false,
+		            box: document.getElementById('unitBoxSurvey')?.checked || false,
+		            piece: document.getElementById('unitPieceSurvey')?.checked || false
+		        },
+		        // 库存更新频率
+		        inventoryFreq: document.getElementById('inventoryFreqSurvey')?.value,
+		        // 物流能力
+		        shippingSelf: document.getElementById('shipSelfSurvey')?.checked || false,
+		        needCold: document.getElementById('needColdSurvey')?.checked || false,
+		        // 3. 痛点与需求
+		        pains: {
+		            publish: document.getElementById('painPublishSurvey')?.checked || false,
+		            photo: document.getElementById('painPhotoSurvey')?.checked || false,
+		            logistics: document.getElementById('painLogisticsSurvey')?.checked || false,
+		            traffic: document.getElementById('painTrafficSurvey')?.checked || false
+		        },
+		        services: {
+		            operation: document.getElementById('serviceOpSurvey')?.checked || false,
+		            training: document.getElementById('serviceTrainSurvey')?.checked || false,
+		            traffic: document.getElementById('serviceTrafficSurvey')?.checked || false
+		        }
+		    };
+		    
+		    // ========== 新增：收集商家入驻建档所需资料 ==========
+		    application.archiveData = {
+		        // 主体资质信息
+		        bankCard: document.getElementById('archiveBankCard')?.value || '',
+		        // 合规与认证信息
+		        certifications: {
+		            green: document.getElementById('certGreenArchive')?.checked || false,
+		            organic: document.getElementById('certOrganicArchive')?.checked || false,
+		            pollution: document.getElementById('certPollutionArchive')?.checked || false,
+		            geo: document.getElementById('certGeoArchive')?.checked || false,
+		            none: document.getElementById('certNoneArchive')?.checked || false
+		        },
+		        // 是否加入溯源体系
+		        joinTrace: document.getElementById('joinTraceArchive')?.value
+		    };
+		    
 		    // 验证必填项
 		    if (!application.name || !application.idCard || !application.phone || !application.shopName || !application.origin) {
 		        showToast('请填写所有必填项');
@@ -5333,7 +5391,7 @@
 		                phone: application.phone,
 		                type: 'merchant',
 		                verified: false,
-		                isApplying: true,  // 标记为审核中
+		                isApplying: true,
 		                address: application.origin,
 		                merchantApplicationId: data.id || application.applyDate
 		            };
