@@ -5,7 +5,7 @@ require("dotenv").config();
 
 const app = express();
 
-// 允许所有来源的CORS配置
+// CORS 配置
 app.use(
   cors({
     origin: "*",
@@ -13,18 +13,15 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
-
-// 处理 OPTIONS 预检请求
-app.options('*', cors()); 
+app.options("*", cors());
 
 app.use(express.json());
 
-// 从环境变量读取 Supabase 配置
 const supabaseUrl = process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_ANON_KEY;
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-// 健康检查接口
+// 健康检查
 app.get("/", (req, res) => {
   res.json({ message: "破壁者后端API运行中", status: "ok" });
 });
@@ -70,29 +67,20 @@ app.post("/api/merchant/apply", async (req, res) => {
     res.json({ success: true, message: "申请已提交" });
   } catch (error) {
     console.error("提交失败:", error);
-    res.json({ success: false, message: "提交失败" });
+    res.json({ success: false, message: error.message });
   }
 });
 
-// 获取所有申请（管理员用）
+// 获取所有申请
 app.get("/api/merchant/applications", async (req, res) => {
   try {
-    const { status, page = 1, pageSize = 20 } = req.query;
-    let query = supabase.from("merchant_applications").select("*");
-
-    if (status && status !== "all") {
-      query = query.eq("status", status);
-    }
-
-    const from = (parseInt(page) - 1) * parseInt(pageSize);
-    const to = from + parseInt(pageSize) - 1;
-
-    const { data, error } = await query
-      .order("created_at", { ascending: false })
-      .range(from, to);
+    const { data, error } = await supabase
+      .from("merchant_applications")
+      .select("*")
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
-    res.json({ success: true, data });
+    res.json({ success: true, data: data || [] });
   } catch (error) {
     res.json({ success: false, message: error.message });
   }
@@ -119,7 +107,7 @@ app.post("/api/merchant/review/:id", async (req, res) => {
   }
 });
 
-// 获取统计数据
+// 统计数据
 app.get("/api/merchant/statistics", async (req, res) => {
   try {
     const { data, error } = await supabase
@@ -129,10 +117,10 @@ app.get("/api/merchant/statistics", async (req, res) => {
     if (error) throw error;
 
     const stats = {
-      total: data.length,
-      pending: data.filter((d) => d.status === "pending").length,
-      approved: data.filter((d) => d.status === "approved").length,
-      rejected: data.filter((d) => d.status === "rejected").length,
+      total: data?.length || 0,
+      pending: data?.filter((d) => d.status === "pending").length || 0,
+      approved: data?.filter((d) => d.status === "approved").length || 0,
+      rejected: data?.filter((d) => d.status === "rejected").length || 0,
     };
 
     res.json({ success: true, data: stats });
