@@ -15,7 +15,7 @@ app.use(
 );
 
 // 处理 OPTIONS 预检请求
-app.options("*", cors());
+app.options('*', cors()); 
 
 app.use(express.json());
 
