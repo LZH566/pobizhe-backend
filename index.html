@@ -2979,7 +2979,7 @@
                     </div>
                     
                     <div class="mt-4 pt-3 text-center">
-                        <button class="btn btn-outline-primary btn-sm" onclick="openAuthModal(currentUser?.type || 'customer')">
+                        <button class="btn btn-outline-primary btn-sm" onclick="openEditProfileModal()">
                             <i class="fas fa-edit me-1"></i>编辑资料
                         </button>
                     </div>
@@ -3181,82 +3181,168 @@
 
     <!-- 地址管理模态框 -->
     <div class="auth-modal" id="addressModal">
-        <div class="auth-content">
+        <div class="auth-content" style="max-width: 700px;">
             <button class="auth-close" onclick="closeAddressModal()">&times;</button>
             <h3 class="text-center mb-4" style="color: var(--primary-color);">
                 <i class="fas fa-map-marker-alt me-2"></i>我的地址
             </h3>
             
-            <!-- 商家显示两个标签，顾客不显示标签栏 -->
+            <!-- 商家显示两个标签，顾客只显示收货地址 -->
             <ul class="nav nav-tabs mb-4" id="addressTab" role="tablist" style="display: none;">
                 <li class="nav-item">
-                    <button class="nav-link" id="sendAddressTabBtn" data-bs-toggle="tab" data-bs-target="#sendAddress" type="button" role="tab">
-                        <i class="fas fa-shipping-fast me-1"></i>发货地址
+                    <button class="nav-link" id="sendAddressTabBtn" data-bs-toggle="tab" data-bs-target="#sendAddressPanel" type="button" role="tab">
+                        <i class="fas fa-truck me-1"></i>发货地址
                     </button>
                 </li>
                 <li class="nav-item">
-                    <button class="nav-link" id="receiveAddressTabBtn" data-bs-toggle="tab" data-bs-target="#receiveAddress" type="button" role="tab">
+                    <button class="nav-link" id="receiveAddressTabBtn" data-bs-toggle="tab" data-bs-target="#receiveAddressPanel" type="button" role="tab">
                         <i class="fas fa-home me-1"></i>收货地址
                     </button>
                 </li>
             </ul>
             
-            <!-- 顾客专用：收货地址标题（商家隐藏） -->
-            <h5 id="customerAddressTitle" style="display: none; margin-bottom: 20px; color: #333;">
-                <i class="fas fa-home me-2" style="color: var(--primary-color);"></i>收货地址
-            </h5>
-            
             <div class="tab-content">
-                <!-- 发货地址内容 -->
-                <div class="tab-pane fade" id="sendAddress" role="tabpanel">
-                    <div class="mb-3">
-                        <label class="form-label">发货地（精确到镇/村）</label>
-                        <input type="text" class="form-control" id="sendProvince" placeholder="省">
+                <!-- 发货地址面板（商家用） -->
+                <div class="tab-pane fade" id="sendAddressPanel" role="tabpanel">
+                    <div id="sendAddressList" class="mb-3">
+                        <!-- 发货地址列表动态渲染 -->
                     </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="sendCity" placeholder="市">
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="sendTown" placeholder="县/区">
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="sendVillage" placeholder="镇/村">
-                    </div>
-                    <button class="btn btn-primary-green w-100" onclick="saveSendAddress()">
-                        <i class="fas fa-save me-2"></i>保存发货地址
+                    <button class="btn btn-outline-primary w-100" onclick="openAddSendAddressModal()">
+                        <i class="fas fa-plus me-2"></i>添加发货地址
                     </button>
                 </div>
                 
-                <!-- 收货地址内容 -->
-                <div class="tab-pane fade" id="receiveAddress" role="tabpanel">
-                    <div class="mb-3">
-                        <label class="form-label">收货人姓名</label>
-                        <input type="text" class="form-control" id="receiveName" placeholder="请输入姓名">
+                <!-- 收货地址面板（顾客和商家都用） -->
+                <div class="tab-pane fade" id="receiveAddressPanel" role="tabpanel">
+                    <div id="receiveAddressList" class="mb-3">
+                        <!-- 收货地址列表动态渲染 -->
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">手机号码</label>
-                        <input type="tel" class="form-control" id="receivePhone" placeholder="请输入手机号">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">所在地区</label>
-                        <input type="text" class="form-control" id="receiveProvince" placeholder="省">
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="receiveCity" placeholder="市">
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="receiveDistrict" placeholder="县/区">
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="receiveDetail" placeholder="详细地址（驿站/门牌号）">
-                    </div>
-                    <button class="btn btn-primary-green w-100" onclick="saveReceiveAddress()">
-                        <i class="fas fa-save me-2"></i>保存收货地址
+                    <button class="btn btn-outline-primary w-100" onclick="openAddReceiveAddressModal()">
+                        <i class="fas fa-plus me-2"></i>添加收货地址
                     </button>
                 </div>
             </div>
+            
+            <div class="text-muted small text-center mt-3">
+                <i class="fas fa-info-circle"></i> 可添加多个地址，设为默认后下单时自动选择
+            </div>
         </div>
     </div>
+    
+    <!-- 添加发货地址模态框 -->
+    <div class="auth-modal" id="addSendAddressModal">
+        <div class="auth-content" style="max-width: 500px;">
+            <button class="auth-close" onclick="closeAddSendAddressModal()">&times;</button>
+            <h3 class="text-center mb-4" style="color: var(--primary-color);">
+                <i class="fas fa-plus-circle me-2"></i>添加发货地址
+            </h3>
+            
+            <div class="mb-3">
+                <label class="form-label">发货人姓名 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="newSendName" placeholder="请输入姓名">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">联系电话 <span class="text-danger">*</span></label>
+                <input type="tel" class="form-control" id="newSendPhone" placeholder="请输入手机号">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">发货地区 <span class="text-danger">*</span></label>
+                <div class="row">
+                    <div class="col-4"><input type="text" class="form-control" id="newSendProvince" placeholder="省"></div>
+                    <div class="col-4"><input type="text" class="form-control" id="newSendCity" placeholder="市"></div>
+                    <div class="col-4"><input type="text" class="form-control" id="newSendDistrict" placeholder="县/区"></div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">详细地址</label>
+                <input type="text" class="form-control" id="newSendDetail" placeholder="镇/村/街道/门牌号">
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button class="btn btn-custom btn-lg" onclick="addNewSendAddress()">
+                    <i class="fas fa-save me-2"></i>保存地址
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 添加收货地址模态框 -->
+    <div class="auth-modal" id="addReceiveAddressModal">
+        <div class="auth-content" style="max-width: 500px;">
+            <button class="auth-close" onclick="closeAddReceiveAddressModal()">&times;</button>
+            <h3 class="text-center mb-4" style="color: var(--primary-color);">
+                <i class="fas fa-plus-circle me-2"></i>添加收货地址
+            </h3>
+            
+            <div class="mb-3">
+                <label class="form-label">收货人姓名 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="newReceiveName" placeholder="请输入姓名">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">手机号码 <span class="text-danger">*</span></label>
+                <input type="tel" class="form-control" id="newReceivePhone" placeholder="请输入手机号">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">收货地区 <span class="text-danger">*</span></label>
+                <div class="row">
+                    <div class="col-4"><input type="text" class="form-control" id="newReceiveProvince" placeholder="省"></div>
+                    <div class="col-4"><input type="text" class="form-control" id="newReceiveCity" placeholder="市"></div>
+                    <div class="col-4"><input type="text" class="form-control" id="newReceiveDistrict" placeholder="县/区"></div>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">详细地址</label>
+                <input type="text" class="form-control" id="newReceiveDetail" placeholder="街道/小区/门牌号">
+            </div>
+            
+            <div class="d-grid gap-2">
+                <button class="btn btn-custom btn-lg" onclick="addNewReceiveAddress()">
+                    <i class="fas fa-save me-2"></i>保存地址
+                </button>
+            </div>
+        </div>
+    </div>
+	
+	<!-- 编辑资料模态框 -->
+	<div class="auth-modal" id="editProfileModal">
+	    <div class="auth-content" style="max-width: 500px;">
+	        <button class="auth-close" onclick="closeEditProfileModal()">&times;</button>
+	        <h3 class="text-center mb-4" style="color: var(--primary-color);">
+	            <i class="fas fa-edit me-2"></i>编辑资料
+	        </h3>
+	        
+	        <div class="text-center mb-3">
+	            <div style="width: 80px; height: 80px; margin: 0 auto; border-radius: 50%; overflow: hidden; border: 3px solid var(--primary-color); cursor: pointer;" onclick="document.getElementById('editAvatarUpload').click()">
+	                <img id="editAvatar" src="" style="width: 100%; height: 100%; object-fit: cover;">
+	            </div>
+	            <input type="file" id="editAvatarUpload" accept="image/*" style="display: none;" onchange="handleEditAvatarUpload(event)">
+	            <div class="small text-muted mt-1">点击更换头像</div>
+	        </div>
+	        
+	        <div class="mb-3">
+	            <label class="form-label">姓名</label>
+	            <input type="text" class="form-control" id="editName">
+	        </div>
+	        <div class="mb-3">
+	            <label class="form-label">昵称</label>
+	            <input type="text" class="form-control" id="editNickname">
+	        </div>
+	        <div class="mb-3">
+	            <label class="form-label">手机号</label>
+	            <input type="tel" class="form-control" id="editPhone" readonly disabled style="background: #f5f5f5;">
+	        </div>
+	        <div class="mb-3">
+	            <label class="form-label">所在地区</label>
+	            <input type="text" class="form-control" id="editAddress">
+	        </div>
+	        
+	        <div class="d-grid gap-2">
+	            <button class="btn btn-custom btn-lg" onclick="saveProfileEdit()">
+	                <i class="fas fa-save me-2"></i>保存修改
+	            </button>
+	        </div>
+	    </div>
+	</div>
 
     <!-- 成功提示 -->
     <div class="success-toast" id="successToast">
@@ -3305,6 +3391,9 @@
 		let currentReport = '';
         let selectedPaymentMethod = 'wechat';
 		let merchantApplications = [];
+		let userAddressList = [];
+		let sendAddresses = [];   // 发货地址列表
+		let receiveAddresses = []; // 收货地址列表
         let userAddresses = {
             shipAddress: '',
             receiveAddress: '',
@@ -3481,6 +3570,75 @@
 		
 		function closeProductDetailModal() { const m = document.getElementById('productDetailModal'); if(m) m.style.display = 'none'; }
 		function buyNow(id) { addToCart(id); closeProductDetailModal(); setTimeout(()=>openPayment(),300); }
+		
+		// 打开编辑资料模态框
+		function openEditProfileModal() {
+		    if (!currentUser) return;
+		    
+		    document.getElementById('editName').value = currentUser.name || '';
+		    document.getElementById('editNickname').value = currentUser.nickname || '';
+		    document.getElementById('editPhone').value = currentUser.phone || '';
+		    document.getElementById('editAddress').value = currentUser.address || '';
+		    document.getElementById('editAvatar').src = currentUser.avatar || 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
+		    
+		    document.getElementById('editProfileModal').classList.add('show');
+		}
+		
+		function closeEditProfileModal() {
+		    document.getElementById('editProfileModal').classList.remove('show');
+		}
+		
+		let editAvatarData = null;
+		
+		function handleEditAvatarUpload(event) {
+		    const file = event.target.files[0];
+		    if (!file) return;
+		    
+		    const reader = new FileReader();
+		    reader.onload = function(e) {
+		        document.getElementById('editAvatar').src = e.target.result;
+		        editAvatarData = e.target.result;
+		    };
+		    reader.readAsDataURL(file);
+		}
+		
+		function saveProfileEdit() {
+		    const newName = document.getElementById('editName').value;
+		    const newNickname = document.getElementById('editNickname').value;
+		    const newAddress = document.getElementById('editAddress').value;
+		    
+		    if (!newName) {
+		        showToast('姓名不能为空');
+		        return;
+		    }
+		    
+		    // 更新当前用户
+		    currentUser.name = newName;
+		    currentUser.nickname = newNickname || newName;
+		    currentUser.address = newAddress;
+		    if (editAvatarData) {
+		        currentUser.avatar = editAvatarData;
+		    }
+		    
+		    // 更新用户列表
+		    const users = JSON.parse(localStorage.getItem('pobizhe_users') || '[]');
+		    const userIndex = users.findIndex(u => u.phone === currentUser.phone);
+		    if (userIndex !== -1) {
+		        users[userIndex].name = newName;
+		        users[userIndex].nickname = newNickname || newName;
+		        users[userIndex].address = newAddress;
+		        if (editAvatarData) {
+		            users[userIndex].avatar = editAvatarData;
+		        }
+		        localStorage.setItem('pobizhe_users', JSON.stringify(users));
+		    }
+		    
+		    saveToStorage();
+		    updateUserInfo();
+		    renderPersonalInfo();
+		    closeEditProfileModal();
+		    showToast('资料修改成功');
+		}
 		
 		// 1. 打开商品详情页
 		function openProductDetail(id) {
@@ -4140,6 +4298,431 @@
             document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
             document.querySelector(`.payment-method.${method}`).classList.add('selected');
         }
+		
+		// 加载地址列表
+		function loadAddressList() {
+		    const saved = localStorage.getItem(`pobizhe_addresses_${currentUser?.phone}`);
+		    if (saved) {
+		        userAddressList = JSON.parse(saved);
+		    } else {
+		        userAddressList = [];
+		    }
+		    renderAddressList();
+		}
+		
+		// 渲染地址列表
+		function renderAddressList() {
+		    const container = document.getElementById('addressListContainer');
+		    if (!container) return;
+		    
+		    if (userAddressList.length === 0) {
+		        container.innerHTML = '<div class="text-center py-3 text-muted">暂无收货地址，点击下方添加</div>';
+		        return;
+		    }
+		    
+		    container.innerHTML = userAddressList.map((addr, index) => `
+		        <div class="address-item p-3 mb-2 border rounded" style="background: ${addr.isDefault ? '#e8f5e9' : 'white'}">
+		            <div class="d-flex justify-content-between align-items-start">
+		                <div>
+		                    <div class="fw-bold">${escapeHtml(addr.name)} ${addr.phone}</div>
+		                    <div class="text-muted small">${escapeHtml(addr.fullAddress)}</div>
+		                    ${addr.isDefault ? '<span class="badge bg-success mt-1">默认地址</span>' : ''}
+		                </div>
+		                <div>
+		                    ${!addr.isDefault ? `<button class="btn btn-sm btn-outline-success me-1" onclick="setDefaultAddress(${index})">设为默认</button>` : ''}
+		                    <button class="btn btn-sm btn-outline-danger" onclick="deleteAddress(${index})">删除</button>
+		                </div>
+		            </div>
+		        </div>
+		    `).join('');
+		}
+		
+		// 添加新地址
+		function addNewAddress() {
+		    const name = document.getElementById('newAddressName').value;
+		    const phone = document.getElementById('newAddressPhone').value;
+		    const province = document.getElementById('newAddressProvince').value;
+		    const city = document.getElementById('newAddressCity').value;
+		    const district = document.getElementById('newAddressDistrict').value;
+		    const detail = document.getElementById('newAddressDetail').value;
+		    
+		    if (!name || !phone || !province) {
+		        showToast('请填写完整信息');
+		        return;
+		    }
+		    
+		    const fullAddress = province + city + district + detail;
+		    
+		    const newAddr = {
+		        name: name,
+		        phone: phone,
+		        province: province,
+		        city: city,
+		        district: district,
+		        detail: detail,
+		        fullAddress: fullAddress,
+		        isDefault: userAddressList.length === 0
+		    };
+		    
+		    userAddressList.push(newAddr);
+		    saveAddressList();
+		    renderAddressList();
+		    
+		    // 清空表单
+		    document.getElementById('newAddressName').value = '';
+		    document.getElementById('newAddressPhone').value = '';
+		    document.getElementById('newAddressProvince').value = '';
+		    document.getElementById('newAddressCity').value = '';
+		    document.getElementById('newAddressDistrict').value = '';
+		    document.getElementById('newAddressDetail').value = '';
+		    
+		    // 关闭添加地址模态框
+		    document.getElementById('addAddressModal').classList.remove('show');
+		    showToast('地址添加成功');
+		}
+		
+		// 设置默认地址
+		function setDefaultAddress(index) {
+		    userAddressList.forEach((addr, i) => {
+		        addr.isDefault = (i === index);
+		    });
+		    saveAddressList();
+		    renderAddressList();
+		    showToast('默认地址已更新');
+		}
+		
+		// 删除地址
+		function deleteAddress(index) {
+		    if (confirm('确定删除这个地址吗？')) {
+		        userAddressList.splice(index, 1);
+		        if (userAddressList.length > 0 && !userAddressList.some(a => a.isDefault)) {
+		            userAddressList[0].isDefault = true;
+		        }
+		        saveAddressList();
+		        renderAddressList();
+		        showToast('地址已删除');
+		    }
+		}
+		
+		// 保存地址列表
+		function saveAddressList() {
+		    localStorage.setItem(`pobizhe_addresses_${currentUser?.phone}`, JSON.stringify(userAddressList));
+		    // 同时更新默认收货地址到全局变量
+		    const defaultAddr = userAddressList.find(a => a.isDefault);
+		    if (defaultAddr) {
+		        userAddresses.receiveName = defaultAddr.name;
+		        userAddresses.receivePhone = defaultAddr.phone;
+		        userAddresses.receiveAddress = defaultAddr.fullAddress;
+		    }
+		    saveToStorage();
+		}
+		
+		// 加载地址数据
+		function loadAddressData() {
+		    if (!currentUser) return;
+		    
+		    const savedSend = localStorage.getItem(`pobizhe_sendAddresses_${currentUser.phone}`);
+		    const savedReceive = localStorage.getItem(`pobizhe_receiveAddresses_${currentUser.phone}`);
+		    
+		    sendAddresses = savedSend ? JSON.parse(savedSend) : [];
+		    receiveAddresses = savedReceive ? JSON.parse(savedReceive) : [];
+		    
+		    // 如果没有地址，初始化示例地址
+		    if (sendAddresses.length === 0 && currentUser.type === 'merchant') {
+		        sendAddresses.push({
+		            id: Date.now(),
+		            name: currentUser.name || '我的仓库',
+		            phone: currentUser.phone || '',
+		            province: '山东省',
+		            city: '烟台市',
+		            district: '莱阳市',
+		            detail: '东升山庄小区',
+		            fullAddress: '山东省烟台市莱阳市东升山庄小区',
+		            isDefault: true
+		        });
+		        saveSendAddresses();
+		    }
+		    
+		    if (receiveAddresses.length === 0) {
+		        receiveAddresses.push({
+		            id: Date.now() + 1,
+		            name: currentUser.name || '我的收货地址',
+		            phone: currentUser.phone || '',
+		            province: '山东省',
+		            city: '济南市',
+		            district: '历城区',
+		            detail: '示例地址',
+		            fullAddress: '山东省济南市历城区示例地址',
+		            isDefault: true
+		        });
+		        saveReceiveAddresses();
+		    }
+		}
+		
+		// 保存发货地址
+		function saveSendAddresses() {
+		    localStorage.setItem(`pobizhe_sendAddresses_${currentUser?.phone}`, JSON.stringify(sendAddresses));
+		    // 更新默认发货地址到全局变量
+		    const defaultSend = sendAddresses.find(a => a.isDefault);
+		    if (defaultSend && currentUser?.type === 'merchant') {
+		        userAddresses.shipAddress = defaultSend.fullAddress;
+		        userAddresses.shipName = defaultSend.name;
+		        userAddresses.shipPhone = defaultSend.phone;
+		        saveToStorage();
+		    }
+		}
+		
+		// 保存收货地址
+		function saveReceiveAddresses() {
+		    localStorage.setItem(`pobizhe_receiveAddresses_${currentUser?.phone}`, JSON.stringify(receiveAddresses));
+		    // 更新默认收货地址到全局变量
+		    const defaultReceive = receiveAddresses.find(a => a.isDefault);
+		    if (defaultReceive) {
+		        userAddresses.receiveAddress = defaultReceive.fullAddress;
+		        userAddresses.receiveName = defaultReceive.name;
+		        userAddresses.receivePhone = defaultReceive.phone;
+		        saveToStorage();
+		    }
+		}
+		
+		// 渲染发货地址列表
+		function renderSendAddresses() {
+		    const container = document.getElementById('sendAddressList');
+		    if (!container) return;
+		    
+		    if (sendAddresses.length === 0) {
+		        container.innerHTML = '<div class="text-center py-3 text-muted">暂无发货地址，点击下方添加</div>';
+		        return;
+		    }
+		    
+		    container.innerHTML = sendAddresses.map((addr, index) => `
+		        <div class="address-item p-3 mb-2 border rounded" style="background: ${addr.isDefault ? '#e8f5e9' : 'white'}">
+		            <div class="d-flex justify-content-between align-items-start">
+		                <div class="flex-grow-1">
+		                    <div class="fw-bold">${escapeHtml(addr.name)} ${addr.phone}</div>
+		                    <div class="text-muted small">${escapeHtml(addr.fullAddress || (addr.province + addr.city + addr.district + addr.detail))}</div>
+		                    ${addr.isDefault ? '<span class="badge bg-success mt-1">默认发货地址</span>' : ''}
+		                </div>
+		                <div>
+		                    ${!addr.isDefault ? `<button class="btn btn-sm btn-outline-success me-1" onclick="setDefaultSendAddress(${addr.id})">设为默认</button>` : ''}
+		                    <button class="btn btn-sm btn-outline-danger" onclick="deleteSendAddress(${addr.id})">删除</button>
+		                </div>
+		            </div>
+		        </div>
+		    `).join('');
+		}
+		
+		// 渲染收货地址列表
+		function renderReceiveAddresses() {
+		    const container = document.getElementById('receiveAddressList');
+		    if (!container) return;
+		    
+		    if (receiveAddresses.length === 0) {
+		        container.innerHTML = '<div class="text-center py-3 text-muted">暂无收货地址，点击下方添加</div>';
+		        return;
+		    }
+		    
+		    container.innerHTML = receiveAddresses.map((addr, index) => `
+		        <div class="address-item p-3 mb-2 border rounded" style="background: ${addr.isDefault ? '#e8f5e9' : 'white'}">
+		            <div class="d-flex justify-content-between align-items-start">
+		                <div class="flex-grow-1">
+		                    <div class="fw-bold">${escapeHtml(addr.name)} ${addr.phone}</div>
+		                    <div class="text-muted small">${escapeHtml(addr.fullAddress || (addr.province + addr.city + addr.district + addr.detail))}</div>
+		                    ${addr.isDefault ? '<span class="badge bg-success mt-1">默认收货地址</span>' : ''}
+		                </div>
+		                <div>
+		                    ${!addr.isDefault ? `<button class="btn btn-sm btn-outline-success me-1" onclick="setDefaultReceiveAddress(${addr.id})">设为默认</button>` : ''}
+		                    <button class="btn btn-sm btn-outline-danger" onclick="deleteReceiveAddress(${addr.id})">删除</button>
+		                </div>
+		            </div>
+		        </div>
+		    `).join('');
+		}
+		
+		// 添加发货地址
+		function addNewSendAddress() {
+		    const name = document.getElementById('newSendName').value;
+		    const phone = document.getElementById('newSendPhone').value;
+		    const province = document.getElementById('newSendProvince').value;
+		    const city = document.getElementById('newSendCity').value;
+		    const district = document.getElementById('newSendDistrict').value;
+		    const detail = document.getElementById('newSendDetail').value;
+		    
+		    if (!name || !phone || !province) {
+		        showToast('请填写完整信息');
+		        return;
+		    }
+		    
+		    const fullAddress = province + city + district + detail;
+		    
+		    const newAddr = {
+		        id: Date.now(),
+		        name: name,
+		        phone: phone,
+		        province: province,
+		        city: city,
+		        district: district,
+		        detail: detail,
+		        fullAddress: fullAddress,
+		        isDefault: sendAddresses.length === 0
+		    };
+		    
+		    sendAddresses.push(newAddr);
+		    saveSendAddresses();
+		    renderSendAddresses();
+		    
+		    // 清空表单
+		    document.getElementById('newSendName').value = '';
+		    document.getElementById('newSendPhone').value = '';
+		    document.getElementById('newSendProvince').value = '';
+		    document.getElementById('newSendCity').value = '';
+		    document.getElementById('newSendDistrict').value = '';
+		    document.getElementById('newSendDetail').value = '';
+		    
+		    closeAddSendAddressModal();
+		    showToast('发货地址添加成功');
+		}
+		
+		// 添加收货地址
+		function addNewReceiveAddress() {
+		    const name = document.getElementById('newReceiveName').value;
+		    const phone = document.getElementById('newReceivePhone').value;
+		    const province = document.getElementById('newReceiveProvince').value;
+		    const city = document.getElementById('newReceiveCity').value;
+		    const district = document.getElementById('newReceiveDistrict').value;
+		    const detail = document.getElementById('newReceiveDetail').value;
+		    
+		    if (!name || !phone || !province) {
+		        showToast('请填写完整信息');
+		        return;
+		    }
+		    
+		    const fullAddress = province + city + district + detail;
+		    
+		    const newAddr = {
+		        id: Date.now(),
+		        name: name,
+		        phone: phone,
+		        province: province,
+		        city: city,
+		        district: district,
+		        detail: detail,
+		        fullAddress: fullAddress,
+		        isDefault: receiveAddresses.length === 0
+		    };
+		    
+		    receiveAddresses.push(newAddr);
+		    saveReceiveAddresses();
+		    renderReceiveAddresses();
+		    
+		    // 清空表单
+		    document.getElementById('newReceiveName').value = '';
+		    document.getElementById('newReceivePhone').value = '';
+		    document.getElementById('newReceiveProvince').value = '';
+		    document.getElementById('newReceiveCity').value = '';
+		    document.getElementById('newReceiveDistrict').value = '';
+		    document.getElementById('newReceiveDetail').value = '';
+		    
+		    closeAddReceiveAddressModal();
+		    showToast('收货地址添加成功');
+		}
+		
+		// 设置默认发货地址
+		function setDefaultSendAddress(id) {
+		    sendAddresses.forEach(addr => {
+		        addr.isDefault = (addr.id === id);
+		    });
+		    saveSendAddresses();
+		    renderSendAddresses();
+		    showToast('默认发货地址已更新');
+		}
+		
+		// 设置默认收货地址
+		function setDefaultReceiveAddress(id) {
+		    receiveAddresses.forEach(addr => {
+		        addr.isDefault = (addr.id === id);
+		    });
+		    saveReceiveAddresses();
+		    renderReceiveAddresses();
+		    showToast('默认收货地址已更新');
+		}
+		
+		// 删除发货地址
+		function deleteSendAddress(id) {
+		    if (confirm('确定删除这个发货地址吗？')) {
+		        sendAddresses = sendAddresses.filter(addr => addr.id !== id);
+		        if (sendAddresses.length > 0 && !sendAddresses.some(a => a.isDefault)) {
+		            sendAddresses[0].isDefault = true;
+		        }
+		        saveSendAddresses();
+		        renderSendAddresses();
+		        showToast('地址已删除');
+		    }
+		}
+		
+		// 删除收货地址
+		function deleteReceiveAddress(id) {
+		    if (confirm('确定删除这个收货地址吗？')) {
+		        receiveAddresses = receiveAddresses.filter(addr => addr.id !== id);
+		        if (receiveAddresses.length > 0 && !receiveAddresses.some(a => a.isDefault)) {
+		            receiveAddresses[0].isDefault = true;
+		        }
+		        saveReceiveAddresses();
+		        renderReceiveAddresses();
+		        showToast('地址已删除');
+		    }
+		}
+		
+		// 打开/关闭模态框函数
+		function openAddSendAddressModal() {
+		    document.getElementById('addSendAddressModal').classList.add('show');
+		}
+		function closeAddSendAddressModal() {
+		    document.getElementById('addSendAddressModal').classList.remove('show');
+		}
+		function openAddReceiveAddressModal() {
+		    document.getElementById('addReceiveAddressModal').classList.add('show');
+		}
+		function closeAddReceiveAddressModal() {
+		    document.getElementById('addReceiveAddressModal').classList.remove('show');
+		}
+		
+		// 修改 openAddressModal 函数
+		function openAddressModal() {
+		    if (!currentUser) {
+		        openLoginModal();
+		        return;
+		    }
+		    
+		    // 加载地址数据
+		    loadAddressData();
+		    
+		    const addressTab = document.getElementById('addressTab');
+		    const sendAddressPanel = document.getElementById('sendAddressPanel');
+		    const receiveAddressPanel = document.getElementById('receiveAddressPanel');
+		    const sendAddressTabBtn = document.getElementById('sendAddressTabBtn');
+		    const receiveAddressTabBtn = document.getElementById('receiveAddressTabBtn');
+		    
+		    if (currentUser.type === 'merchant') {
+		        // 商家：显示两个标签页
+		        addressTab.style.display = 'flex';
+		        // 渲染地址列表
+		        renderSendAddresses();
+		        renderReceiveAddresses();
+		        // 激活发货地址标签
+		        sendAddressTabBtn.classList.add('active');
+		        receiveAddressTabBtn.classList.remove('active');
+		        sendAddressPanel.classList.add('show', 'active');
+		        receiveAddressPanel.classList.remove('show', 'active');
+		    } else {
+		        // 顾客：只显示收货地址
+		        addressTab.style.display = 'none';
+		        renderReceiveAddresses();
+		        receiveAddressPanel.classList.add('show', 'active');
+		    }
+		    
+		    document.getElementById('addressModal').classList.add('show');
+		}
 
         function confirmPayment() {
             if (!userAddresses.receiveAddress) {
@@ -4242,6 +4825,11 @@
                     renderMerchantProductList();
                 }
             }
+			
+			// 加载地址列表
+			    if (currentUser.type === 'customer') {
+			        loadAddressList();
+			    }
             // 👆 添加结束 👆
             renderPersonalInfo();
             document.getElementById('profileModal').classList.add('show');
@@ -4702,10 +5290,12 @@
 
         function openAddressModal() {
             if (!currentUser) {
-                openAuthModal('customer');
+                openLoginModal();
                 return;
             }
-            
+            loadAddressList();
+            document.getElementById('addressModal').classList.add('show');
+			
             // 重置表单
             document.getElementById('sendProvince').value = '';
             document.getElementById('sendCity').value = '';
@@ -4751,6 +5341,16 @@
         function closeAddressModal() {
             document.getElementById('addressModal').classList.remove('show');
         }
+		
+		// 打开添加地址模态框
+		function openAddAddressModal() {
+		    document.getElementById('addAddressModal').classList.add('show');
+		}
+		
+		// 关闭添加地址模态框
+		function closeAddAddressModal() {
+		    document.getElementById('addAddressModal').classList.remove('show');
+		}
 
         function openAiGenerator() {
             if (!currentUser) {
@@ -5749,7 +6349,15 @@
 		    document.getElementById('infoPhone').textContent = currentUser.phone || '未填写';
 		    document.getElementById('infoType').textContent = currentUser.type === 'merchant' ? '商家' : '顾客';
 		    document.getElementById('infoAddress').textContent = currentUser.address || userAddresses.receiveAddress || '未填写';
-		    
+		    // 更新个人主页的地址显示
+		    document.getElementById('profileShipAddress').textContent = (() => {
+		        const defaultSend = sendAddresses.find(a => a.isDefault);
+		        return defaultSend ? defaultSend.fullAddress : '未设置';
+		    })();
+		    document.getElementById('profileReceiveAddress').textContent = (() => {
+		        const defaultReceive = receiveAddresses.find(a => a.isDefault);
+		        return defaultReceive ? defaultReceive.fullAddress : '未设置';
+		    })();
 		    // 添加昵称显示
 		    let nicknameRow = document.getElementById('infoNickname');
 		    if (!nicknameRow) {
@@ -5793,6 +6401,76 @@
 		    } else {
 		        merchantSection.style.display = 'none';
 		    }
+		}
+		
+		// ========== 编辑资料相关函数 ==========
+		let editAvatarData = null;
+		
+		function openEditProfileModal() {
+		    if (!currentUser) return;
+		    
+		    document.getElementById('editName').value = currentUser.name || '';
+		    document.getElementById('editNickname').value = currentUser.nickname || '';
+		    document.getElementById('editPhone').value = currentUser.phone || '';
+		    document.getElementById('editAddress').value = currentUser.address || '';
+		    document.getElementById('editAvatar').src = currentUser.avatar || 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
+		    editAvatarData = null;
+		    
+		    document.getElementById('editProfileModal').classList.add('show');
+		}
+		
+		function closeEditProfileModal() {
+		    document.getElementById('editProfileModal').classList.remove('show');
+		}
+		
+		function handleEditAvatarUpload(event) {
+		    const file = event.target.files[0];
+		    if (!file) return;
+		    
+		    const reader = new FileReader();
+		    reader.onload = function(e) {
+		        document.getElementById('editAvatar').src = e.target.result;
+		        editAvatarData = e.target.result;
+		    };
+		    reader.readAsDataURL(file);
+		}
+		
+		function saveProfileEdit() {
+		    const newName = document.getElementById('editName').value;
+		    const newNickname = document.getElementById('editNickname').value;
+		    const newAddress = document.getElementById('editAddress').value;
+		    
+		    if (!newName) {
+		        showToast('姓名不能为空');
+		        return;
+		    }
+		    
+		    // 更新当前用户
+		    currentUser.name = newName;
+		    currentUser.nickname = newNickname || newName;
+		    currentUser.address = newAddress;
+		    if (editAvatarData) {
+		        currentUser.avatar = editAvatarData;
+		    }
+		    
+		    // 更新用户列表
+		    const users = JSON.parse(localStorage.getItem('pobizhe_users') || '[]');
+		    const userIndex = users.findIndex(u => u.phone === currentUser.phone);
+		    if (userIndex !== -1) {
+		        users[userIndex].name = newName;
+		        users[userIndex].nickname = newNickname || newName;
+		        users[userIndex].address = newAddress;
+		        if (editAvatarData) {
+		            users[userIndex].avatar = editAvatarData;
+		        }
+		        localStorage.setItem('pobizhe_users', JSON.stringify(users));
+		    }
+		    
+		    saveToStorage();
+		    updateUserInfo();
+		    renderPersonalInfo();
+		    closeEditProfileModal();
+		    showToast('资料修改成功');
 		}
 		
 		function updateUserInfo() {
