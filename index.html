@@ -2213,7 +2213,338 @@
                         </div>
                     </div>
                 </div>
-                
+				
+				<!-- ========== 操作习惯调查 ========== -->
+				<div class="mb-4">
+				    <label class="form-label fw-bold">📱 您目前主要使用什么工具卖货？</label>
+				    <div class="row">
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="toolWechat" value="微信">
+				                <label class="form-check-label" for="toolWechat">微信</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="toolDouyin" value="抖音">
+				                <label class="form-check-label" for="toolDouyin">抖音</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="toolPdd" value="拼多多">
+				                <label class="form-check-label" for="toolPdd">拼多多</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="toolTaobao" value="淘宝">
+				                <label class="form-check-label" for="toolTaobao">淘宝</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="toolNone" value="无电商经验">
+				                <label class="form-check-label" for="toolNone">无电商经验</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<div class="mb-3">
+				    <label class="form-label fw-bold">💻 是否接受使用网页后台管理？</label>
+				    <div class="d-flex gap-3">
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="webManage" id="webManageYes" value="接受">
+				            <label class="form-check-label" for="webManageYes">接受</label>
+				        </div>
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="webManage" id="webManageNo" value="不接受">
+				            <label class="form-check-label" for="webManageNo">不接受</label>
+				        </div>
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="webManage" id="webManageMaybe" value="需要培训">
+				            <label class="form-check-label" for="webManageMaybe">需要培训</label>
+				        </div>
+				    </div>
+				</div>
+				
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🎯 您需要哪些辅助功能？</label>
+				    <div class="row">
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="needSimple">
+				                <label class="form-check-label" for="needSimple">极简版界面</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="needVoice">
+				                <label class="form-check-label" for="needVoice">语音辅助功能</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="needManual">
+				                <label class="form-check-label" for="needManual">纸质操作手册</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="needTraining">
+				                <label class="form-check-label" for="needTraining">线下培训指导</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- ========== 新增：结算周期 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">💰 期望的结算周期</label>
+				    <select class="form-select" id="merchantSettlementPeriod">
+				        <option value="T+0">T+0（当天到账）</option>
+				        <option value="T+3">T+3（3天到账）</option>
+				        <option value="T+7" selected>T+7（7天到账）</option>
+				        <option value="T+15">T+15（15天到账）</option>
+				        <option value="T+30">T+30（30天到账）</option>
+				        <option value="monthly">按月结算</option>
+				    </select>
+				</div>
+				
+				<!-- ========== 新增：商品类目（多选） ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">📦 主营商品类目（可多选）</label>
+				    <div class="row">
+				        <div class="col-md-3 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="categoryFruit">
+				                <label class="form-check-label" for="categoryFruit">水果</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="categoryVegetable">
+				                <label class="form-check-label" for="categoryVegetable">蔬菜</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="categoryDry">
+				                <label class="form-check-label" for="categoryDry">干货</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="categoryEgg">
+				                <label class="form-check-label" for="categoryEgg">禽蛋</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="categoryGrain">
+				                <label class="form-check-label" for="categoryGrain">粮油米面</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="categorySeafood">
+				                <label class="form-check-label" for="categorySeafood">水产海鲜</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="categoryOther">
+				                <label class="form-check-label" for="categoryOther">其他</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- ========== 新增：销售模式 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🛒 销售模式</label>
+				    <div class="d-flex gap-3">
+				        <div class="form-check">
+				            <input class="form-check-input" type="checkbox" id="needPresale">
+				            <label class="form-check-label" for="needPresale">需要预售功能</label>
+				        </div>
+				        <div class="form-check">
+				            <input class="form-check-input" type="checkbox" id="needGroup">
+				            <label class="form-check-label" for="needGroup">需要拼团功能</label>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- ========== 新增：售卖规格 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">⚖️ 售卖规格（可多选）</label>
+				    <div class="row">
+				        <div class="col-md-2 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="unitJin">
+				                <label class="form-check-label" for="unitJin">斤</label>
+				            </div>
+				        </div>
+				        <div class="col-md-2 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="unitBox">
+				                <label class="form-check-label" for="unitBox">箱</label>
+				            </div>
+				        </div>
+				        <div class="col-md-2 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="unitPortion">
+				                <label class="form-check-label" for="unitPortion">份</label>
+				            </div>
+				        </div>
+				        <div class="col-md-2 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="unitPiece">
+				                <label class="form-check-label" for="unitPiece">个</label>
+				            </div>
+				        </div>
+				        <div class="col-md-2 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="unitOnly">
+				                <label class="form-check-label" for="unitOnly">只</label>
+				            </div>
+				        </div>
+				        <div class="col-md-2 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="unitLiang">
+				                <label class="form-check-label" for="unitLiang">两</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- ========== 新增：物流能力 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🚚 您能发货的地区</label>
+				    <div class="row">
+				        <div class="col-md-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="shipLocal">
+				                <label class="form-check-label" for="shipLocal">本县/区</label>
+				            </div>
+				        </div>
+				        <div class="col-md-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="shipProvince">
+				                <label class="form-check-label" for="shipProvince">本省</label>
+				            </div>
+				        </div>
+				        <div class="col-md-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="shipNationwide">
+				                <label class="form-check-label" for="shipNationwide">全国</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<div class="mb-3">
+				    <label class="form-label fw-bold">❄️ 是否需要冷链物流？</label>
+				    <div class="d-flex gap-3">
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="coldChain" id="coldYes" value="需要">
+				            <label class="form-check-label" for="coldYes">需要</label>
+				        </div>
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="coldChain" id="coldNo" value="不需要" checked>
+				            <label class="form-check-label" for="coldNo">不需要</label>
+				        </div>
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="coldChain" id="coldSometimes" value="部分季节需要">
+				            <label class="form-check-label" for="coldSometimes">部分季节需要</label>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- ========== 新增：痛点与需求 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">😟 目前电商运营中最大的困难？（可多选）</label>
+				    <div class="row">
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="painPublish">
+				                <label class="form-check-label" for="painPublish">不会上架商品</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="painPhoto">
+				                <label class="form-check-label" for="painPhoto">不会拍图/修图</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="painLogistics">
+				                <label class="form-check-label" for="painLogistics">物流成本太高</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="painTraffic">
+				                <label class="form-check-label" for="painTraffic">没有流量/订单</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="painOther">
+				                <label class="form-check-label" for="painOther">其他</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🤝 希望平台提供哪些免费服务？（可多选）</label>
+				    <div class="row">
+				        <div class="col-md-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="serviceOperation">
+				                <label class="form-check-label" for="serviceOperation">代运营服务</label>
+				            </div>
+				        </div>
+				        <div class="col-md-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="serviceTraining">
+				                <label class="form-check-label" for="serviceTraining">电商培训指导</label>
+				            </div>
+				        </div>
+				        <div class="col-md-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="serviceTraffic">
+				                <label class="form-check-label" for="serviceTraffic">流量扶持推广</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- ========== 新增：店铺名称 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🏪 店铺名称 <span class="text-danger">*</span></label>
+				    <div class="input-group">
+				        <input type="text" class="form-control" id="merchantShopName" placeholder="请输入店铺名称">
+				        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantShopName')">
+				            <i class="fas fa-microphone"></i>
+				        </button>
+				    </div>
+				</div>
+				
+				<!-- ========== 新增：产地 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🌾 产地（精确到村镇） <span class="text-danger">*</span></label>
+				    <div class="input-group">
+				        <input type="text" class="form-control" id="merchantOrigin" placeholder="例如：山东省烟台市栖霞县蛇窝泊镇">
+				        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantOrigin')">
+				            <i class="fas fa-microphone"></i>
+				        </button>
+				    </div>
+				</div>
+				
                 <!-- 产地证明 -->
                 <div class="mb-3">
                     <label class="form-label fw-bold">产地证明 <span class="text-danger">*</span></label>
@@ -3212,6 +3543,85 @@
 		        return;
 		    }
 		    
+			// 在 handleMerchantRegister 函数中添加以下收集逻辑
+			
+			// 收集工具使用情况
+			const tools = [];
+			if (document.getElementById('toolWechat')?.checked) tools.push('微信');
+			if (document.getElementById('toolDouyin')?.checked) tools.push('抖音');
+			if (document.getElementById('toolPdd')?.checked) tools.push('拼多多');
+			if (document.getElementById('toolTaobao')?.checked) tools.push('淘宝');
+			if (document.getElementById('toolNone')?.checked) tools.push('无电商经验');
+			
+			// 收集网页后台接受度
+			let webManage = '';
+			if (document.getElementById('webManageYes')?.checked) webManage = '接受';
+			else if (document.getElementById('webManageNo')?.checked) webManage = '不接受';
+			else if (document.getElementById('webManageMaybe')?.checked) webManage = '需要培训';
+			
+			// 收集辅助功能需求
+			const needs = [];
+			if (document.getElementById('needSimple')?.checked) needs.push('极简版');
+			if (document.getElementById('needVoice')?.checked) needs.push('语音辅助');
+			if (document.getElementById('needManual')?.checked) needs.push('纸质手册');
+			if (document.getElementById('needTraining')?.checked) needs.push('线下培训');
+			
+			// 收集结算周期
+			const settlementPeriod = document.getElementById('merchantSettlementPeriod')?.value || 'T+7';
+			
+			// 收集商品类目
+			const categories = [];
+			if (document.getElementById('categoryFruit')?.checked) categories.push('水果');
+			if (document.getElementById('categoryVegetable')?.checked) categories.push('蔬菜');
+			if (document.getElementById('categoryDry')?.checked) categories.push('干货');
+			if (document.getElementById('categoryEgg')?.checked) categories.push('禽蛋');
+			if (document.getElementById('categoryGrain')?.checked) categories.push('粮油米面');
+			if (document.getElementById('categorySeafood')?.checked) categories.push('水产海鲜');
+			if (document.getElementById('categoryOther')?.checked) categories.push('其他');
+			
+			// 收集销售模式
+			const needPresale = document.getElementById('needPresale')?.checked || false;
+			const needGroup = document.getElementById('needGroup')?.checked || false;
+			
+			// 收集售卖规格
+			const saleUnits = [];
+			if (document.getElementById('unitJin')?.checked) saleUnits.push('斤');
+			if (document.getElementById('unitBox')?.checked) saleUnits.push('箱');
+			if (document.getElementById('unitPortion')?.checked) saleUnits.push('份');
+			if (document.getElementById('unitPiece')?.checked) saleUnits.push('个');
+			if (document.getElementById('unitOnly')?.checked) saleUnits.push('只');
+			if (document.getElementById('unitLiang')?.checked) saleUnits.push('两');
+			
+			// 收集发货地区
+			const shipAreas = [];
+			if (document.getElementById('shipLocal')?.checked) shipAreas.push('本县/区');
+			if (document.getElementById('shipProvince')?.checked) shipAreas.push('本省');
+			if (document.getElementById('shipNationwide')?.checked) shipAreas.push('全国');
+			
+			// 收集冷链需求
+			let needColdChain = '';
+			if (document.getElementById('coldYes')?.checked) needColdChain = '需要';
+			else if (document.getElementById('coldNo')?.checked) needColdChain = '不需要';
+			else if (document.getElementById('coldSometimes')?.checked) needColdChain = '部分季节需要';
+			
+			// 收集痛点
+			const pains = [];
+			if (document.getElementById('painPublish')?.checked) pains.push('不会上架');
+			if (document.getElementById('painPhoto')?.checked) pains.push('不会拍图');
+			if (document.getElementById('painLogistics')?.checked) pains.push('物流太贵');
+			if (document.getElementById('painTraffic')?.checked) pains.push('没有流量');
+			if (document.getElementById('painOther')?.checked) pains.push('其他');
+			
+			// 收集服务需求
+			const services = [];
+			if (document.getElementById('serviceOperation')?.checked) services.push('代运营');
+			if (document.getElementById('serviceTraining')?.checked) services.push('培训指导');
+			if (document.getElementById('serviceTraffic')?.checked) services.push('流量扶持');
+			
+			// 收集店铺名称和产地
+			const shopName = document.getElementById('merchantShopName')?.value;
+			const origin = document.getElementById('merchantOrigin')?.value;
+			
 		    // 创建商家用户（待审核状态）
 		    currentUser = {
 		        name: legalName,
@@ -3225,7 +3635,21 @@
 		            idNumber: idNumber,
 		            bankCard: bankCard,
 		            bankName: bankName,
-		            shipAddress: shipAddress
+		            shipAddress: shipAddress,
+		            shopName: shopName,
+		            origin: origin,
+		            settlementPeriod: settlementPeriod,
+		            categories: categories,
+		            tools: tools,
+		            webManage: webManage,
+		            needs: needs,
+		            saleUnits: saleUnits,
+		            shipAreas: shipAreas,
+		            needColdChain: needColdChain,
+		            pains: pains,
+		            services: services,
+		            needPresale: needPresale,
+		            needGroup: needGroup
 		        },
 		        applyDate: new Date().toISOString()
 		    };
