@@ -3356,8 +3356,7 @@
             <i class="fas fa-home"></i>
             <span>首页</span>
         </div>
-        <div class="bottom-nav-item" onclick="scrollToSec
-		tion('products')">
+        <div class="bottom-nav-item" onclick="scrollToSection('products')">
             <i class="fas fa-shopping-bag"></i>
             <span>商品</span>
         </div>
@@ -3506,7 +3505,7 @@
 		                        <span class="product-price" style="white-space: nowrap;">¥${p.price.toFixed(2)}/${p.unit}</span>
 		                        <div class="d-flex gap-1">
 		                            <button class="btn btn-sm btn-outline-warning" onclick="viewTrace('${p.traceCode}')" style="white-space: nowrap; border-radius: 20px; padding: 4px 10px; font-size: 0.7rem; min-width: 60px;"><i class="fas fa-qrcode me-1"></i>溯源</button>
-		                            <button class="btn btn-sm btn-warning" onclick=""event.stopPropagation();openProductDetail(${p.id})" style="white-space: nowrap; border-radius: 20px; padding: 4px 10px; font-size: 0.7rem; min-width: 60px; background: linear-gradient(135deg, #FF8F00, #FFA726); color: white; border: none;"><i class="fas fa-eye me-1"></i>购买
+		                            <button class="btn btn-sm btn-warning" onclick="event.stopPropagation();openProductDetail(${p.id})" style="white-space: nowrap; border-radius: 20px; padding: 4px 10px; font-size: 0.7rem; min-width: 60px; background: linear-gradient(135deg, #FF8F00, #FFA726); color: white; border: none;"><i class="fas fa-eye me-1"></i>购买
 		                        </div>
 		                    </div>
 		                    <div class="mt-2"><span class="certify-tag"><i class="fas fa-leaf"></i> 官方认证·扫码溯源</span></div>
@@ -3514,6 +3513,20 @@
 		            </div>
 		        </div>
 		    `).join('');
+		}
+		
+		function showCertifyStandard() {
+		    showToast('认证标准：产地溯源(精确到村镇/农户) | 品质检测(农残/重金属达标) | 全程溯源(一物一码可查) | 环保包装(可降解/保鲜设计)');
+		}
+		
+		function escapeHtml(str) {
+		    if (!str) return '';
+		    return str
+		        .replace(/&/g, '&amp;')
+		        .replace(/</g, '&lt;')
+		        .replace(/>/g, '&gt;')
+		        .replace(/"/g, '&quot;')
+		        .replace(/'/g, '&#39;');
 		}
 		
 		// 渲染普通商品网格（认证商品也显示溯源码按钮）
