@@ -4861,19 +4861,30 @@
                 openAuthModal('customer');
                 return;
             }
+            // 先渲染地址列表
+            renderReceiveAddresses();
+            if (currentUser.type === 'merchant') {
+                renderShipAddresses();
+            }
             
-		    if (currentUser.type === 'merchant') {
-		        // 商家显示两个地址区域
-		        document.getElementById('customerAddressOnly').style.display = 'none';
-		        document.getElementById('merchantAddressBoth').style.display = 'block';
-		        renderShipAddresses();  // 渲染发货地址
-		    } else {
-		        // 顾客只显示收货地址
-		        document.getElementById('customerAddressOnly').style.display = 'block';
-		        document.getElementById('merchantAddressBoth').style.display = 'none';
-		    }
-		    renderReceiveAddresses();  // 渲染收货地址
-		    document.getElementById('addressModal').classList.add('show');
+            // 根据用户类型显示不同的界面
+            const customerDiv = document.getElementById('customerAddressOnly');
+            const merchantDiv = document.getElementById('merchantAddressBoth');
+            
+            if (currentUser.type === 'merchant') {
+                if (customerDiv) customerDiv.style.display = 'none';
+                if (merchantDiv) merchantDiv.style.display = 'block';
+                // 渲染商家专用的收货地址列表
+                const merchantReceiveList = document.getElementById('merchantReceiveAddressList');
+                if (merchantReceiveList) {
+                    renderReceiveAddressesForMerchant();
+                }
+            } else {
+                if (customerDiv) customerDiv.style.display = 'block';
+                if (merchantDiv) merchantDiv.style.display = 'none';
+            }
+            
+            document.getElementById('addressModal').classList.add('show');
 			
             // 重置表单
             document.getElementById('sendProvince').value = '';
@@ -4894,6 +4905,29 @@
             const sendAddressTabBtn = document.getElementById('sendAddressTabBtn');
             const receiveAddressTabBtn = document.getElementById('receiveAddressTabBtn');
         }
+		
+		// 商家专用的收货地址渲染函数
+		function renderReceiveAddressesForMerchant() {
+		    const container = document.getElementById('merchantReceiveAddressList');
+		    if (!container) return;
+		    
+		    if (!userAddresses.receiveAddresses || userAddresses.receiveAddresses.length === 0) {
+		        container.innerHTML = '<div class="text-center text-muted py-3">暂无收货地址</div>';
+		        return;
+		    }
+		    
+		    container.innerHTML = userAddresses.receiveAddresses.map(addr => `
+		        <div class="address-card ${addr.isDefault ? 'default' : ''}">
+		            <div class="address-actions">
+		                ${!addr.isDefault ? `<button onclick="setDefaultReceiveAddress(${addr.id})" class="text-primary"><i class="fas fa-check-circle"></i> 设为默认</button>` : ''}
+		                <button onclick="deleteReceiveAddress(${addr.id})" class="text-danger"><i class="fas fa-trash"></i> 删除</button>
+		            </div>
+		            <div><strong>${escapeHtml(addr.name)}</strong> ${escapeHtml(addr.phone)}</div>
+		            <div class="text-muted small">${escapeHtml(addr.address)}</div>
+		            ${addr.isDefault ? '<span class="address-default-badge">默认地址</span>' : ''}
+		        </div>
+		    `).join('');
+		}
 
         function closeAddressModal() {
             document.getElementById('addressModal').classList.remove('show');
@@ -6623,4 +6657,4 @@
 	    </div>
 	</div>
 </body>
-</html>
+</html>git add index.html
