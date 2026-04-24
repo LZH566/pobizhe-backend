@@ -4811,6 +4811,80 @@
             };
             
             userOrders.unshift(order);
+            
+            // ========== 新增：保存订单到 Supabase ==========
+            const SUPABASE_URL = 'https://snqlzwwtlkmeflvhezfk.supabase.co';
+            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlenZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ';
+            
+            // 订单主表数据
+            const supabaseOrder = {
+                order_no: order.id,
+                user_id: currentUser.userId || currentUser.phone,
+                user_name: currentUser.name,
+                user_phone: currentUser.phone,
+                user_type: currentUser.type,
+                total_amount: subtotal,
+                shipping_fee: shippingFee,
+                final_amount: total,
+                status: 'pending',
+                payment_method: selectedPaymentMethod,
+                receiver_name: defaultAddress.name,
+                receiver_phone: defaultAddress.phone,
+                receiver_address: defaultAddress.address,
+                created_at: new Date().toISOString()
+            };
+            
+            // 订单明细数据
+            const supabaseOrderItems = shoppingCart.map(item => ({
+                order_no: order.id,
+                product_id: item.id,
+                product_name: item.name,
+                product_price: item.price,
+                product_unit: item.unit,
+                quantity: item.quantity,
+                subtotal: item.price * item.quantity,
+                product_image: item.image,
+                seller_name: item.seller || '商家'
+            }));
+            
+            // 保存到 Supabase
+            async function saveToSupabase() {
+                try {
+                    // 保存订单主表
+                    await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return-minimal'
+                        },
+                        body: JSON.stringify(supabaseOrder)
+                    });
+                    
+                    // 保存订单明细
+                    for (const item of supabaseOrderItems) {
+                        await fetch(`${SUPABASE_URL}/rest/v1/order_items`, {
+                            method: 'POST',
+                            headers: {
+                                'apikey': SUPABASE_KEY,
+                                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'return-minimal'
+                            },
+                            body: JSON.stringify(item)
+                        });
+                    }
+                    console.log('订单已同步到 Supabase');
+                } catch (error) {
+                    console.error('保存订单到Supabase失败:', error);
+                    // 不影响用户体验，只记录错误
+                }
+            }
+            
+            saveToSupabase();
+            // ========== Supabase 保存结束 ==========
+            
             shoppingCart = [];
             saveToStorage();
             updateCartBadge();
