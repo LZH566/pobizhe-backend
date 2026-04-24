@@ -3403,46 +3403,49 @@
 		    const customerBtn = document.getElementById('customerTabBtn');
 		    const merchantBtn = document.getElementById('merchantTabBtn');
 		    
+		    // 确保元素存在
+		    if (!loginPanel || !customerPanel || !merchantPanel) {
+		        console.error('面板元素未找到');
+		        return;
+		    }
+		    
 		    // 重置所有面板
-		    if (loginPanel) loginPanel.style.display = 'none';
-		    if (customerPanel) customerPanel.style.display = 'none';
-		    if (merchantPanel) merchantPanel.style.display = 'none';
+		    loginPanel.style.display = 'none';
+		    customerPanel.style.display = 'none';
+		    merchantPanel.style.display = 'none';
 		    
 		    // 重置按钮样式
-		    const resetStyle = (btn) => {
-		        if (btn) {
-		            btn.style.borderBottom = 'none';
-		            btn.style.color = '#666';
-		        }
-		    };
-		    resetStyle(loginBtn);
-		    resetStyle(customerBtn);
-		    resetStyle(merchantBtn);
+		    if (loginBtn) {
+		        loginBtn.style.borderBottom = 'none';
+		        loginBtn.style.color = '#666';
+		    }
+		    if (customerBtn) {
+		        customerBtn.style.borderBottom = 'none';
+		        customerBtn.style.color = '#666';
+		    }
+		    if (merchantBtn) {
+		        merchantBtn.style.borderBottom = 'none';
+		        merchantBtn.style.color = '#666';
+		    }
 		    
 		    // 显示选中面板
 		    if (type === 'login') {
-		        if (loginPanel) {
-		            loginPanel.style.display = 'block';
-		            if (loginBtn) {
-		                loginBtn.style.borderBottom = '3px solid var(--primary-color)';
-		                loginBtn.style.color = 'var(--primary-color)';
-		            }
+		        loginPanel.style.display = 'block';
+		        if (loginBtn) {
+		            loginBtn.style.borderBottom = '3px solid var(--primary-color)';
+		            loginBtn.style.color = 'var(--primary-color)';
 		        }
 		    } else if (type === 'customer') {
-		        if (customerPanel) {
-		            customerPanel.style.display = 'block';
-		            if (customerBtn) {
-		                customerBtn.style.borderBottom = '3px solid var(--primary-color)';
-		                customerBtn.style.color = 'var(--primary-color)';
-		            }
+		        customerPanel.style.display = 'block';
+		        if (customerBtn) {
+		            customerBtn.style.borderBottom = '3px solid var(--primary-color)';
+		            customerBtn.style.color = 'var(--primary-color)';
 		        }
 		    } else if (type === 'merchant') {
-		        if (merchantPanel) {
-		            merchantPanel.style.display = 'block';
-		            if (merchantBtn) {
-		                merchantBtn.style.borderBottom = '3px solid var(--primary-color)';
-		                merchantBtn.style.color = 'var(--primary-color)';
-		            }
+		        merchantPanel.style.display = 'block';
+		        if (merchantBtn) {
+		            merchantBtn.style.borderBottom = '3px solid var(--primary-color)';
+		            merchantBtn.style.color = 'var(--primary-color)';
 		        }
 		    }
 		}
@@ -3696,7 +3699,7 @@
 		}
 		
 		// 修改 openAuthModal 函数
-		function openAuthModal(type = 'login') {
+		function openAuthModal(type = 'login') {  // 改为 login
 		    resetAuthForms();
 		    switchAuthTab(type);
 		    // 如果有记住的账号密码，自动填充
@@ -5645,11 +5648,11 @@
         }
 
         // ========== 模态框 ==========
-        function openAuthModal(type = 'customer') {
+        /*function openAuthModal(type = 'customer') {
             resetAuthForms();           // 重置表单
             switchAuthTab(type);        // 切换到对应选项卡
             document.getElementById('authModal').classList.add('show');
-        }
+        }*/
 
         function closeAuthModal() {
             document.getElementById('authModal').classList.remove('show');
