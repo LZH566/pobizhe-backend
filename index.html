@@ -2855,12 +2855,17 @@
                 
                 <!-- 地址管理 -->
                 <div id="tab-address" style="display: none;">
-                    <div class="mb-4">
-                        <h6 class="mb-3"><i class="fas fa-shipping-fast me-2"></i>发货地址</h6>
-                        <div class="p-3" style="background: #f5f5f5; border-radius: 12px;">
-                            <p class="mb-1" id="profileShipAddress">未设置</p>
+                    <!-- 商家专用：发货地址 -->
+                    <div class="merchant-only" id="merchantAddressSection" style="display: none;">
+                        <div class="mb-4">
+                            <h6 class="mb-3"><i class="fas fa-shipping-fast me-2"></i>发货地址</h6>
+                            <div class="p-3" style="background: #f5f5f5; border-radius: 12px;">
+                                <p class="mb-1" id="profileShipAddress">未设置</p>
+                            </div>
                         </div>
                     </div>
+                    
+                    <!-- 收货地址（顾客和商家都显示，但顾客不显示上面的发货地址） -->
                     <div>
                         <h6 class="mb-3"><i class="fas fa-home me-2"></i>收货地址</h6>
                         <div class="p-3" style="background: #f5f5f5; border-radius: 12px;">
@@ -4377,12 +4382,12 @@
 
         // ========== 个人主页 ==========
         function openProfile() {
-			// 加载头像
-			const savedAvatar = localStorage.getItem('pobizhe_avatar');
-			if (savedAvatar) {
-			    document.getElementById('profileAvatar').src = savedAvatar;
-			}
-			
+            // 加载头像
+            const savedAvatar = localStorage.getItem('pobizhe_avatar');
+            if (savedAvatar) {
+                document.getElementById('profileAvatar').src = savedAvatar;
+            }
+            
             if (!currentUser) {
                 openAuthModal('customer');
                 return;
@@ -4406,8 +4411,9 @@
             updateProfileStats();
             renderOrders();
             
-            document.getElementById('profileShipAddress').textContent = userAddresses.shipAddress || '未设置';
-            document.getElementById('profileReceiveAddress').textContent = userAddresses.receiveAddress || '未设置';
+            // 删除下面这两行，因为后面会用 innerHTML 覆盖
+            // document.getElementById('profileShipAddress').textContent = userAddresses.shipAddress || '未设置';
+            // document.getElementById('profileReceiveAddress').textContent = userAddresses.receiveAddress || '未设置';
             
             // 显示商家申请状态（如果有未完成的申请）
             if (currentUser.isApplying) {
@@ -4431,7 +4437,7 @@
                 if (statusDiv) statusDiv.remove();
             }
             
-            // 在 openProfile() 函数中，找到地址显示部分并替换
+            // 地址显示部分
             if (currentUser.type === 'merchant') {
                 // 商家显示发货地址和收货地址
                 const defaultShipAddress = getDefaultShipAddress();
@@ -4442,16 +4448,43 @@
                 document.getElementById('profileReceiveAddress').innerHTML = defaultReceiveAddress ?
                     `默认收货地址：${escapeHtml(defaultReceiveAddress.name)} ${escapeHtml(defaultReceiveAddress.phone)}<br>${escapeHtml(defaultReceiveAddress.address)}` :
                     '<span class="text-muted">未设置，点击上方"地址管理"添加</span>';
+                
+                // 确保发货地址行显示
+                const shipAddressElement = document.getElementById('profileShipAddress');
+                if (shipAddressElement) {
+                    let parent = shipAddressElement.parentElement;
+                    while (parent && parent.parentElement && !parent.classList.contains('mb-4') && !parent.classList.contains('info-card')) {
+                        parent = parent.parentElement;
+                    }
+                    if (parent && parent.classList && parent.classList.contains('mb-4')) {
+                        parent.style.display = 'block';
+                    }
+                }
             } else {
-                // 顾客只显示收货地址
+                // 顾客：隐藏整个发货地址区块
+                // 查找并隐藏发货地址区块
+                const shipAddressElement = document.getElementById('profileShipAddress');
+                if (shipAddressElement) {
+                    let parent = shipAddressElement.parentElement;
+                    while (parent && parent.parentElement) {
+                        // 检查父元素中是否有"发货地址"的h6标题
+                        const h6 = parent.querySelector('h6');
+                        if (h6 && h6.textContent.includes('发货地址')) {
+                            parent.style.display = 'none';
+                            break;
+                        }
+                        parent = parent.parentElement;
+                    }
+                }
+                
+                // 显示收货地址内容
                 const defaultReceiveAddress = getDefaultReceiveAddress();
                 const receiveHtml = defaultReceiveAddress ?
                     `<strong>${escapeHtml(defaultReceiveAddress.name)}</strong> ${escapeHtml(defaultReceiveAddress.phone)}<br>${escapeHtml(defaultReceiveAddress.address)}` :
                     '<span class="text-muted">未设置收货地址，点击上方"地址管理"添加</span>';
                 document.getElementById('profileReceiveAddress').innerHTML = receiveHtml;
-                // 隐藏发货地址那一行
-                document.getElementById('profileShipAddress').parentElement.style.display = 'none';
             }
+            
             renderPersonalInfo();
             document.getElementById('profileModal').classList.add('show');
         }
