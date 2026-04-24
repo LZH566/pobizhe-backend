@@ -484,8 +484,9 @@
             backdrop-filter: blur(5px);
         }
         .auth-modal.show, .ai-generator-modal.show, .shipping-modal.show, .cart-modal.show, .profile-modal.show, .payment-modal.show {
-            display: flex;
+            display: flex !important;
             animation: modalIn 0.3s ease;
+            z-index: 99999 !important;
         }
         @keyframes modalIn {
             from {
@@ -495,6 +496,20 @@
                 opacity: 1;
             }
         }
+		
+		/* 编辑资料模态框 - 最高层级 */
+		#editProfileModal {
+		    z-index: 99999 !important;
+		}
+		#editProfileModal.show {
+		    display: flex !important;
+		    z-index: 99999 !important;
+		}
+		#editProfileModal .auth-content {
+		    z-index: 100000 !important;
+		    position: relative;
+		}
+		
         .auth-content, .ai-generator-content, .shipping-content, .cart-content, .profile-content, .payment-content {
             background: white;
             border-radius: 25px;
@@ -2708,9 +2723,9 @@
         </div>
     </div>
 	
-	<!-- 编辑资料模态框 -->
+	<!-- 编辑资料模态框 - 放在最后，确保不被遮挡 -->
 	<div class="auth-modal" id="editProfileModal">
-	    <div class="auth-content" style="max-width: 500px;">
+	    <div class="auth-content" style="max-width: 500px; position: relative; z-index: 100001;">
 	        <button class="auth-close" onclick="closeEditProfileModal()">&times;</button>
 	        <h3 class="text-center mb-4" style="color: var(--primary-color);">
 	            <i class="fas fa-user-edit me-2"></i>编辑个人资料
@@ -2729,10 +2744,15 @@
 	            <small class="text-muted">点击头像上传新图片<br>支持jpg、png格式</small>
 	        </div>
 	        
-	        <!-- 昵称（选填） -->
+	        <!-- 昵称 -->
 	        <div class="mb-3">
 	            <label class="form-label fw-bold">昵称</label>
-	            <input type="text" class="form-control" id="editNickname" placeholder="请输入昵称">
+	            <div class="input-group">
+	                <input type="text" class="form-control" id="editNickname" placeholder="请输入昵称">
+	                <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('editNickname')" title="语音输入">
+	                    <i class="fas fa-microphone"></i>
+	                </button>
+	            </div>
 	        </div>
 	        
 	        <!-- 姓名 -->
@@ -4548,6 +4568,9 @@
 		        return;
 		    }
 		    
+		    // 先关闭个人主页模态框
+		    document.getElementById('profileModal').classList.remove('show');
+		    
 		    // 加载当前用户数据
 		    document.getElementById('editName').value = currentUser.name || '';
 		    document.getElementById('editNickname').value = currentUser.nickname || '';
@@ -4556,19 +4579,24 @@
 		    
 		    // 加载头像预览
 		    const savedAvatar = localStorage.getItem('pobizhe_avatar');
+		    const previewDiv = document.getElementById('editAvatarPreview');
 		    if (savedAvatar) {
-		        const previewDiv = document.getElementById('editAvatarPreview');
 		        previewDiv.innerHTML = `<img src="${savedAvatar}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
 		    } else {
-		        document.getElementById('editAvatarPreview').innerHTML = '<i class="fas fa-user fa-3x" style="color: #999;"></i>';
+		        previewDiv.innerHTML = '<i class="fas fa-user fa-3x" style="color: #999;"></i>';
 		    }
 		    
-		    document.getElementById('editProfileModal').classList.add('show');
+		    // 显示编辑资料模态框
+		    const editModal = document.getElementById('editProfileModal');
+		    editModal.classList.add('show');
+		    document.body.style.overflow = 'hidden'; // 防止背景滚动
 		}
 		
 		// 关闭编辑资料模态框
 		function closeEditProfileModal() {
-		    document.getElementById('editProfileModal').classList.remove('show');
+		    const editModal = document.getElementById('editProfileModal');
+		    editModal.classList.remove('show');
+		    document.body.style.overflow = 'auto'; // 恢复滚动
 		}
 		
 		// 预览编辑时的头像
@@ -4622,19 +4650,18 @@
 		    // 保存头像
 		    if (window.tempAvatar) {
 		        localStorage.setItem('pobizhe_avatar', window.tempAvatar);
-		        document.getElementById('profileAvatar').src = window.tempAvatar;
 		        delete window.tempAvatar;
 		    }
 		    
 		    // 保存到本地存储
 		    saveToStorage();
 		    
-		    // 更新个人主页显示
-		    document.getElementById('profileName').textContent = currentUser.name;
-		    document.getElementById('profilePhone').textContent = currentUser.phone;
-		    renderPersonalInfo();  // 刷新个人信息标签页
-		    
+		    // 关闭编辑模态框
 		    closeEditProfileModal();
+		    
+		    // 重新打开个人主页并刷新数据
+		    openProfile();
+		    
 		    showToast('资料修改成功！');
 		}
 		
@@ -4995,6 +5022,9 @@
 			} else if (currentFieldVoice && currentFieldVoice.startsWith('productDesc')) {
 			    document.getElementById(currentFieldVoice).value = text;
 			    showToast('商品描述已填写');
+		    } else if (currentFieldVoice === 'editNickname') {
+		        document.getElementById('editNickname').value = text;
+		        showToast('昵称已填写');
 			} else if (currentFieldVoice === 'editName') {
 			    document.getElementById('editName').value = text;
 			    showToast('姓名已填写');
