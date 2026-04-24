@@ -2707,6 +2707,77 @@
             </p>
         </div>
     </div>
+	
+	<!-- 编辑资料模态框 -->
+	<div class="auth-modal" id="editProfileModal">
+	    <div class="auth-content" style="max-width: 500px;">
+	        <button class="auth-close" onclick="closeEditProfileModal()">&times;</button>
+	        <h3 class="text-center mb-4" style="color: var(--primary-color);">
+	            <i class="fas fa-user-edit me-2"></i>编辑个人资料
+	        </h3>
+	        
+	        <!-- 头像上传 -->
+	        <div class="text-center mb-4">
+	            <div id="editAvatarPreview" style="width: 100px; height: 100px; margin: 0 auto 10px; 
+	                        background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; 
+	                        justify-content: center; overflow: hidden; cursor: pointer; border: 3px solid var(--primary-color);"
+	                 onclick="document.getElementById('editAvatarInput').click()">
+	                <i class="fas fa-user fa-3x" style="color: #999;"></i>
+	            </div>
+	            <input type="file" id="editAvatarInput" accept="image/*" style="display: none;" 
+	                   onchange="previewEditAvatar(this)">
+	            <small class="text-muted">点击头像上传新图片<br>支持jpg、png格式</small>
+	        </div>
+	        
+	        <!-- 昵称（选填） -->
+	        <div class="mb-3">
+	            <label class="form-label fw-bold">昵称</label>
+	            <input type="text" class="form-control" id="editNickname" placeholder="请输入昵称">
+	        </div>
+	        
+	        <!-- 姓名 -->
+	        <div class="mb-3">
+	            <label class="form-label fw-bold">姓名 <span class="text-danger">*</span></label>
+	            <div class="input-group">
+	                <input type="text" class="form-control" id="editName" placeholder="请输入姓名">
+	                <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('editName')" title="语音输入">
+	                    <i class="fas fa-microphone"></i>
+	                </button>
+	            </div>
+	        </div>
+	        
+	        <!-- 手机号 -->
+	        <div class="mb-3">
+	            <label class="form-label fw-bold">手机号 <span class="text-danger">*</span></label>
+	            <div class="input-group">
+	                <input type="tel" class="form-control" id="editPhone" placeholder="请输入手机号">
+	                <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('editPhone')" title="语音输入">
+	                    <i class="fas fa-microphone"></i>
+	                </button>
+	            </div>
+	        </div>
+	        
+	        <!-- 所在地区 -->
+	        <div class="mb-3">
+	            <label class="form-label fw-bold">所在地区</label>
+	            <div class="input-group">
+	                <input type="text" class="form-control" id="editAddress" placeholder="省/市/县/镇/村">
+	                <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('editAddress')" title="语音输入">
+	                    <i class="fas fa-microphone"></i>
+	                </button>
+	            </div>
+	        </div>
+	        
+	        <div class="d-grid gap-2">
+	            <button class="btn btn-custom btn-lg" onclick="saveProfileEdit()">
+	                <i class="fas fa-save me-2"></i>保存修改
+	            </button>
+	            <button class="btn btn-outline-secondary" onclick="closeEditProfileModal()">
+	                <i class="fas fa-times me-2"></i>取消
+	            </button>
+	        </div>
+	    </div>
+	</div>
 
     <!-- 个人主页模态框 -->
     <div class="profile-modal" id="profileModal">
@@ -2812,7 +2883,7 @@
                     </div>
                     
                     <div class="mt-4 pt-3 text-center">
-                        <button class="btn btn-outline-primary btn-sm" onclick="openAuthModal(currentUser?.type || 'customer')">
+                        <button class="btn btn-outline-primary btn-sm" onclick="openEditProfileModal()">
                             <i class="fas fa-edit me-1"></i>编辑资料
                         </button>
                     </div>
@@ -4470,6 +4541,103 @@
             document.getElementById('profileModal').classList.add('show');
         }
 		
+		// 打开编辑资料模态框
+		function openEditProfileModal() {
+		    if (!currentUser) {
+		        showToast('请先登录');
+		        return;
+		    }
+		    
+		    // 加载当前用户数据
+		    document.getElementById('editName').value = currentUser.name || '';
+		    document.getElementById('editNickname').value = currentUser.nickname || '';
+		    document.getElementById('editPhone').value = currentUser.phone || '';
+		    document.getElementById('editAddress').value = currentUser.address || '';
+		    
+		    // 加载头像预览
+		    const savedAvatar = localStorage.getItem('pobizhe_avatar');
+		    if (savedAvatar) {
+		        const previewDiv = document.getElementById('editAvatarPreview');
+		        previewDiv.innerHTML = `<img src="${savedAvatar}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+		    } else {
+		        document.getElementById('editAvatarPreview').innerHTML = '<i class="fas fa-user fa-3x" style="color: #999;"></i>';
+		    }
+		    
+		    document.getElementById('editProfileModal').classList.add('show');
+		}
+		
+		// 关闭编辑资料模态框
+		function closeEditProfileModal() {
+		    document.getElementById('editProfileModal').classList.remove('show');
+		}
+		
+		// 预览编辑时的头像
+		function previewEditAvatar(input) {
+		    if (input.files && input.files[0]) {
+		        const reader = new FileReader();
+		        reader.onload = function(e) {
+		            const preview = document.getElementById('editAvatarPreview');
+		            preview.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+		            // 临时保存头像，保存时再写入 localStorage
+		            window.tempAvatar = e.target.result;
+		        };
+		        reader.readAsDataURL(input.files[0]);
+		    }
+		}
+		
+		// 保存资料编辑
+		function saveProfileEdit() {
+		    if (!currentUser) {
+		        showToast('请先登录');
+		        return;
+		    }
+		    
+		    const newName = document.getElementById('editName').value.trim();
+		    const newNickname = document.getElementById('editNickname').value.trim();
+		    const newPhone = document.getElementById('editPhone').value.trim();
+		    const newAddress = document.getElementById('editAddress').value.trim();
+		    
+		    if (!newName) {
+		        showToast('姓名不能为空');
+		        return;
+		    }
+		    
+		    if (!newPhone) {
+		        showToast('手机号不能为空');
+		        return;
+		    }
+		    
+		    // 验证手机号
+		    if (!/^1[3-9]\d{9}$/.test(newPhone)) {
+		        showToast('请输入正确的手机号码');
+		        return;
+		    }
+		    
+		    // 更新用户信息
+		    currentUser.name = newName;
+		    currentUser.nickname = newNickname || newName;
+		    currentUser.phone = newPhone;
+		    currentUser.address = newAddress;
+		    
+		    // 保存头像
+		    if (window.tempAvatar) {
+		        localStorage.setItem('pobizhe_avatar', window.tempAvatar);
+		        document.getElementById('profileAvatar').src = window.tempAvatar;
+		        delete window.tempAvatar;
+		    }
+		    
+		    // 保存到本地存储
+		    saveToStorage();
+		    
+		    // 更新个人主页显示
+		    document.getElementById('profileName').textContent = currentUser.name;
+		    document.getElementById('profilePhone').textContent = currentUser.phone;
+		    renderPersonalInfo();  // 刷新个人信息标签页
+		    
+		    closeEditProfileModal();
+		    showToast('资料修改成功！');
+		}
+		
         function closeProfile() {
             document.getElementById('profileModal').classList.remove('show');
         }
@@ -4827,6 +4995,16 @@
 			} else if (currentFieldVoice && currentFieldVoice.startsWith('productDesc')) {
 			    document.getElementById(currentFieldVoice).value = text;
 			    showToast('商品描述已填写');
+			} else if (currentFieldVoice === 'editName') {
+			    document.getElementById('editName').value = text;
+			    showToast('姓名已填写');
+			} else if (currentFieldVoice === 'editPhone') {
+			    const match = text.match(/1[3-9]\d{9}/);
+			    document.getElementById('editPhone').value = match ? match[0] : extractNumbers(text).substring(0, 11);
+			    showToast('手机号已填写');
+			} else if (currentFieldVoice === 'editAddress') {
+			    document.getElementById('editAddress').value = text;
+			    showToast('地址已填写');
             } else {
                 handleVoiceCommand(text);
             }
@@ -6041,8 +6219,9 @@
 		function renderPersonalInfo() {
 		    if (!currentUser) return;
 		    
-		    // 基本信息
-		    document.getElementById('infoName').textContent = currentUser.name || '未填写';
+		    // 基本信息 - 优先显示昵称，没有则显示姓名
+		    const displayName = currentUser.nickname || currentUser.name;
+		    document.getElementById('infoName').innerHTML = `${displayName}${currentUser.nickname ? `<small class="text-muted"> (${currentUser.name})</small>` : ''}`;
 		    document.getElementById('infoPhone').textContent = currentUser.phone || '未填写';
 		    document.getElementById('infoType').textContent = currentUser.type === 'merchant' ? '商家' : '顾客';
 		    document.getElementById('infoAddress').textContent = currentUser.address || userAddresses.receiveAddress || '未填写';
@@ -6062,27 +6241,22 @@
 		        merchantSection.style.display = 'block';
 		        
 		        // 从入驻申请中获取详细信息
-		        if (currentUser.merchantApplicationId) {
-		            const application = merchantApplications.find(app => app.applyDate === currentUser.merchantApplicationId);
-		            if (application) {
-		                document.getElementById('infoShopName').textContent = application.shopName || '未填写';
-		                document.getElementById('infoCategory').textContent = application.category || '未填写';
-		                document.getElementById('infoOrigin').textContent = application.origin || '未填写';
-		                document.getElementById('infoBankCard').textContent = application.bankCard ? maskBankCard(application.bankCard) : '未填写';
-		                
-		                // 结算周期显示
-		                const settlementMap = {
-		                    'T+0': 'T+0（立即到账）',
-		                    'T+3': 'T+3（3天到账）',
-		                    'T+7': 'T+7（7天到账）',
-		                    'T+15': 'T+15（15天到账）',
-		                    'T+30': 'T+30（30天到账）',
-		                    'monthly': '按月结算'
-		                };
-		                document.getElementById('infoSettlement').textContent = settlementMap[application.settlementPeriod] || application.settlementPeriod || '未设置';
-		            }
+		        if (currentUser.merchantInfo) {
+		            document.getElementById('infoShopName').textContent = currentUser.merchantInfo.shopName || '未填写';
+		            document.getElementById('infoCategory').textContent = (currentUser.merchantInfo.categories || []).join('、') || '未填写';
+		            document.getElementById('infoOrigin').textContent = currentUser.merchantInfo.origin || '未填写';
+		            document.getElementById('infoBankCard').textContent = currentUser.merchantInfo.bankCard ? maskBankCard(currentUser.merchantInfo.bankCard) : '未填写';
+		            
+		            const settlementMap = {
+		                'T+0': 'T+0（立即到账）',
+		                'T+3': 'T+3（3天到账）',
+		                'T+7': 'T+7（7天到账）',
+		                'T+15': 'T+15（15天到账）',
+		                'T+30': 'T+30（30天到账）',
+		                'monthly': '按月结算'
+		            };
+		            document.getElementById('infoSettlement').textContent = settlementMap[currentUser.merchantInfo.settlementPeriod] || currentUser.merchantInfo.settlementPeriod || '未设置';
 		        } else {
-		            // 如果没有入驻申请记录，显示默认值
 		            document.getElementById('infoShopName').textContent = '待完善';
 		            document.getElementById('infoCategory').textContent = '待完善';
 		            document.getElementById('infoOrigin').textContent = userAddresses.shipAddress || '待完善';
