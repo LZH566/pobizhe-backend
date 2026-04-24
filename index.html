@@ -1686,7 +1686,7 @@
                         <button onclick="scrollToSection('products')" class="btn btn-custom btn-lg me-3">
                             <i class="fas fa-shopping-bag me-2"></i>浏览商品
                         </button>
-                        <button onclick="showToast('惊喜盲盒功能即将上线！')" class="btn btn-outline-light btn-lg me-3">
+                        <button onclick="scrollToSection('blindbox')" class="btn btn-outline-light btn-lg me-3">
                             <i class="fas fa-gift me-2"></i>惊喜盲盒
                         </button>
                         <button class="btn btn-outline-light btn-lg" onclick="openMerchantApplyModal()">
@@ -4873,6 +4873,226 @@
         function closeAuthModal() {
             document.getElementById('authModal').classList.remove('show');
         }
+		
+		function scrollToSection(id) {
+            const target = document.querySelector('#' + id);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+		
+		// 打开添加收货地址弹窗
+		function addReceiveAddress() { 
+		    document.getElementById('addReceiveAddressModal').classList.add('show'); 
+		}
+		
+		// 打开添加发货地址弹窗
+		function addShipAddress() { 
+		    document.getElementById('addShipAddressModal').classList.add('show'); 
+		}
+		
+		// 渲染收货地址列表
+		function renderReceiveAddresses() {
+		    // 添加这两行判断
+		    if (!userAddresses || !userAddresses.receiveAddresses) {
+		        console.warn('userAddresses.receiveAddresses 不存在，已初始化');
+		        if (!userAddresses) userAddresses = {};
+		        userAddresses.receiveAddresses = [];
+		        userAddresses.shipAddresses = [];
+		        return;
+		    }
+		    const container = document.getElementById('receiveAddressList');
+		    if (!container) return;
+		    
+		    // 商家收货地址列表用同一个数据
+		    const merchantContainer = document.getElementById('merchantReceiveAddressList');
+		    
+		    if (userAddresses.receiveAddresses.length === 0) {
+		        const emptyHtml = '<div class="text-center text-muted py-3">暂无收货地址</div>';
+		        if (container) container.innerHTML = emptyHtml;
+		        if (merchantContainer) merchantContainer.innerHTML = emptyHtml;
+		        return;
+		    }
+		    
+		    const html = userAddresses.receiveAddresses.map(addr => `
+		        <div class="address-card ${addr.isDefault ? 'default' : ''}">
+		            <div class="address-actions">
+		                ${!addr.isDefault ? `<button onclick="setDefaultReceiveAddress(${addr.id})" class="text-primary"><i class="fas fa-check-circle"></i> 设为默认</button>` : ''}
+		                <button onclick="deleteReceiveAddress(${addr.id})" class="text-danger"><i class="fas fa-trash"></i> 删除</button>
+		            </div>
+		            <div><strong>${escapeHtml(addr.name)}</strong> ${escapeHtml(addr.phone)}</div>
+		            <div class="text-muted small">${escapeHtml(addr.address)}</div>
+		            ${addr.isDefault ? '<span class="address-default-badge">默认地址</span>' : ''}
+		        </div>
+		    `).join('');
+		    
+		    if (container) container.innerHTML = html;
+		    if (merchantContainer) merchantContainer.innerHTML = html;
+		}
+		
+		// 渲染发货地址列表（仅商家）
+		function renderShipAddresses() {
+		    const container = document.getElementById('shipAddressList');
+		    if (!container) return;
+		    
+		    if (!userAddresses.shipAddresses || userAddresses.shipAddresses.length === 0) {
+		        container.innerHTML = '<div class="text-center text-muted py-3">暂无发货地址</div>';
+		        return;
+		    }
+		    
+		    container.innerHTML = userAddresses.shipAddresses.map(addr => `
+		        <div class="address-card ${addr.isDefault ? 'default' : ''}">
+		            <div class="address-actions">
+		                ${!addr.isDefault ? `<button onclick="setDefaultShipAddress(${addr.id})" class="text-primary"><i class="fas fa-check-circle"></i> 设为默认</button>` : ''}
+		                <button onclick="deleteShipAddress(${addr.id})" class="text-danger"><i class="fas fa-trash"></i> 删除</button>
+		            </div>
+		            <div>${escapeHtml(addr.address)}</div>
+		            ${addr.isDefault ? '<span class="address-default-badge">默认发货地址</span>' : ''}
+		        </div>
+		    `).join('');
+		}
+		
+		// 设置默认收货地址
+		function setDefaultReceiveAddress(id) {
+		    userAddresses.receiveAddresses.forEach(addr => {
+		        addr.isDefault = (addr.id === id);
+		    });
+		    saveToStorage();
+		    renderReceiveAddresses();
+		    showToast('已设为默认收货地址');
+		}
+		
+		// 设置默认发货地址
+		function setDefaultShipAddress(id) {
+		    userAddresses.shipAddresses.forEach(addr => {
+		        addr.isDefault = (addr.id === id);
+		    });
+		    saveToStorage();
+		    renderShipAddresses();
+		    showToast('已设为默认发货地址');
+		}
+		
+		// 删除收货地址
+		function deleteReceiveAddress(id) {
+		    if (confirm('确定删除这个收货地址吗？')) {
+		        userAddresses.receiveAddresses = userAddresses.receiveAddresses.filter(addr => addr.id !== id);
+		        // 如果删除了默认地址，把第一个设为默认
+		        if (userAddresses.receiveAddresses.length > 0 && !userAddresses.receiveAddresses.some(a => a.isDefault)) {
+		            userAddresses.receiveAddresses[0].isDefault = true;
+		        }
+		        saveToStorage();
+		        renderReceiveAddresses();
+		        showToast('地址已删除');
+		    }
+		}
+		
+		// 删除发货地址
+		function deleteShipAddress(id) {
+		    if (confirm('确定删除这个发货地址吗？')) {
+		        userAddresses.shipAddresses = userAddresses.shipAddresses.filter(addr => addr.id !== id);
+		        if (userAddresses.shipAddresses.length > 0 && !userAddresses.shipAddresses.some(a => a.isDefault)) {
+		            userAddresses.shipAddresses[0].isDefault = true;
+		        }
+		        saveToStorage();
+		        renderShipAddresses();
+		        showToast('地址已删除');
+		    }
+		}
+		
+		// 保存新收货地址
+		function saveNewReceiveAddress() {
+		    const name = document.getElementById('newReceiveName').value;
+		    const phone = document.getElementById('newReceivePhone').value;
+		    const province = document.getElementById('newReceiveProvince').value;
+		    const city = document.getElementById('newReceiveCity').value;
+		    const district = document.getElementById('newReceiveDistrict').value;
+		    const detail = document.getElementById('newReceiveDetail').value;
+		    
+		    if (!name || !phone || !province) {
+		        showToast('请填写完整信息');
+		        return;
+		    }
+		    
+		    const fullAddress = province + city + district + detail;
+		    const newAddress = {
+		        id: Date.now(),
+		        name: name,
+		        phone: phone,
+		        address: fullAddress,
+		        isDefault: userAddresses.receiveAddresses.length === 0
+		    };
+		    
+		    userAddresses.receiveAddresses.push(newAddress);
+		    saveToStorage();
+		    renderReceiveAddresses();
+		    
+		    // 清空表单
+		    document.getElementById('newReceiveName').value = '';
+		    document.getElementById('newReceivePhone').value = '';
+		    document.getElementById('newReceiveProvince').value = '';
+		    document.getElementById('newReceiveCity').value = '';
+		    document.getElementById('newReceiveDistrict').value = '';
+		    document.getElementById('newReceiveDetail').value = '';
+		    
+		    document.getElementById('addReceiveAddressModal').classList.remove('show');
+		    showToast('收货地址已添加');
+		}
+		
+		// 保存新发货地址
+		function saveNewShipAddress() {
+		    const province = document.getElementById('newShipProvince').value;
+		    const city = document.getElementById('newShipCity').value;
+		    const town = document.getElementById('newShipTown').value;
+		    const village = document.getElementById('newShipVillage').value;
+		    
+		    if (!province || !village) {
+		        showToast('请填写完整发货地址');
+		        return;
+		    }
+		    
+		    const fullAddress = province + city + town + village;
+		    const newAddress = {
+		        id: Date.now(),
+		        address: fullAddress,
+		        isDefault: userAddresses.shipAddresses.length === 0
+		    };
+		    
+		    userAddresses.shipAddresses.push(newAddress);
+		    saveToStorage();
+		    renderShipAddresses();
+		    
+		    // 清空表单
+		    document.getElementById('newShipProvince').value = '';
+		    document.getElementById('newShipCity').value = '';
+		    document.getElementById('newShipTown').value = '';
+		    document.getElementById('newShipVillage').value = '';
+		    
+		    document.getElementById('addShipAddressModal').classList.remove('show');
+		    showToast('发货地址已添加');
+		}
+		
+		// HTML转义函数（防止XSS）
+		function escapeHtml(str) {
+		    if (!str) return '';
+		    return str.replace(/[&<>]/g, function(m) {
+		        if (m === '&') return '&amp;';
+		        if (m === '<') return '&lt;';
+		        if (m === '>') return '&gt;';
+		        return m;
+		    });
+		}
+		
+		// 获取默认收货地址
+		function getDefaultReceiveAddress() {
+		    const defaultAddr = userAddresses.receiveAddresses.find(a => a.isDefault);
+		    return defaultAddr || (userAddresses.receiveAddresses[0] || null);
+		}
+		
+		// 获取默认发货地址
+		function getDefaultShipAddress() {
+		    const defaultAddr = userAddresses.shipAddresses.find(a => a.isDefault);
+		    return defaultAddr || (userAddresses.shipAddresses[0] || null);
+		}
 
         function openAddressModal() {
             if (!currentUser) {
@@ -5605,7 +5825,6 @@
 		}
 		
 		// 确认直接购买
-		// 确认直接购买
 		function confirmDirectBuy() {
 		    if (!userAddresses.receiveAddress) {
 		        showToast('请先设置收货地址');
@@ -6277,226 +6496,6 @@
             toast.style.display = 'block';
             setTimeout(() => { toast.style.display = 'none'; }, 2500);
         }
-
-        function scrollToSection(id) {
-            const target = document.querySelector('#' + id);
-            if (target) {
-                target.scrollIntoView({ behavior: 'smooth' });
-            }
-        }
-		
-		// 打开添加收货地址弹窗
-		function addReceiveAddress() { 
-		    document.getElementById('addReceiveAddressModal').classList.add('show'); 
-		}
-		
-		// 打开添加发货地址弹窗
-		function addShipAddress() { 
-		    document.getElementById('addShipAddressModal').classList.add('show'); 
-		}
-		
-		// 渲染收货地址列表
-		function renderReceiveAddresses() {
-		    // 添加这两行判断
-		    if (!userAddresses || !userAddresses.receiveAddresses) {
-		        console.warn('userAddresses.receiveAddresses 不存在，已初始化');
-		        if (!userAddresses) userAddresses = {};
-		        userAddresses.receiveAddresses = [];
-		        userAddresses.shipAddresses = [];
-		        return;
-		    }
-		    const container = document.getElementById('receiveAddressList');
-		    if (!container) return;
-		    
-		    // 商家收货地址列表用同一个数据
-		    const merchantContainer = document.getElementById('merchantReceiveAddressList');
-		    
-		    if (userAddresses.receiveAddresses.length === 0) {
-		        const emptyHtml = '<div class="text-center text-muted py-3">暂无收货地址</div>';
-		        if (container) container.innerHTML = emptyHtml;
-		        if (merchantContainer) merchantContainer.innerHTML = emptyHtml;
-		        return;
-		    }
-		    
-		    const html = userAddresses.receiveAddresses.map(addr => `
-		        <div class="address-card ${addr.isDefault ? 'default' : ''}">
-		            <div class="address-actions">
-		                ${!addr.isDefault ? `<button onclick="setDefaultReceiveAddress(${addr.id})" class="text-primary"><i class="fas fa-check-circle"></i> 设为默认</button>` : ''}
-		                <button onclick="deleteReceiveAddress(${addr.id})" class="text-danger"><i class="fas fa-trash"></i> 删除</button>
-		            </div>
-		            <div><strong>${escapeHtml(addr.name)}</strong> ${escapeHtml(addr.phone)}</div>
-		            <div class="text-muted small">${escapeHtml(addr.address)}</div>
-		            ${addr.isDefault ? '<span class="address-default-badge">默认地址</span>' : ''}
-		        </div>
-		    `).join('');
-		    
-		    if (container) container.innerHTML = html;
-		    if (merchantContainer) merchantContainer.innerHTML = html;
-		}
-		
-		// 渲染发货地址列表（仅商家）
-		function renderShipAddresses() {
-		    const container = document.getElementById('shipAddressList');
-		    if (!container) return;
-		    
-		    if (!userAddresses.shipAddresses || userAddresses.shipAddresses.length === 0) {
-		        container.innerHTML = '<div class="text-center text-muted py-3">暂无发货地址</div>';
-		        return;
-		    }
-		    
-		    container.innerHTML = userAddresses.shipAddresses.map(addr => `
-		        <div class="address-card ${addr.isDefault ? 'default' : ''}">
-		            <div class="address-actions">
-		                ${!addr.isDefault ? `<button onclick="setDefaultShipAddress(${addr.id})" class="text-primary"><i class="fas fa-check-circle"></i> 设为默认</button>` : ''}
-		                <button onclick="deleteShipAddress(${addr.id})" class="text-danger"><i class="fas fa-trash"></i> 删除</button>
-		            </div>
-		            <div>${escapeHtml(addr.address)}</div>
-		            ${addr.isDefault ? '<span class="address-default-badge">默认发货地址</span>' : ''}
-		        </div>
-		    `).join('');
-		}
-		
-		// 设置默认收货地址
-		function setDefaultReceiveAddress(id) {
-		    userAddresses.receiveAddresses.forEach(addr => {
-		        addr.isDefault = (addr.id === id);
-		    });
-		    saveToStorage();
-		    renderReceiveAddresses();
-		    showToast('已设为默认收货地址');
-		}
-		
-		// 设置默认发货地址
-		function setDefaultShipAddress(id) {
-		    userAddresses.shipAddresses.forEach(addr => {
-		        addr.isDefault = (addr.id === id);
-		    });
-		    saveToStorage();
-		    renderShipAddresses();
-		    showToast('已设为默认发货地址');
-		}
-		
-		// 删除收货地址
-		function deleteReceiveAddress(id) {
-		    if (confirm('确定删除这个收货地址吗？')) {
-		        userAddresses.receiveAddresses = userAddresses.receiveAddresses.filter(addr => addr.id !== id);
-		        // 如果删除了默认地址，把第一个设为默认
-		        if (userAddresses.receiveAddresses.length > 0 && !userAddresses.receiveAddresses.some(a => a.isDefault)) {
-		            userAddresses.receiveAddresses[0].isDefault = true;
-		        }
-		        saveToStorage();
-		        renderReceiveAddresses();
-		        showToast('地址已删除');
-		    }
-		}
-		
-		// 删除发货地址
-		function deleteShipAddress(id) {
-		    if (confirm('确定删除这个发货地址吗？')) {
-		        userAddresses.shipAddresses = userAddresses.shipAddresses.filter(addr => addr.id !== id);
-		        if (userAddresses.shipAddresses.length > 0 && !userAddresses.shipAddresses.some(a => a.isDefault)) {
-		            userAddresses.shipAddresses[0].isDefault = true;
-		        }
-		        saveToStorage();
-		        renderShipAddresses();
-		        showToast('地址已删除');
-		    }
-		}
-		
-		// 保存新收货地址
-		function saveNewReceiveAddress() {
-		    const name = document.getElementById('newReceiveName').value;
-		    const phone = document.getElementById('newReceivePhone').value;
-		    const province = document.getElementById('newReceiveProvince').value;
-		    const city = document.getElementById('newReceiveCity').value;
-		    const district = document.getElementById('newReceiveDistrict').value;
-		    const detail = document.getElementById('newReceiveDetail').value;
-		    
-		    if (!name || !phone || !province) {
-		        showToast('请填写完整信息');
-		        return;
-		    }
-		    
-		    const fullAddress = province + city + district + detail;
-		    const newAddress = {
-		        id: Date.now(),
-		        name: name,
-		        phone: phone,
-		        address: fullAddress,
-		        isDefault: userAddresses.receiveAddresses.length === 0
-		    };
-		    
-		    userAddresses.receiveAddresses.push(newAddress);
-		    saveToStorage();
-		    renderReceiveAddresses();
-		    
-		    // 清空表单
-		    document.getElementById('newReceiveName').value = '';
-		    document.getElementById('newReceivePhone').value = '';
-		    document.getElementById('newReceiveProvince').value = '';
-		    document.getElementById('newReceiveCity').value = '';
-		    document.getElementById('newReceiveDistrict').value = '';
-		    document.getElementById('newReceiveDetail').value = '';
-		    
-		    document.getElementById('addReceiveAddressModal').classList.remove('show');
-		    showToast('收货地址已添加');
-		}
-		
-		// 保存新发货地址
-		function saveNewShipAddress() {
-		    const province = document.getElementById('newShipProvince').value;
-		    const city = document.getElementById('newShipCity').value;
-		    const town = document.getElementById('newShipTown').value;
-		    const village = document.getElementById('newShipVillage').value;
-		    
-		    if (!province || !village) {
-		        showToast('请填写完整发货地址');
-		        return;
-		    }
-		    
-		    const fullAddress = province + city + town + village;
-		    const newAddress = {
-		        id: Date.now(),
-		        address: fullAddress,
-		        isDefault: userAddresses.shipAddresses.length === 0
-		    };
-		    
-		    userAddresses.shipAddresses.push(newAddress);
-		    saveToStorage();
-		    renderShipAddresses();
-		    
-		    // 清空表单
-		    document.getElementById('newShipProvince').value = '';
-		    document.getElementById('newShipCity').value = '';
-		    document.getElementById('newShipTown').value = '';
-		    document.getElementById('newShipVillage').value = '';
-		    
-		    document.getElementById('addShipAddressModal').classList.remove('show');
-		    showToast('发货地址已添加');
-		}
-		
-		// HTML转义函数（防止XSS）
-		function escapeHtml(str) {
-		    if (!str) return '';
-		    return str.replace(/[&<>]/g, function(m) {
-		        if (m === '&') return '&amp;';
-		        if (m === '<') return '&lt;';
-		        if (m === '>') return '&gt;';
-		        return m;
-		    });
-		}
-		
-		// 获取默认收货地址
-		function getDefaultReceiveAddress() {
-		    const defaultAddr = userAddresses.receiveAddresses.find(a => a.isDefault);
-		    return defaultAddr || (userAddresses.receiveAddresses[0] || null);
-		}
-		
-		// 获取默认发货地址
-		function getDefaultShipAddress() {
-		    const defaultAddr = userAddresses.shipAddresses.find(a => a.isDefault);
-		    return defaultAddr || (userAddresses.shipAddresses[0] || null);
-		}
 
         // 平滑滚动
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
