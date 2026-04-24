@@ -21,7 +21,6 @@
             max-width: 1400px;
             margin: 0 auto;
         }
-        /* 头部 */
         .header {
             background: linear-gradient(135deg, #2E7D32, #4CAF50);
             color: white;
@@ -29,7 +28,6 @@
             border-radius: 15px;
             margin-bottom: 25px;
         }
-        /* 统计卡片 */
         .stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -57,7 +55,6 @@
             color: #666;
             margin-top: 8px;
         }
-        /* 标签页 */
         .tabs {
             display: flex;
             gap: 10px;
@@ -81,7 +78,6 @@
             background: #2E7D32;
             color: white;
         }
-        /* 申请列表 */
         .applications {
             background: white;
             border-radius: 15px;
@@ -194,7 +190,6 @@
             padding: 40px;
             color: #666;
         }
-        /* API 设置区域 */
         .api-setting {
             background: #e8f5e9;
             padding: 15px 20px;
@@ -221,8 +216,6 @@
             border-radius: 25px;
             cursor: pointer;
         }
-        
-        /* 模拟消费者下单区域 */
         .mock-order-section {
             background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
             border-radius: 15px;
@@ -269,8 +262,6 @@
             font-size: 12px;
             color: #999;
         }
-        
-        /* 订单管理表格 */
         .orders-table {
             width: 100%;
             border-collapse: collapse;
@@ -307,8 +298,6 @@
             background: #E8F5E9;
             color: #2E7D32;
         }
-        
-        /* 添加订单按钮 */
         .add-order-btn {
             background: #FF8F00;
             color: white;
@@ -322,8 +311,6 @@
         .add-order-btn:hover {
             background: #F57C00;
         }
-        
-        /* 数量控制 */
         .qty-control {
             display: inline-flex;
             align-items: center;
@@ -337,8 +324,6 @@
             background: white;
             cursor: pointer;
         }
-        
-        /* 模态框 */
         .modal {
             display: none;
             position: fixed;
@@ -371,7 +356,6 @@
             padding-bottom: 10px;
             border-bottom: 1px solid #eee;
         }
-        
         @media (max-width: 768px) {
             .stats {
                 grid-template-columns: repeat(2, 1fr);
@@ -395,13 +379,11 @@
 </head>
 <body>
 <div class="container">
-    <!-- 头部 -->
     <div class="header">
         <h2><i class="fas fa-store me-2"></i>破壁者 - 商家入驻管理后台</h2>
         <p class="mb-0 opacity-75">查看、审核和管理商家入驻申请</p>
     </div>
 
-    <!-- API 地址设置 -->
     <div class="api-setting">
         <i class="fas fa-link"></i>
         <span>后端API地址：</span>
@@ -410,7 +392,7 @@
         <small class="text-muted">默认为您的 Vercel 后端地址</small>
     </div>
 
-    <!-- ========== 新增：模拟消费者下单区域 ========== -->
+    <!-- 模拟消费者下单区域 -->
     <div class="mock-order-section">
         <div class="mock-order-title">
             <i class="fas fa-shopping-cart me-2"></i>模拟消费者下单
@@ -431,9 +413,7 @@
                 <input type="text" id="testPhone" class="form-control" placeholder="联系电话" value="13800138000">
             </div>
         </div>
-        <div class="mock-order-grid" id="mockProductGrid">
-            <!-- 商品列表将动态填充 -->
-        </div>
+        <div class="mock-order-grid" id="mockProductGrid"></div>
         <div class="text-center mt-3">
             <button class="add-order-btn" onclick="submitMockOrder()">
                 <i class="fas fa-shopping-cart me-2"></i>提交测试订单
@@ -443,22 +423,10 @@
 
     <!-- 统计卡片 -->
     <div class="stats">
-        <div class="stat-card">
-            <div class="stat-number" id="statTotal">-</div>
-            <div class="stat-label">总申请数</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="statPending">-</div>
-            <div class="stat-label">待审核</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="statApproved">-</div>
-            <div class="stat-label">已通过</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="statRejected">-</div>
-            <div class="stat-label">已拒绝</div>
-        </div>
+        <div class="stat-card"><div class="stat-number" id="statTotal">-</div><div class="stat-label">总申请数</div></div>
+        <div class="stat-card"><div class="stat-number" id="statPending">-</div><div class="stat-label">待审核</div></div>
+        <div class="stat-card"><div class="stat-number" id="statApproved">-</div><div class="stat-label">已通过</div></div>
+        <div class="stat-card"><div class="stat-number" id="statRejected">-</div><div class="stat-label">已拒绝</div></div>
     </div>
 
     <!-- 标签页 -->
@@ -470,7 +438,6 @@
         <button class="tab" data-status="orders">📋 订单管理</button>
     </div>
 
-    <!-- 申请列表（订单列表） -->
     <div class="applications" id="applications">
         <div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载中...</div>
     </div>
@@ -484,39 +451,21 @@
             <button class="btn-close" onclick="closeAddProductModal()">&times;</button>
         </div>
         <div>
-            <div class="mb-3">
-                <label>商品名称</label>
-                <input type="text" id="newProductName" class="form-control" placeholder="例如：测试苹果">
-            </div>
-            <div class="mb-3">
-                <label>价格 (元)</label>
-                <input type="number" id="newProductPrice" class="form-control" placeholder="5.5">
-            </div>
-            <div class="mb-3">
-                <label>单位</label>
-                <select id="newProductUnit" class="form-select">
-                    <option value="斤">斤</option>
-                    <option value="箱">箱</option>
-                    <option value="个">个</option>
-                    <option value="份">份</option>
-                </select>
-            </div>
-            <div class="mb-3">
-                <label>库存</label>
-                <input type="number" id="newProductStock" class="form-control" placeholder="1000">
-            </div>
-            <div class="mb-3">
-                <label>商家名称</label>
-                <input type="text" id="newProductSeller" class="form-control" placeholder="测试商家">
-            </div>
-            <button class="btn btn-custom w-100" onclick="addTestProduct()">
-                <i class="fas fa-check me-2"></i>添加商品
-            </button>
+            <div class="mb-3"><label>商品名称</label><input type="text" id="newProductName" class="form-control" placeholder="例如：测试苹果"></div>
+            <div class="mb-3"><label>价格 (元)</label><input type="number" id="newProductPrice" class="form-control" placeholder="5.5"></div>
+            <div class="mb-3"><label>单位</label><select id="newProductUnit" class="form-select"><option value="斤">斤</option><option value="箱">箱</option><option value="个">个</option><option value="份">份</option></select></div>
+            <div class="mb-3"><label>库存</label><input type="number" id="newProductStock" class="form-control" placeholder="1000"></div>
+            <div class="mb-3"><label>商家名称</label><input type="text" id="newProductSeller" class="form-control" placeholder="测试商家"></div>
+            <button class="btn btn-custom w-100" onclick="addTestProduct()"><i class="fas fa-check me-2"></i>添加商品</button>
         </div>
     </div>
 </div>
 
 <script>
+    // ========== Supabase 配置 ==========
+    const SUPABASE_URL = 'https://snqlzwwtlkmeflvhezfk.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlenZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ';
+    
     // API 基础地址
     let API_BASE = localStorage.getItem('ADMIN_API_BASE') || 'https://pobizhe-backend.vercel.app';
     let currentStatus = 'all';
@@ -535,6 +484,50 @@
     let selectedTestProductId = null;
     let productQuantities = {};
     
+    // ========== Supabase API 函数 ==========
+    async function supabaseRequest(method, table, data = null, query = '') {
+        const url = `${SUPABASE_URL}/rest/v1/${table}${query ? `?${query}` : ''}`;
+        const headers = {
+            'apikey': SUPABASE_KEY,
+            'Authorization': `Bearer ${SUPABASE_KEY}`,
+            'Content-Type': 'application/json'
+        };
+        
+        const options = { method, headers };
+        if (data && (method === 'POST' || method === 'PATCH')) {
+            options.body = JSON.stringify(data);
+        }
+        
+        const response = await fetch(url, options);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+    }
+    
+    async function saveOrderToSupabase(orderData, orderItems) {
+        // 保存订单主表
+        await supabaseRequest('POST', 'orders', orderData);
+        // 保存订单明细
+        for (const item of orderItems) {
+            await supabaseRequest('POST', 'order_items', item);
+        }
+    }
+    
+    async function getOrdersFromSupabase() {
+        try {
+            const orders = await supabaseRequest('GET', 'orders', null, 'order=created_at.desc');
+            return orders;
+        } catch (error) {
+            console.error('获取订单失败:', error);
+            return [];
+        }
+    }
+    
+    async function updateOrderStatusInSupabase(orderNo, status) {
+        return supabaseRequest('PATCH', 'orders', { status }, `order_no=eq.${orderNo}`);
+    }
+    
     // 设置 API 地址
     function setApiUrl() {
         const input = document.getElementById('apiUrl');
@@ -551,21 +544,18 @@
         if (savedUsers) {
             allUsers = JSON.parse(savedUsers);
         } else {
-            // 初始化测试用户
-            allUsers = [
-                {
-                    userId: 'test001',
-                    account: 'C123456',
-                    name: '测试顾客',
-                    nickname: '测试用户',
-                    phone: '13800138000',
-                    password: '123456',
-                    type: 'customer',
-                    address: '山东省济南市长清区',
-                    verified: true,
-                    registerDate: new Date().toISOString()
-                }
-            ];
+            allUsers = [{
+                userId: 'test001',
+                account: 'C123456',
+                name: '测试顾客',
+                nickname: '测试用户',
+                phone: '13800138000',
+                password: '123456',
+                type: 'customer',
+                address: '山东省济南市长清区',
+                verified: true,
+                registerDate: new Date().toISOString()
+            }];
             localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(allUsers));
         }
         
@@ -580,29 +570,20 @@
         if (savedProducts) {
             testProducts = JSON.parse(savedProducts);
         } else {
-            // 初始化测试商品
             testProducts = [
-                { id: 1, name: '烟台红富士苹果', price: 5.5, unit: '斤', stock: 100, seller: '山东·张农户', image: './images/yantai-apple.jpeg' },
-                { id: 2, name: '东北五常大米', price: 8.0, unit: '斤', stock: 200, seller: '黑龙江·李农户', image: './images/rice.jpeg' },
-                { id: 3, name: '赣南脐橙', price: 6.0, unit: '斤', stock: 150, seller: '江西·王农户', image: './images/orange.jpeg' },
-                { id: 4, name: '新疆红枣', price: 12.0, unit: '斤', stock: 80, seller: '新疆·赵农户', image: './images/jujube.png' }
+                { id: 1, name: '烟台红富士苹果', price: 5.5, unit: '斤', stock: 100, seller: '山东·张农户', image: 'https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?w=400' },
+                { id: 2, name: '东北五常大米', price: 8.0, unit: '斤', stock: 200, seller: '黑龙江·李农户', image: 'https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?w=400' },
+                { id: 3, name: '赣南脐橙', price: 6.0, unit: '斤', stock: 150, seller: '江西·王农户', image: 'https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?w=400' },
+                { id: 4, name: '新疆红枣', price: 12.0, unit: '斤', stock: 80, seller: '新疆·赵农户', image: 'https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?w=400' }
             ];
             localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(testProducts));
         }
         
-        // 初始化商品数量
-        testProducts.forEach(p => {
-            productQuantities[p.id] = 1;
-        });
+        testProducts.forEach(p => { productQuantities[p.id] = 1; });
     }
     
-    // 保存订单到本地
     function saveOrdersToLocal() {
         localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(allOrders));
-        // 同时同步到前台订单列表（如果有）
-        if (typeof window !== 'undefined' && window.syncOrdersToFront) {
-            window.syncOrdersToFront(allOrders);
-        }
     }
     
     // 加载测试用户下拉框
@@ -613,30 +594,19 @@
         customers.forEach(user => {
             select.innerHTML += `<option value="${user.userId}" data-name="${user.name}" data-phone="${user.phone}">${user.name} (${user.account})</option>`;
         });
-        // 如果没有测试用户，添加一个默认的
         if (customers.length === 0) {
-            const defaultUser = {
-                userId: 'test001',
-                account: 'C123456',
-                name: '测试顾客',
-                phone: '13800138000',
-                type: 'customer',
-                address: '山东省济南市'
-            };
+            const defaultUser = { userId: 'test001', account: 'C123456', name: '测试顾客', phone: '13800138000', type: 'customer', address: '山东省济南市' };
             allUsers.push(defaultUser);
             localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(allUsers));
             loadTestUsers();
         }
     }
     
-    // 渲染测试商品网格
     function renderMockProducts() {
         const container = document.getElementById('mockProductGrid');
         if (!container) return;
-        
         container.innerHTML = testProducts.map(product => `
-            <div class="mock-product-card ${selectedTestProductId === product.id ? 'selected' : ''}" 
-                 onclick="toggleProductSelect(${product.id})">
+            <div class="mock-product-card ${selectedTestProductId === product.id ? 'selected' : ''}" onclick="toggleProductSelect(${product.id})">
                 <div class="mock-product-name">${product.name}</div>
                 <div class="mock-product-price">¥${product.price}/${product.unit}</div>
                 <div class="mock-product-stock">库存: ${product.stock}</div>
@@ -649,13 +619,11 @@
         `).join('');
     }
     
-    // 切换商品选择
     function toggleProductSelect(productId) {
         selectedTestProductId = selectedTestProductId === productId ? null : productId;
         renderMockProducts();
     }
     
-    // 修改数量
     function changeQty(productId, delta) {
         const newQty = (productQuantities[productId] || 1) + delta;
         if (newQty >= 1 && newQty <= (testProducts.find(p => p.id === productId)?.stock || 999)) {
@@ -664,14 +632,13 @@
         }
     }
     
-    // 提交测试订单
-    function submitMockOrder() {
+    // 提交测试订单（保存到 Supabase）
+    async function submitMockOrder() {
         const userId = document.getElementById('testUserSelect').value;
         if (!userId) {
             alert('请选择测试用户');
             return;
         }
-        
         if (!selectedTestProductId) {
             alert('请选择要购买的商品');
             return;
@@ -692,58 +659,156 @@
         const shippingFee = subtotal >= 19.9 ? 0 : 8;
         const total = subtotal + shippingFee;
         
-        // 检查库存
         if (quantity > product.stock) {
             alert(`库存不足，当前库存：${product.stock}`);
             return;
         }
         
-        // 更新库存
+        // 更新本地库存
         product.stock -= quantity;
         localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(testProducts));
         renderMockProducts();
         
-        // 创建订单
-        const newOrder = {
-            id: 'ORD' + Date.now(),
-            userId: userId,
-            userName: user.name,
-            items: [{
-                id: product.id,
-                name: product.name,
-                price: product.price,
-                unit: product.unit,
-                quantity: quantity,
-                image: product.image
-            }],
-            subtotal: subtotal,
-            shippingFee: shippingFee,
-            total: total,
+        const orderNo = 'ORD' + Date.now();
+        
+        // 订单主表数据
+        const orderData = {
+            order_no: orderNo,
+            user_id: userId,
+            user_name: user.name,
+            user_phone: user.phone,
+            user_type: 'customer',
+            total_amount: subtotal,
+            shipping_fee: shippingFee,
+            final_amount: total,
             status: 'pending',
-            address: address,
-            receiver: user.name,
-            phone: phone,
-            date: new Date().toLocaleDateString(),
-            createdAt: new Date().toISOString()
+            payment_method: 'wechat',
+            receiver_name: user.name,
+            receiver_phone: phone,
+            receiver_address: address,
+            created_at: new Date().toISOString()
         };
         
-        allOrders.unshift(newOrder);
-        saveOrdersToLocal();
+        // 订单明细数据
+        const orderItems = [{
+            order_no: orderNo,
+            product_id: product.id,
+            product_name: product.name,
+            product_price: product.price,
+            product_unit: product.unit,
+            quantity: quantity,
+            subtotal: subtotal,
+            product_image: product.image,
+            seller_name: product.seller
+        }];
         
-        // 重置选择
-        selectedTestProductId = null;
-        productQuantities[selectedTestProductId] = 1;
-        renderMockProducts();
-        
-        alert(`订单创建成功！\n订单号：${newOrder.id}\n总金额：¥${total.toFixed(2)}`);
-        
-        // 如果当前在订单管理标签页，刷新订单列表
-        if (currentStatus === 'orders') {
-            loadOrderList();
+        try {
+            // 保存到 Supabase
+            await saveOrderToSupabase(orderData, orderItems);
+            
+            // 同时保存到本地（用于前端显示）
+            const localOrder = {
+                id: orderNo,
+                userId: userId,
+                userName: user.name,
+                items: [{
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    unit: product.unit,
+                    quantity: quantity,
+                    image: product.image
+                }],
+                subtotal: subtotal,
+                shippingFee: shippingFee,
+                total: total,
+                status: 'pending',
+                address: address,
+                receiver: user.name,
+                phone: phone,
+                date: new Date().toLocaleDateString(),
+                createdAt: new Date().toISOString()
+            };
+            
+            allOrders.unshift(localOrder);
+            saveOrdersToLocal();
+            
+            selectedTestProductId = null;
+            productQuantities = {};
+            renderMockProducts();
+            
+            alert(`订单创建成功！\n订单号：${orderNo}\n总金额：¥${total.toFixed(2)}`);
+            
+            if (currentStatus === 'orders') {
+                await loadOrderList();
+            }
+        } catch (error) {
+            console.error('保存订单失败:', error);
+            alert('订单创建失败，请重试');
         }
     }
     
-    // 添加测试商品
+    // 加载订单列表（从 Supabase）
+    async function loadOrderList() {
+        const container = document.getElementById('applications');
+        
+        try {
+            const supabaseOrders = await getOrdersFromSupabase();
+            
+            if (!supabaseOrders || supabaseOrders.length === 0) {
+                container.innerHTML = `<div class="loading"><i class="fas fa-inbox me-2"></i>暂无订单<br><button class="btn btn-sm btn-outline-success mt-2" onclick="openAddProductModal()"><i class="fas fa-plus me-1"></i>添加测试商品</button></div>`;
+                return;
+            }
+            
+            container.innerHTML = `
+                <div style="padding: 15px; background: #f8f9fa; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                    <span><strong>📋 订单管理</strong> (共 ${supabaseOrders.length} 条订单)</span>
+                    <button class="btn btn-sm btn-outline-success" onclick="openAddProductModal()"><i class="fas fa-plus me-1"></i>添加商品</button>
+                </div>
+                <table class="orders-table">
+                    <thead><tr><th>订单号</th><th>用户</th><th>金额</th><th>状态</th><th>下单时间</th><th>操作</th></tr></thead>
+                    <tbody>
+                        ${supabaseOrders.map(order => `
+                            <tr>
+                                <td><small>${order.order_no}</small></td>
+                                <td>${order.user_name}</td>
+                                <td style="color:#E65100; font-weight:bold;">¥${order.final_amount}</td>
+                                <td><span class="status-badge ${order.status}">${order.status === 'pending' ? '待发货' : order.status === 'shipped' ? '已发货' : '已完成'}</span></td>
+                                <td><small>${new Date(order.created_at).toLocaleString()}</small></td>
+                                <td>${order.status === 'pending' ? `<button class="btn btn-sm btn-success" onclick="shipOrder('${order.order_no}')">发货</button>` : ''}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        } catch (error) {
+            console.error('加载订单失败:', error);
+            container.innerHTML = '<div class="loading">加载订单失败</div>';
+        }
+    }
+    
+    // 发货（更新 Supabase）
+    async function shipOrder(orderNo) {
+        if (confirm('确定将该订单标记为已发货吗？')) {
+            try {
+                await updateOrderStatusInSupabase(orderNo, 'shipped');
+                
+                // 同时更新本地订单
+                const localOrder = allOrders.find(o => o.id === orderNo);
+                if (localOrder) {
+                    localOrder.status = 'shipped';
+                    saveOrdersToLocal();
+                }
+                
+                alert('已标记为发货');
+                await loadOrderList();
+            } catch (error) {
+                console.error('发货失败:', error);
+                alert('发货失败，请重试');
+            }
+        }
+    }
+    
     function addTestProduct() {
         const name = document.getElementById('newProductName').value;
         const price = parseFloat(document.getElementById('newProductPrice').value);
@@ -786,92 +851,6 @@
         document.getElementById('newProductSeller').value = '';
     }
     
-    // 加载订单列表
-    function loadOrderList() {
-        const container = document.getElementById('applications');
-        
-        if (allOrders.length === 0) {
-            container.innerHTML = `
-                <div class="loading">
-                    <i class="fas fa-inbox me-2"></i>暂无订单<br>
-                    <button class="btn btn-sm btn-outline-success mt-2" onclick="document.querySelector('.tab[data-status=\"orders\"]').scrollIntoView(); openAddProductModal()">
-                        <i class="fas fa-plus me-1"></i>添加测试商品
-                    </button>
-                </div>
-            `;
-            return;
-        }
-        
-        container.innerHTML = `
-            <div style="padding: 15px; background: #f8f9fa; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
-                <span><strong>📋 订单管理</strong> (共 ${allOrders.length} 条订单)</span>
-                <button class="btn btn-sm btn-outline-success" onclick="openAddProductModal()">
-                    <i class="fas fa-plus me-1"></i>添加商品
-                </button>
-            </div>
-            <table class="orders-table">
-                <thead>
-                    <tr>
-                        <th>订单号</th>
-                        <th>用户</th>
-                        <th>商品</th>
-                        <th>数量</th>
-                        <th>总金额</th>
-                        <th>状态</th>
-                        <th>下单时间</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    ${allOrders.map(order => `
-                        <tr>
-                            <td><small>${order.id}</small></td>
-                            <td>${order.userName || order.receiver}</td>
-                            <td>${order.items.map(i => i.name).join(',')}</td>
-                            <td>${order.items.reduce((sum, i) => sum + i.quantity, 0)}</td>
-                            <td style="color:#E65100; font-weight:bold;">¥${order.total.toFixed(2)}</td>
-                            <td>
-                                <span class="status-badge ${order.status}">
-                                    ${order.status === 'pending' ? '待发货' : order.status === 'shipped' ? '已发货' : '已完成'}
-                                </span>
-                            </td>
-                            <td><small>${order.date}</small></td>
-                            <td>
-                                ${order.status === 'pending' ? `<button class="btn btn-sm btn-success" onclick="shipOrder('${order.id}')">发货</button>` : ''}
-                                <button class="btn btn-sm btn-danger" onclick="deleteOrder('${order.id}')">删除</button>
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
-    }
-    
-    // 发货
-    function shipOrder(orderId) {
-        const order = allOrders.find(o => o.id === orderId);
-        if (order) {
-            order.status = 'shipped';
-            saveOrdersToLocal();
-            loadOrderList();
-            alert('已标记为发货');
-        }
-    }
-    
-    // 删除订单
-    function deleteOrder(orderId) {
-        if (confirm('确定删除这个订单吗？')) {
-            const index = allOrders.findIndex(o => o.id === orderId);
-            if (index !== -1) {
-                allOrders.splice(index, 1);
-                saveOrdersToLocal();
-                loadOrderList();
-                alert('订单已删除');
-            }
-        }
-    }
-    
-    // 加载统计数据
     async function loadStatistics() {
         try {
             const response = await fetch(`${API_BASE}/api/merchant/statistics`);
@@ -888,10 +867,9 @@
         }
     }
     
-    // 加载申请列表
     async function loadApplications() {
         if (currentStatus === 'orders') {
-            loadOrderList();
+            await loadOrderList();
             return;
         }
         
@@ -900,9 +878,7 @@
         
         try {
             let url = `${API_BASE}/api/merchant/applications?page=1&pageSize=50`;
-            if (currentStatus !== 'all') {
-                url += `&status=${currentStatus}`;
-            }
+            if (currentStatus !== 'all') url += `&status=${currentStatus}`;
             const response = await fetch(url);
             const result = await response.json();
             
@@ -917,10 +893,8 @@
         }
     }
     
-    // 渲染申请列表
     function renderApplications(applications) {
         const container = document.getElementById('applications');
-        
         if (!applications || applications.length === 0) {
             container.innerHTML = '<div class="loading">暂无申请记录</div>';
             return;
@@ -929,17 +903,10 @@
         container.innerHTML = applications.map(app => `
             <div class="app-item" onclick="toggleDetail(${app.id})">
                 <div class="app-header">
-                    <div>
-                        <span class="app-name">${escapeHtml(app.name)}</span>
-                        <span class="app-shop">｜ ${escapeHtml(app.shop_name)}</span>
-                    </div>
-                    <span class="status status-${app.status}">
-                        ${app.status === 'pending' ? '待审核' : app.status === 'approved' ? '已通过' : '已拒绝'}
-                    </span>
+                    <div><span class="app-name">${escapeHtml(app.name)}</span><span class="app-shop">｜ ${escapeHtml(app.shop_name)}</span></div>
+                    <span class="status status-${app.status}">${app.status === 'pending' ? '待审核' : app.status === 'approved' ? '已通过' : '已拒绝'}</span>
                 </div>
-                <div style="font-size: 13px; color: #666;">
-                    📞 ${app.phone} | 🏷️ ${app.category || '未填写'} | 📅 ${new Date(app.created_at).toLocaleDateString()}
-                </div>
+                <div style="font-size: 13px; color: #666;">📞 ${app.phone} | 🏷️ ${app.category || '未填写'} | 📅 ${new Date(app.created_at).toLocaleDateString()}</div>
                 <div class="app-detail" id="detail-${app.id}">
                     <div class="detail-grid">
                         <div class="detail-item"><div class="detail-label">身份证号</div><div class="detail-value">${escapeHtml(app.id_card)}</div></div>
@@ -960,32 +927,19 @@
         `).join('');
     }
     
-    // 获取主体类型文本
     function getEntityTypeText(type) {
-        const map = {
-            'personal': '个人农户',
-            'familyFarm': '家庭农场',
-            'cooperative': '合作社',
-            'company': '企业'
-        };
+        const map = { 'personal': '个人农户', 'familyFarm': '家庭农场', 'cooperative': '合作社', 'company': '企业' };
         return map[type] || type || '未填写';
     }
     
-    // 切换详情显示
     function toggleDetail(id) {
         const detail = document.getElementById(`detail-${id}`);
-        if (detail) {
-            detail.classList.toggle('show');
-        }
+        if (detail) detail.classList.toggle('show');
     }
     
-    // 审核申请
     async function reviewApplication(id, status) {
         const remark = document.getElementById(`remark-${id}`)?.value || '';
-        
-        if (!confirm(`确定要将该申请${status === 'approved' ? '通过' : '拒绝'}吗？`)) {
-            return;
-        }
+        if (!confirm(`确定要将该申请${status === 'approved' ? '通过' : '拒绝'}吗？`)) return;
         
         try {
             const response = await fetch(`${API_BASE}/api/merchant/review/${id}`, {
@@ -994,7 +948,6 @@
                 body: JSON.stringify({ status, reviewRemark: remark })
             });
             const result = await response.json();
-            
             if (result.success) {
                 alert('审核完成');
                 loadStatistics();
@@ -1008,7 +961,6 @@
         }
     }
     
-    // HTML 转义
     function escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');
@@ -1022,16 +974,11 @@
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             currentStatus = tab.dataset.status;
-            
-            if (currentStatus === 'orders') {
-                loadOrderList();
-            } else {
-                loadApplications();
-            }
+            loadApplications();
         });
     });
     
-    // 初始化页面
+    // 初始化
     function init() {
         document.getElementById('apiUrl').value = API_BASE;
         loadLocalData();
