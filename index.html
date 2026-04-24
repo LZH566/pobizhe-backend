@@ -3443,19 +3443,20 @@
 		        return;
 		    }
 		    
-		    // 简单身份证验证
 		    if (idCard.length !== 18 && idCard.length !== 15) {
 		        showToast('请输入正确的身份证号');
 		        return;
 		    }
 		    
-			// 保存头像
-			const avatarImg = document.querySelector('#customerAvatarPreview img');
-			if (avatarImg) {
-			    localStorage.setItem('pobizhe_avatar', avatarImg.src);
-			}
-			
+		    // 保存头像
+		    const avatarImg = document.querySelector('#customerAvatarPreview img');
+		    if (avatarImg) {
+		        localStorage.setItem('pobizhe_avatar', avatarImg.src);
+		    }
+		    
+		    // 创建用户 - 添加唯一 userId
 		    currentUser = {
+		        userId: Date.now().toString() + phone.slice(-6),  // 唯一用户ID
 		        name: name,
 		        nickname: nickname || name,
 		        phone: phone,
@@ -3595,6 +3596,7 @@
 			
 		    // 创建商家用户（待审核状态）
 		    currentUser = {
+				userId: Date.now().toString() + phone.slice(-6),
 		        name: legalName,
 		        phone: phone,
 		        type: 'merchant',
@@ -4007,7 +4009,9 @@
                 console.log('地址已初始化');
             }
             // ============================
-            
+            if (currentUser) {
+                    renderOrders();
+            }
             updateUserInfo();
         }
 
@@ -4317,13 +4321,21 @@
                 return;
             }
             
+            if (!currentUser) {
+                showToast('请先登录');
+                openAuthModal('customer');
+                return;
+            }
+            
             const subtotal = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const shippingFee = subtotal >= 19.9 ? 0 : 8;
             const total = subtotal + shippingFee;
             
-            // 创建订单
+            // 创建订单 - 绑定当前用户的唯一ID
             const order = {
                 id: 'ORD' + Date.now(),
+                userId: currentUser.userId || currentUser.phone,  // 关键：绑定用户
+                userName: currentUser.name,
                 items: [...shoppingCart],
                 subtotal: subtotal,
                 shippingFee: shippingFee,
@@ -4336,13 +4348,10 @@
                 date: new Date().toLocaleDateString()
             };
             
+            // 只添加到当前用户的订单列表中
             userOrders.unshift(order);
             
-            // 如果是商家订单，添加到商家订单列表
-            if (currentUser.type === 'merchant') {
-                merchantOrders.unshift(order);
-            }
-            
+            // 清空购物车
             shoppingCart = [];
             saveToStorage();
             updateCartBadge();
@@ -4426,14 +4435,26 @@
         }
 
         function updateProfileStats() {
-            document.getElementById('statOrders').textContent = userOrders.length;
+            if (!currentUser) return;
+            
+            // 只统计当前用户的订单数
+            const myOrders = userOrders.filter(order => 
+                order.userId === (currentUser.userId || currentUser.phone)
+            );
+            document.getElementById('statOrders').textContent = myOrders.length;
+            
+            // 购物车数量
             document.getElementById('statCart').textContent = shoppingCart.reduce((sum, item) => sum + item.quantity, 0);
             
             if (currentUser && currentUser.type === 'merchant') {
-                const totalSales = merchantOrders.reduce((sum, order) => sum + order.total, 0);
+                // 商家只统计自己的订单
+                const myMerchantOrders = merchantOrders.filter(order => 
+                    order.userId === (currentUser.userId || currentUser.phone)
+                );
+                const totalSales = myMerchantOrders.reduce((sum, order) => sum + order.total, 0);
                 document.getElementById('statSales').textContent = '¥' + totalSales.toFixed(0);
                 document.getElementById('salesTotal').textContent = '¥' + totalSales.toFixed(0);
-                document.getElementById('salesOrders').textContent = merchantOrders.length;
+                document.getElementById('salesOrders').textContent = myMerchantOrders.length;
                 document.getElementById('salesProducts').textContent = merchantProducts.length;
             }
         }
@@ -4462,17 +4483,32 @@
         function renderOrders() {
             const container = document.getElementById('orderList');
             
-            if (userOrders.length === 0) {
+            if (!currentUser) {
                 container.innerHTML = `
                     <div class="text-center py-4">
                         <i class="fas fa-receipt" style="font-size: 3rem; color: #ccc;"></i>
-                        <p class="text-muted mt-2">暂无订单</p>
+                        <p class="text-muted mt-2">请先登录查看订单</p>
                     </div>
                 `;
                 return;
             }
             
-            container.innerHTML = userOrders.map(order => `
+            // 关键：只显示当前用户的订单
+            const myOrders = userOrders.filter(order => 
+                order.userId === (currentUser.userId || currentUser.phone)
+            );
+            
+            if (myOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-receipt" style="font-size: 3rem; color: #ccc;"></i>
+                        <p class="text-muted mt-2">暂无订单，去逛逛吧~</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = myOrders.map(order => `
                 <div class="order-card">
                     <div class="d-flex justify-content-between mb-2">
                         <strong>订单号：${order.id}</strong>
@@ -5834,15 +5870,21 @@
 		    }
 		    
 		    if (!directBuyProduct) return;
+		    if (!currentUser) {
+		        showToast('请先登录');
+		        return;
+		    }
 		    
 		    const qty = parseInt(document.getElementById('directBuyQty').value) || 1;
 		    const subtotal = directBuyProduct.price * qty;
 		    const shippingFee = subtotal >= 19.9 ? 0 : 8;
 		    const total = subtotal + shippingFee;
 		    
-		    // 创建订单
+		    // 创建订单 - 绑定当前用户
 		    const order = {
 		        id: 'ORD' + Date.now(),
+		        userId: currentUser.userId || currentUser.phone,  // 绑定用户
+		        userName: currentUser.name,
 		        items: [{
 		            id: directBuyProduct.id,
 		            name: directBuyProduct.name,
@@ -5861,12 +5903,8 @@
 		        date: new Date().toLocaleDateString()
 		    };
 		    
+		    // 只添加到当前用户的订单列表
 		    userOrders.unshift(order);
-		    
-		    // 如果是商家订单，添加到商家订单列表
-		    if (currentUser.type === 'merchant') {
-		        merchantOrders.unshift(order);
-		    }
 		    
 		    saveToStorage();
 		    updateCartBadge();
