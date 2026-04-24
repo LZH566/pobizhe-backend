@@ -2233,534 +2233,515 @@
                 </div>
             </div>
             
-    <!-- ========== 商家入驻面板（完整版） ========== -->
-    <div id="merchantRegisterPanel" style="display: none;">
-        <!-- 上传头像 -->
-        <div class="text-center mb-4">
-            <div id="merchantAvatarPreview" style="width: 80px; height: 80px; margin: 0 auto 10px; 
-                        background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; 
-                        justify-content: center; overflow: hidden; cursor: pointer; border: 3px solid var(--primary-color);"
-                 onclick="document.getElementById('merchantAvatarInput').click()">
-                <i class="fas fa-store fa-2x" style="color: #999;"></i>
-            </div>
-            <input type="file" id="merchantAvatarInput" accept="image/*" style="display: none;" 
-                   onchange="previewMerchantAvatar(this)">
-            <small class="text-muted">点击上传头像<br>支持jpg、png格式</small>
-        </div>
-        
-        <!-- ========== 一、主体资质信息 ========== -->
-        <div class="card mb-4 p-3" style="background: #f8f9fa;">
-            <h5 class="mb-3" style="color: var(--primary-color);"><i class="fas fa-building me-2"></i>一、主体资质信息</h5>
-            
-            <!-- 主体类型 + 法人 -->
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">主体类型 <span class="text-danger">*</span></label>
-                    <select class="form-select" id="merchantEntityType">
-                        <option value="个人农户">个人农户</option>
-                        <option value="家庭农场">家庭农场</option>
-                        <option value="合作社">合作社</option>
-                        <option value="企业">企业</option>
-                    </select>
+            <!-- ========== 商家入驻面板（初始隐藏） ========== -->
+            <div id="merchantRegisterPanel" style="display: none;">
+                <!-- 上传头像 -->
+                <div class="text-center mb-4">
+                    <div id="merchantAvatarPreview" style="width: 80px; height: 80px; margin: 0 auto 10px; 
+                                background: #f0f0f0; border-radius: 50%; display: flex; align-items: center; 
+                                justify-content: center; overflow: hidden; cursor: pointer; border: 3px solid var(--primary-color);"
+                         onclick="document.getElementById('merchantAvatarInput').click()">
+                        <i class="fas fa-store fa-2x" style="color: #999;"></i>
+                    </div>
+                    <input type="file" id="merchantAvatarInput" accept="image/*" style="display: none;" 
+                           onchange="previewMerchantAvatar(this)">
+                    <small class="text-muted">点击上传头像<br>支持jpg、png格式</small>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">姓名/法人代表 <span class="text-danger">*</span></label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="merchantLegalName" placeholder="请输入姓名">
-                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantLegalName')">
-                            <i class="fas fa-microphone"></i>
-                        </button>
+                
+                <!-- 主体类型 + 法人 -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">主体类型 <span class="text-danger">*</span></label>
+                        <select class="form-select" id="merchantEntityType">
+                            <option value="合作社">合作社</option>
+                            <option value="家庭农场">家庭农场</option>
+                            <option value="个人农户">个人农户</option>
+                            <option value="企业">企业</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">姓名/法人代表 <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="merchantLegalName" placeholder="请输入姓名">
+                            <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantLegalName')">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- 身份证号 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">身份证号 <span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="merchantIdNumber" placeholder="请输入身份证号">
-                    <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantIdNumber')">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- 手机号 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">手机号 <span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <input type="tel" class="form-control" id="merchantPhone" placeholder="请输入手机号">
-                    <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantPhone')">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- 设置密码 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">设置密码 <span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <input type="password" class="form-control" id="merchantPassword" placeholder="请设置登录密码（6-20位）">
-                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('merchantPassword')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantPassword')">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                </div>
-                <small class="text-muted">密码长度6-20位，建议包含字母和数字</small>
-            </div>
-            
-            <!-- 确认密码 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">确认密码 <span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <input type="password" class="form-control" id="merchantConfirmPassword" placeholder="请再次输入密码">
-                    <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('merchantConfirmPassword')">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- 银行卡信息 -->
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">银行卡号（用于结算）</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="merchantBankCard" placeholder="请输入银行卡号">
-                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantBankCard')">
-                            <i class="fas fa-microphone"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">开户行</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="merchantBankName" placeholder="请输入开户行">
-                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantBankName')">
-                            <i class="fas fa-microphone"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 身份证正反面上传 -->
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">身份证正面 <span class="text-danger">*</span></label>
-                    <div class="id-card-upload" onclick="document.getElementById('merchantIdFrontInput').click()">
-                        <i class="fas fa-id-card"></i>
-                        <p class="mb-0">点击上传</p>
-                        <small class="text-muted">支持jpg、png</small>
-                    </div>
-                    <input type="file" id="merchantIdFrontInput" accept="image/*" style="display: none;" onchange="handleMerchantIdFrontUpload(event)">
-                    <div id="merchantIdFrontPreview" class="mt-2" style="display: none;">
-                        <img id="merchantIdFrontImg" src="" style="max-height: 60px; border-radius: 8px;">
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold">身份证反面 <span class="text-danger">*</span></label>
-                    <div class="id-card-upload" onclick="document.getElementById('merchantIdBackInput').click()">
-                        <i class="fas fa-id-card"></i>
-                        <p class="mb-0">点击上传</p>
-                        <small class="text-muted">支持jpg、png</small>
-                    </div>
-                    <input type="file" id="merchantIdBackInput" accept="image/*" style="display: none;" onchange="handleMerchantIdBackUpload(event)">
-                    <div id="merchantIdBackPreview" class="mt-2" style="display: none;">
-                        <img id="merchantIdBackImg" src="" style="max-height: 60px; border-radius: 8px;">
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 企业专属：营业执照、对公账户、食品许可证（根据主体类型动态显示） -->
-            <div id="enterpriseFields" style="display: none;">
+                
+                <!-- 身份证号 -->
                 <div class="mb-3">
-                    <label class="form-label fw-bold">营业执照 <span class="text-danger">*</span></label>
-                    <div class="id-card-upload" onclick="document.getElementById('merchantLicenseInput').click()">
-                        <i class="fas fa-building"></i>
-                        <p class="mb-0">上传营业执照</p>
-                        <small class="text-muted">支持jpg、png</small>
-                    </div>
-                    <input type="file" id="merchantLicenseInput" accept="image/*" style="display: none;" onchange="handleMerchantLicenseUpload(event)">
-                    <div id="merchantLicensePreview" class="mt-2" style="display: none;">
-                        <img id="merchantLicenseImg" src="" style="max-height: 60px; border-radius: 8px;">
-                    </div>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label fw-bold">对公账户</label>
+                    <label class="form-label fw-bold">身份证号 <span class="text-danger">*</span></label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="merchantCorporateAccount" placeholder="请输入对公账户">
-                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantCorporateAccount')">
+                        <input type="text" class="form-control" id="merchantIdNumber" placeholder="请输入身份证号">
+                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantIdNumber')">
                             <i class="fas fa-microphone"></i>
                         </button>
                     </div>
                 </div>
+                
+                <!-- 手机号 -->
                 <div class="mb-3">
-                    <label class="form-label fw-bold">食品经营/生产许可证</label>
-                    <div class="id-card-upload" onclick="document.getElementById('merchantFoodLicenseInput').click()">
-                        <i class="fas fa-utensils"></i>
-                        <p class="mb-0">上传许可证</p>
-                        <small class="text-muted">涉及加工食品需上传</small>
-                    </div>
-                    <input type="file" id="merchantFoodLicenseInput" accept="image/*" style="display: none;" onchange="handleMerchantFoodLicenseUpload(event)">
-                    <div id="merchantFoodLicensePreview" class="mt-2" style="display: none;">
-                        <img id="merchantFoodLicenseImg" src="" style="max-height: 60px; border-radius: 8px;">
+                    <label class="form-label fw-bold">手机号 <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="tel" class="form-control" id="merchantPhone" placeholder="请输入手机号">
+                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantPhone')">
+                            <i class="fas fa-microphone"></i>
+                        </button>
                     </div>
                 </div>
-            </div>
-        </div>
-        
-        <!-- ========== 二、店铺与商品信息 ========== -->
-        <div class="card mb-4 p-3" style="background: #f8f9fa;">
-            <h5 class="mb-3" style="color: var(--primary-color);"><i class="fas fa-store me-2"></i>二、店铺与商品信息</h5>
-            
-            <!-- 店铺名称 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">🏪 店铺名称 <span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="merchantShopName" placeholder="请输入店铺名称">
-                    <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantShopName')">
-                        <i class="fas fa-microphone"></i>
+                
+                <!-- 设置密码（新增） -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">设置密码 <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="merchantPassword" placeholder="请设置登录密码（6-20位）">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('merchantPassword')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantPassword')">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted">密码长度6-20位，建议包含字母和数字</small>
+                </div>
+                
+                <!-- 确认密码（新增） -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">确认密码 <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="merchantConfirmPassword" placeholder="请再次输入密码">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('merchantConfirmPassword')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 银行卡信息 -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">银行卡号（用于结算）</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="merchantBankCard" placeholder="请输入银行卡号">
+                            <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantBankCard')">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">开户行</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="merchantBankName" placeholder="请输入开户行">
+                            <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantBankName')">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 身份证正反面上传 -->
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">身份证正面 <span class="text-danger">*</span></label>
+                        <div class="id-card-upload" onclick="document.getElementById('merchantIdFrontInput').click()">
+                            <i class="fas fa-id-card"></i>
+                            <p class="mb-0">点击上传</p>
+                            <small class="text-muted">支持jpg、png</small>
+                        </div>
+                        <input type="file" id="merchantIdFrontInput" accept="image/*" style="display: none;" onchange="handleMerchantIdFrontUpload(event)">
+                        <div id="merchantIdFrontPreview" class="mt-2" style="display: none;">
+                            <img id="merchantIdFrontImg" src="" style="max-height: 60px; border-radius: 8px;">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">身份证反面 <span class="text-danger">*</span></label>
+                        <div class="id-card-upload" onclick="document.getElementById('merchantIdBackInput').click()">
+                            <i class="fas fa-id-card"></i>
+                            <p class="mb-0">点击上传</p>
+                            <small class="text-muted">支持jpg、png</small>
+                        </div>
+                        <input type="file" id="merchantIdBackInput" accept="image/*" style="display: none;" onchange="handleMerchantIdBackUpload(event)">
+                        <div id="merchantIdBackPreview" class="mt-2" style="display: none;">
+                            <img id="merchantIdBackImg" src="" style="max-height: 60px; border-radius: 8px;">
+                        </div>
+                    </div>
+                </div>
+				
+				<!-- ========== 操作习惯调查 ========== -->
+				<div class="mb-4">
+				    <label class="form-label fw-bold">📱 您目前主要使用什么工具卖货？</label>
+				    <div class="row">
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="toolWechat" value="微信">
+				                <label class="form-check-label" for="toolWechat">微信</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="toolDouyin" value="抖音">
+				                <label class="form-check-label" for="toolDouyin">抖音</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="toolPdd" value="拼多多">
+				                <label class="form-check-label" for="toolPdd">拼多多</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="toolTaobao" value="淘宝">
+				                <label class="form-check-label" for="toolTaobao">淘宝</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="toolNone" value="无电商经验">
+				                <label class="form-check-label" for="toolNone">无电商经验</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<div class="mb-3">
+				    <label class="form-label fw-bold">💻 是否接受使用网页后台管理？</label>
+				    <div class="d-flex gap-3">
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="webManage" id="webManageYes" value="接受">
+				            <label class="form-check-label" for="webManageYes">接受</label>
+				        </div>
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="webManage" id="webManageNo" value="不接受">
+				            <label class="form-check-label" for="webManageNo">不接受</label>
+				        </div>
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="webManage" id="webManageMaybe" value="需要培训">
+				            <label class="form-check-label" for="webManageMaybe">需要培训</label>
+				        </div>
+				    </div>
+				</div>
+				
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🎯 您需要哪些辅助功能？</label>
+				    <div class="row">
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="needSimple">
+				                <label class="form-check-label" for="needSimple">极简版界面</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="needVoice">
+				                <label class="form-check-label" for="needVoice">语音辅助功能</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="needManual">
+				                <label class="form-check-label" for="needManual">纸质操作手册</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="needTraining">
+				                <label class="form-check-label" for="needTraining">线下培训指导</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- ========== 新增：结算周期 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">💰 期望的结算周期</label>
+				    <select class="form-select" id="merchantSettlementPeriod">
+				        <option value="T+0">T+0（当天到账）</option>
+				        <option value="T+3">T+3（3天到账）</option>
+				        <option value="T+7" selected>T+7（7天到账）</option>
+				        <option value="T+15">T+15（15天到账）</option>
+				        <option value="T+30">T+30（30天到账）</option>
+				        <option value="monthly">按月结算</option>
+				    </select>
+				</div>
+				
+				<!-- ========== 新增：商品类目（多选） ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">📦 主营商品类目（可多选）</label>
+				    <div class="row">
+				        <div class="col-md-3 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="categoryFruit">
+				                <label class="form-check-label" for="categoryFruit">水果</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="categoryVegetable">
+				                <label class="form-check-label" for="categoryVegetable">蔬菜</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="categoryDry">
+				                <label class="form-check-label" for="categoryDry">干货</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="categoryEgg">
+				                <label class="form-check-label" for="categoryEgg">禽蛋</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="categoryGrain">
+				                <label class="form-check-label" for="categoryGrain">粮油米面</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="categorySeafood">
+				                <label class="form-check-label" for="categorySeafood">水产海鲜</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="categoryOther">
+				                <label class="form-check-label" for="categoryOther">其他</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- ========== 新增：销售模式 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🛒 销售模式</label>
+				    <div class="d-flex gap-3">
+				        <div class="form-check">
+				            <input class="form-check-input" type="checkbox" id="needPresale">
+				            <label class="form-check-label" for="needPresale">需要预售功能</label>
+				        </div>
+				        <div class="form-check">
+				            <input class="form-check-input" type="checkbox" id="needGroup">
+				            <label class="form-check-label" for="needGroup">需要拼团功能</label>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- ========== 新增：售卖规格 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">⚖️ 售卖规格（可多选）</label>
+				    <div class="row">
+				        <div class="col-md-2 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="unitJin">
+				                <label class="form-check-label" for="unitJin">斤</label>
+				            </div>
+				        </div>
+				        <div class="col-md-2 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="unitBox">
+				                <label class="form-check-label" for="unitBox">箱</label>
+				            </div>
+				        </div>
+				        <div class="col-md-2 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="unitPortion">
+				                <label class="form-check-label" for="unitPortion">份</label>
+				            </div>
+				        </div>
+				        <div class="col-md-2 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="unitPiece">
+				                <label class="form-check-label" for="unitPiece">个</label>
+				            </div>
+				        </div>
+				        <div class="col-md-2 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="unitOnly">
+				                <label class="form-check-label" for="unitOnly">只</label>
+				            </div>
+				        </div>
+				        <div class="col-md-2 col-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="unitLiang">
+				                <label class="form-check-label" for="unitLiang">两</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- ========== 新增：物流能力 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🚚 您能发货的地区</label>
+				    <div class="row">
+				        <div class="col-md-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="shipLocal">
+				                <label class="form-check-label" for="shipLocal">本县/区</label>
+				            </div>
+				        </div>
+				        <div class="col-md-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="shipProvince">
+				                <label class="form-check-label" for="shipProvince">本省</label>
+				            </div>
+				        </div>
+				        <div class="col-md-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="shipNationwide">
+				                <label class="form-check-label" for="shipNationwide">全国</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<div class="mb-3">
+				    <label class="form-label fw-bold">❄️ 是否需要冷链物流？</label>
+				    <div class="d-flex gap-3">
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="coldChain" id="coldYes" value="需要">
+				            <label class="form-check-label" for="coldYes">需要</label>
+				        </div>
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="coldChain" id="coldNo" value="不需要" checked>
+				            <label class="form-check-label" for="coldNo">不需要</label>
+				        </div>
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="coldChain" id="coldSometimes" value="部分季节需要">
+				            <label class="form-check-label" for="coldSometimes">部分季节需要</label>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- ========== 新增：痛点与需求 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">😟 目前电商运营中最大的困难？（可多选）</label>
+				    <div class="row">
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="painPublish">
+				                <label class="form-check-label" for="painPublish">不会上架商品</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="painPhoto">
+				                <label class="form-check-label" for="painPhoto">不会拍图/修图</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="painLogistics">
+				                <label class="form-check-label" for="painLogistics">物流成本太高</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="painTraffic">
+				                <label class="form-check-label" for="painTraffic">没有流量/订单</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="painOther">
+				                <label class="form-check-label" for="painOther">其他</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🤝 希望平台提供哪些免费服务？（可多选）</label>
+				    <div class="row">
+				        <div class="col-md-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="serviceOperation">
+				                <label class="form-check-label" for="serviceOperation">代运营服务</label>
+				            </div>
+				        </div>
+				        <div class="col-md-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="serviceTraining">
+				                <label class="form-check-label" for="serviceTraining">电商培训指导</label>
+				            </div>
+				        </div>
+				        <div class="col-md-4">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="serviceTraffic">
+				                <label class="form-check-label" for="serviceTraffic">流量扶持推广</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- ========== 新增：店铺名称 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🏪 店铺名称 <span class="text-danger">*</span></label>
+				    <div class="input-group">
+				        <input type="text" class="form-control" id="merchantShopName" placeholder="请输入店铺名称">
+				        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantShopName')">
+				            <i class="fas fa-microphone"></i>
+				        </button>
+				    </div>
+				</div>
+				
+				<!-- ========== 新增：产地 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🌾 产地（精确到村镇） <span class="text-danger">*</span></label>
+				    <div class="input-group">
+				        <input type="text" class="form-control" id="merchantOrigin" placeholder="例如：山东省烟台市栖霞县蛇窝泊镇">
+				        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantOrigin')">
+				            <i class="fas fa-microphone"></i>
+				        </button>
+				    </div>
+				</div>
+				
+                <!-- 产地证明 -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">产地证明 <span class="text-danger">*</span></label>
+                    <div class="id-card-upload" onclick="document.getElementById('merchantOriginProofInput').click()">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p class="mb-0">上传产地证明</p>
+                        <small class="text-muted">村委会盖章的产地证明或土地承包合同</small>
+                    </div>
+                    <input type="file" id="merchantOriginProofInput" accept="image/*" style="display: none;" onchange="handleMerchantOriginProofUpload(event)">
+                    <div id="merchantOriginProofPreview" class="mt-2" style="display: none;">
+                        <img id="merchantOriginProofImg" src="" style="max-height: 60px; border-radius: 8px;">
+                    </div>
+                </div>
+                
+                <!-- 商家发货地 -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">商家发货地 <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="merchantShipAddress" placeholder="省/市/县/镇/村">
+                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantShipAddress')">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted">商家填写发货地，精确到镇或村</small>
+                </div>
+                
+                <!-- 同意协议 -->
+                <div class="mb-4 form-check">
+                    <input type="checkbox" class="form-check-input" id="merchantAgreeTerms">
+                    <label class="form-check-label small" for="merchantAgreeTerms">
+                        我已阅读并同意《商家入驻协议》和《隐私政策》
+                    </label>
+                </div>
+                
+                <div class="d-grid">
+                    <button class="btn btn-custom btn-lg" onclick="handleMerchantRegister()">
+                        <i class="fas fa-store me-2"></i>提交入驻申请
                     </button>
                 </div>
-            </div>
-            
-            <!-- 主营商品类目 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">📦 主营商品类目（可多选）</label>
-                <div class="row">
-                    <div class="col-md-3 col-4">
-                        <div class="form-check"><input class="form-check-input" type="checkbox" id="categoryFruit"><label for="categoryFruit">水果</label></div>
-                    </div>
-                    <div class="col-md-3 col-4">
-                        <div class="form-check"><input class="form-check-input" type="checkbox" id="categoryVegetable"><label for="categoryVegetable">蔬菜</label></div>
-                    </div>
-                    <div class="col-md-3 col-4">
-                        <div class="form-check"><input class="form-check-input" type="checkbox" id="categoryDry"><label for="categoryDry">干货</label></div>
-                    </div>
-                    <div class="col-md-3 col-4">
-                        <div class="form-check"><input class="form-check-input" type="checkbox" id="categoryEgg"><label for="categoryEgg">禽蛋</label></div>
-                    </div>
-                    <div class="col-md-3 col-4">
-                        <div class="form-check"><input class="form-check-input" type="checkbox" id="categoryGrain"><label for="categoryGrain">粮油米面</label></div>
-                    </div>
-                    <div class="col-md-3 col-4">
-                        <div class="form-check"><input class="form-check-input" type="checkbox" id="categorySeafood"><label for="categorySeafood">水产海鲜</label></div>
-                    </div>
-                    <div class="col-md-3 col-4">
-                        <div class="form-check"><input class="form-check-input" type="checkbox" id="categoryOther"><label for="categoryOther">其他</label></div>
-                    </div>
+                <div class="text-center mt-3">
+                    <small class="text-muted">提交后将在1-3个工作日内审核</small>
                 </div>
             </div>
-            
-            <!-- 产地 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">🌾 产地（精确到村镇） <span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="merchantOrigin" placeholder="例如：山东省烟台市栖霞县蛇窝泊镇">
-                    <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantOrigin')">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <!-- 产地证明 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">产地证明 <span class="text-danger">*</span></label>
-                <div class="id-card-upload" onclick="document.getElementById('merchantOriginProofInput').click()">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <p class="mb-0">上传产地证明</p>
-                    <small class="text-muted">村委会盖章的产地证明或土地承包合同</small>
-                </div>
-                <input type="file" id="merchantOriginProofInput" accept="image/*" style="display: none;" onchange="handleMerchantOriginProofUpload(event)">
-                <div id="merchantOriginProofPreview" class="mt-2" style="display: none;">
-                    <img id="merchantOriginProofImg" src="" style="max-height: 60px; border-radius: 8px;">
-                </div>
-            </div>
-            
-            <!-- 商家发货地 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">商家发货地 <span class="text-danger">*</span></label>
-                <div class="input-group">
-                    <input type="text" class="form-control" id="merchantShipAddress" placeholder="省/市/县/镇/村">
-                    <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantShipAddress')">
-                        <i class="fas fa-microphone"></i>
-                    </button>
-                </div>
-                <small class="text-muted">商家填写发货地，精确到镇或村</small>
-            </div>
-            
-            <!-- 商品资料（可添加多个） -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">📦 商品资料</label>
-                <div id="merchantProductsContainer">
-                    <div class="product-item card p-3 mb-3" id="productItem1">
-                        <div class="d-flex justify-content-between mb-2">
-                            <strong>商品 1</strong>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-md-12">
-                                <label class="form-label">商品名称</label>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" id="productName1" placeholder="例如：红富士苹果">
-                                    <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('productName1')">
-                                        <i class="fas fa-microphone"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-md-4">
-                                <label class="form-label">价格（元）</label>
-                                <div class="input-group">
-                                    <input type="number" step="0.1" class="form-control" id="productPrice1" placeholder="例如：5.5">
-                                    <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('productPrice1')">
-                                        <i class="fas fa-microphone"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">规格</label>
-                                <select class="form-select" id="productUnit1">
-                                    <option value="斤">斤</option><option value="箱">箱</option><option value="份">份</option>
-                                    <option value="个">个</option><option value="只">只</option><option value="两">两</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">库存数量</label>
-                                <div class="input-group">
-                                    <input type="number" class="form-control" id="productStock1" placeholder="例如：1000">
-                                    <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('productStock1')">
-                                        <i class="fas fa-microphone"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row mb-2">
-                            <div class="col-md-12">
-                                <label class="form-label">商品实拍图（至少3张）</label>
-                                <div class="d-flex gap-2 flex-wrap" id="productImages1">
-                                    <div class="id-card-upload" style="width: 100px; height: 100px; padding: 10px;" onclick="document.getElementById('productImg1_1').click()">
-                                        <i class="fas fa-plus"></i><p class="small">图片1</p>
-                                    </div>
-                                    <input type="file" id="productImg1_1" accept="image/*" style="display: none;" onchange="handleProductImageUpload(event, 'preview1_1')">
-                                    <div id="preview1_1" style="width: 100px; height: 100px; display: none;"></div>
-                                    <div class="id-card-upload" style="width: 100px; height: 100px; padding: 10px;" onclick="document.getElementById('productImg1_2').click()">
-                                        <i class="fas fa-plus"></i><p class="small">图片2</p>
-                                    </div>
-                                    <input type="file" id="productImg1_2" accept="image/*" style="display: none;" onchange="handleProductImageUpload(event, 'preview1_2')">
-                                    <div id="preview1_2" style="width: 100px; height: 100px; display: none;"></div>
-                                    <div class="id-card-upload" style="width: 100px; height: 100px; padding: 10px;" onclick="document.getElementById('productImg1_3').click()">
-                                        <i class="fas fa-plus"></i><p class="small">图片3</p>
-                                    </div>
-                                    <input type="file" id="productImg1_3" accept="image/*" style="display: none;" onchange="handleProductImageUpload(event, 'preview1_3')">
-                                    <div id="preview1_3" style="width: 100px; height: 100px; display: none;"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-12">
-                                <label class="form-label">商品描述</label>
-                                <textarea class="form-control" id="productDesc1" rows="2" placeholder="例如：自家种植，新鲜采摘..."></textarea>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" class="btn btn-outline-success btn-sm mt-2" onclick="addProductItem()">
-                    <i class="fas fa-plus me-1"></i>添加商品
-                </button>
-            </div>
-        </div>
-        
-        <!-- ========== 三、合规与认证信息 ========== -->
-        <div class="card mb-4 p-3" style="background: #f8f9fa;">
-            <h5 class="mb-3" style="color: var(--primary-color);"><i class="fas fa-certificate me-2"></i>三、合规与认证信息</h5>
-            
-            <!-- 三品一标认证 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">🏅 三品一标认证（可多选）</label>
-                <div class="row">
-                    <div class="col-md-3 col-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="certGreen"><label for="certGreen">绿色食品</label></div></div>
-                    <div class="col-md-3 col-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="certOrganic"><label for="certOrganic">有机食品</label></div></div>
-                    <div class="col-md-3 col-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="certPollutionFree"><label for="certPollutionFree">无公害农产品</label></div></div>
-                    <div class="col-md-3 col-6"><div class="form-check"><input class="form-check-input" type="checkbox" id="certGeographical"><label for="certGeographical">地理标志</label></div></div>
-                </div>
-            </div>
-            
-            <!-- 质检报告上传 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">📄 农产品质量检测报告</label>
-                <div class="id-card-upload" onclick="document.getElementById('reportUploadInput').click()">
-                    <i class="fas fa-file-alt"></i>
-                    <p class="mb-0">点击上传检测报告</p>
-                    <small class="text-muted">支持jpg、png、pdf格式</small>
-                </div>
-                <input type="file" id="reportUploadInput" accept="image/*,application/pdf" style="display: none;" onchange="handleReportUpload(event)">
-                <div id="reportPreview" class="mt-2" style="display: none;">
-                    <img id="reportImg" src="" style="max-height: 60px; border-radius: 8px;">
-                </div>
-            </div>
-            
-            <!-- 是否加入溯源体系 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">🔍 是否愿意加入平台的"溯源体系"？</label>
-                <div class="d-flex gap-3">
-                    <div class="form-check"><input class="form-check-input" type="radio" name="joinTrace" id="traceYes" value="yes"><label for="traceYes">愿意（可获得流量扶持）</label></div>
-                    <div class="form-check"><input class="form-check-input" type="radio" name="joinTrace" id="traceNo" value="no" checked><label for="traceNo">暂不</label></div>
-                </div>
-                <small class="text-muted">加入溯源体系可获得平台流量扶持和官方认证标识</small>
-            </div>
-            
-            <!-- 库存更新频率 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">📊 库存更新频率</label>
-                <select class="form-select" id="inventoryFrequency">
-                    <option value="daily">每日更新</option><option value="weekly">每周更新</option>
-                    <option value="monthly">每月更新</option><option value="manual">手动更新</option>
-                </select>
-            </div>
-            
-            <!-- 期望结算周期 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">💰 期望的结算周期</label>
-                <select class="form-select" id="merchantSettlementPeriod">
-                    <option value="T+0">T+0（当天到账）</option><option value="T+3">T+3（3天到账）</option>
-                    <option value="T+7" selected>T+7（7天到账）</option><option value="T+15">T+15（15天到账）</option>
-                    <option value="T+30">T+30（30天到账）</option><option value="monthly">按月结算</option>
-                </select>
-            </div>
-            
-            <!-- 销售模式 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">🛒 销售模式</label>
-                <div class="d-flex gap-3">
-                    <div class="form-check"><input class="form-check-input" type="checkbox" id="needPresale"><label for="needPresale">需要预售功能</label></div>
-                    <div class="form-check"><input class="form-check-input" type="checkbox" id="needGroup"><label for="needGroup">需要拼团功能</label></div>
-                </div>
-            </div>
-            
-            <!-- 售卖规格 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">⚖️ 售卖规格（可多选）</label>
-                <div class="row">
-                    <div class="col-md-2 col-4"><div class="form-check"><input type="checkbox" id="unitJin"><label for="unitJin">斤</label></div></div>
-                    <div class="col-md-2 col-4"><div class="form-check"><input type="checkbox" id="unitBox"><label for="unitBox">箱</label></div></div>
-                    <div class="col-md-2 col-4"><div class="form-check"><input type="checkbox" id="unitPortion"><label for="unitPortion">份</label></div></div>
-                    <div class="col-md-2 col-4"><div class="form-check"><input type="checkbox" id="unitPiece"><label for="unitPiece">个</label></div></div>
-                    <div class="col-md-2 col-4"><div class="form-check"><input type="checkbox" id="unitOnly"><label for="unitOnly">只</label></div></div>
-                    <div class="col-md-2 col-4"><div class="form-check"><input type="checkbox" id="unitLiang"><label for="unitLiang">两</label></div></div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ========== 四、物流能力 ========== -->
-        <div class="card mb-4 p-3" style="background: #f8f9fa;">
-            <h5 class="mb-3" style="color: var(--primary-color);"><i class="fas fa-truck me-2"></i>四、物流能力</h5>
-            
-            <!-- 物流方式选择 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">🚚 物流方式</label>
-                <div class="d-flex gap-3">
-                    <div class="form-check"><input class="form-check-input" type="radio" name="shippingType" id="shippingSelf" value="self" checked><label for="shippingSelf">商家自己发货</label></div>
-                    <div class="form-check"><input class="form-check-input" type="radio" name="shippingType" id="shippingPlatform" value="platform"><label for="shippingPlatform">需要平台协调物流</label></div>
-                </div>
-            </div>
-            
-            <!-- 能发货的地区 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">📍 能发货的地区</label>
-                <div class="row">
-                    <div class="col-md-4"><div class="form-check"><input type="checkbox" id="shipLocalArea"><label for="shipLocalArea">本县/区</label></div></div>
-                    <div class="col-md-4"><div class="form-check"><input type="checkbox" id="shipProvinceArea"><label for="shipProvinceArea">本省</label></div></div>
-                    <div class="col-md-4"><div class="form-check"><input type="checkbox" id="shipNationwideArea"><label for="shipNationwideArea">全国</label></div></div>
-                </div>
-                <div class="input-group mt-2">
-                    <input type="text" class="form-control" id="shipCustomArea" placeholder="其他地区（用逗号分隔）">
-                    <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('shipCustomArea')"><i class="fas fa-microphone"></i></button>
-                </div>
-            </div>
-            
-            <!-- 是否需要冷链物流 -->
-            <div class="mb-3">
-                <label class="form-label fw-bold">❄️ 是否需要冷链物流？</label>
-                <div class="d-flex gap-3">
-                    <div class="form-check"><input class="form-check-input" type="radio" name="coldChain" id="coldYes" value="需要"><label for="coldYes">需要</label></div>
-                    <div class="form-check"><input class="form-check-input" type="radio" name="coldChain" id="coldNo" value="不需要" checked><label for="coldNo">不需要</label></div>
-                    <div class="form-check"><input class="form-check-input" type="radio" name="coldChain" id="coldSometimes" value="部分季节需要"><label for="coldSometimes">部分季节需要</label></div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- ========== 五、操作习惯调查 ========== -->
-        <div class="card mb-4 p-3" style="background: #f8f9fa;">
-            <h5 class="mb-3" style="color: var(--primary-color);"><i class="fas fa-chart-line me-2"></i>五、操作习惯调查</h5>
-            
-            <div class="mb-3">
-                <label class="form-label fw-bold">📱 您目前主要使用什么工具卖货？</label>
-                <div class="row">
-                    <div class="col-md-3 col-6"><div class="form-check"><input type="checkbox" id="toolWechat"><label for="toolWechat">微信</label></div></div>
-                    <div class="col-md-3 col-6"><div class="form-check"><input type="checkbox" id="toolDouyin"><label for="toolDouyin">抖音</label></div></div>
-                    <div class="col-md-3 col-6"><div class="form-check"><input type="checkbox" id="toolPdd"><label for="toolPdd">拼多多</label></div></div>
-                    <div class="col-md-3 col-6"><div class="form-check"><input type="checkbox" id="toolTaobao"><label for="toolTaobao">淘宝</label></div></div>
-                    <div class="col-md-3 col-6"><div class="form-check"><input type="checkbox" id="toolNone"><label for="toolNone">无电商经验</label></div></div>
-                </div>
-            </div>
-            
-            <div class="mb-3">
-                <label class="form-label fw-bold">💻 是否接受使用网页后台管理？</label>
-                <div class="d-flex gap-3">
-                    <div class="form-check"><input class="form-check-input" type="radio" name="webManage" id="webManageYes" value="接受"><label for="webManageYes">接受</label></div>
-                    <div class="form-check"><input class="form-check-input" type="radio" name="webManage" id="webManageNo" value="不接受"><label for="webManageNo">不接受</label></div>
-                    <div class="form-check"><input class="form-check-input" type="radio" name="webManage" id="webManageMaybe" value="需要培训"><label for="webManageMaybe">需要培训</label></div>
-                </div>
-            </div>
-            
-            <div class="mb-3">
-                <label class="form-label fw-bold">🎯 您需要哪些辅助功能？</label>
-                <div class="row">
-                    <div class="col-md-3 col-6"><div class="form-check"><input type="checkbox" id="needSimple"><label for="needSimple">极简版界面</label></div></div>
-                    <div class="col-md-3 col-6"><div class="form-check"><input type="checkbox" id="needVoice"><label for="needVoice">语音辅助功能</label></div></div>
-                    <div class="col-md-3 col-6"><div class="form-check"><input type="checkbox" id="needManual"><label for="needManual">纸质操作手册</label></div></div>
-                    <div class="col-md-3 col-6"><div class="form-check"><input type="checkbox" id="needTraining"><label for="needTraining">线下培训指导</label></div></div>
-                </div>
-            </div>
-            
-            <div class="mb-3">
-                <label class="form-label fw-bold">😟 目前电商运营中最大的困难？（可多选）</label>
-                <div class="row">
-                    <div class="col-md-3 col-6"><div class="form-check"><input type="checkbox" id="painPublish"><label for="painPublish">不会上架商品</label></div></div>
-                    <div class="col-md-3 col-6"><div class="form-check"><input type="checkbox" id="painPhoto"><label for="painPhoto">不会拍图/修图</label></div></div>
-                    <div class="col-md-3 col-6"><div class="form-check"><input type="checkbox" id="painLogistics"><label for="painLogistics">物流成本太高</label></div></div>
-                    <div class="col-md-3 col-6"><div class="form-check"><input type="checkbox" id="painTraffic"><label for="painTraffic">没有流量/订单</label></div></div>
-                    <div class="col-md-3 col-6"><div class="form-check"><input type="checkbox" id="painOther"><label for="painOther">其他</label></div></div>
-                </div>
-            </div>
-            
-            <div class="mb-3">
-                <label class="form-label fw-bold">🤝 希望平台提供哪些免费服务？（可多选）</label>
-                <div class="row">
-                    <div class="col-md-4"><div class="form-check"><input type="checkbox" id="serviceOperation"><label for="serviceOperation">代运营服务</label></div></div>
-                    <div class="col-md-4"><div class="form-check"><input type="checkbox" id="serviceTraining"><label for="serviceTraining">电商培训指导</label></div></div>
-                    <div class="col-md-4"><div class="form-check"><input type="checkbox" id="serviceTraffic"><label for="serviceTraffic">流量扶持推广</label></div></div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- 同意协议 -->
-        <div class="mb-4 form-check">
-            <input type="checkbox" class="form-check-input" id="merchantAgreeTerms">
-            <label class="form-check-label small" for="merchantAgreeTerms">
-                我已阅读并同意《商家入驻协议》和《隐私政策》
-            </label>
-        </div>
-        
-        <div class="d-grid">
-            <button class="btn btn-custom btn-lg" onclick="handleMerchantRegister()">
-                <i class="fas fa-store me-2"></i>提交入驻申请
-            </button>
-        </div>
-        <div class="text-center mt-3">
-            <small class="text-muted">提交后将在1-3个工作日内审核</small>
         </div>
     </div>
 
@@ -3844,34 +3825,6 @@
 		    reader.readAsDataURL(file);
 		}
 		
-		// 营业执照上传
-		function handleMerchantLicenseUpload(event) {
-		    const file = event.target.files[0];
-		    if (!file) return;
-		    const reader = new FileReader();
-		    reader.onload = function(e) {
-		        const preview = document.getElementById('merchantLicensePreview');
-		        const img = document.getElementById('merchantLicenseImg');
-		        if (img) img.src = e.target.result;
-		        if (preview) preview.style.display = 'block';
-		    };
-		    reader.readAsDataURL(file);
-		}
-		
-		// 食品许可证上传
-		function handleMerchantFoodLicenseUpload(event) {
-		    const file = event.target.files[0];
-		    if (!file) return;
-		    const reader = new FileReader();
-		    reader.onload = function(e) {
-		        const preview = document.getElementById('merchantFoodLicensePreview');
-		        const img = document.getElementById('merchantFoodLicenseImg');
-		        if (img) img.src = e.target.result;
-		        if (preview) preview.style.display = 'block';
-		    };
-		    reader.readAsDataURL(file);
-		}
-		
 		// 重置注册表单
 		function resetAuthForms() {
 		    // 重置顾客表单
@@ -4071,30 +4024,6 @@
 		    if (document.getElementById('serviceOperation')?.checked) services.push('代运营');
 		    if (document.getElementById('serviceTraining')?.checked) services.push('培训指导');
 		    if (document.getElementById('serviceTraffic')?.checked) services.push('流量扶持');
-
-			// 收集认证信息
-			const certifications = {
-			    green: document.getElementById('certGreen')?.checked || false,
-			    organic: document.getElementById('certOrganic')?.checked || false,
-			    pollutionFree: document.getElementById('certPollutionFree')?.checked || false,
-			    geographical: document.getElementById('certGeographical')?.checked || false
-			};
-			
-			// 收集质检报告
-			const hasReport = document.getElementById('reportUploadInput')?.files[0] ? true : false;
-			
-			// 收集是否加入溯源体系
-			const joinTrace = document.querySelector('input[name="joinTrace"]:checked')?.value === 'yes';
-			
-			// 收集库存更新频率
-			const inventoryFrequency = document.getElementById('inventoryFrequency')?.value || 'daily';
-			
-			// 收集物流能力
-			const shippingType = document.querySelector('input[name="shippingType"]:checked')?.value || 'self';
-			if (document.getElementById('shipLocalArea')?.checked) shipAreas.push('本县/区');
-			if (document.getElementById('shipProvinceArea')?.checked) shipAreas.push('本省');
-			if (document.getElementById('shipNationwideArea')?.checked) shipAreas.push('全国');
-			const shipCustomArea = document.getElementById('shipCustomArea')?.value || '';
 		    
 		    // ========== 保存头像 ==========
 		    const avatarImg = document.querySelector('#merchantAvatarPreview img');
@@ -4130,27 +4059,12 @@
 		            webManage: webManage,
 		            needs: needs,
 		            saleUnits: saleUnits,
-		            shipAreas: shipAreas,      // 原有的发货地区
+		            shipAreas: shipAreas,
 		            needColdChain: needColdChain,
 		            pains: pains,
 		            services: services,
 		            needPresale: needPresale,
-		            needGroup: needGroup,
-		            // ========== 新增的认证和物流字段（放在这里）==========
-		            certifications: {
-		                green: document.getElementById('certGreen')?.checked || false,
-		                organic: document.getElementById('certOrganic')?.checked || false,
-		                pollutionFree: document.getElementById('certPollutionFree')?.checked || false,
-		                geographical: document.getElementById('certGeographical')?.checked || false
-		            },
-		            hasReport: document.getElementById('reportUploadInput')?.files[0] ? true : false,
-		            joinTrace: document.querySelector('input[name="joinTrace"]:checked')?.value === 'yes',
-		            inventoryFrequency: document.getElementById('inventoryFrequency')?.value || 'daily',
-		            shippingType: document.querySelector('input[name="shippingType"]:checked')?.value || 'self',
-		            shipLocalArea: document.getElementById('shipLocalArea')?.checked || false,
-		            shipProvinceArea: document.getElementById('shipProvinceArea')?.checked || false,
-		            shipNationwideArea: document.getElementById('shipNationwideArea')?.checked || false,
-		            shipCustomArea: document.getElementById('shipCustomArea')?.value || ''
+		            needGroup: needGroup
 		        },
 		        registerDate: new Date().toISOString()
 		    };
@@ -4505,26 +4419,6 @@
             loadFromStorage();
 			loadAllUsers();
 			loadMerchantApplications();
-			
-		    // 监听主体类型变化，显示/隐藏企业专属字段
-		    const merchantEntityType = document.getElementById('merchantEntityType');
-		    if (merchantEntityType) {
-		        merchantEntityType.addEventListener('change', function() {
-		            const enterpriseFields = document.getElementById('enterpriseFields');
-		            if (enterpriseFields) {
-		                if (this.value === '企业' || this.value === '合作社') {
-		                    enterpriseFields.style.display = 'block';
-		                } else {
-		                    enterpriseFields.style.display = 'none';
-		                }
-		            }
-		        });
-		        
-		        // 初始化时也执行一次，确保正确的显示状态
-		        const initialEvent = new Event('change');
-		        merchantEntityType.dispatchEvent(initialEvent);
-		    }
-			
 	        // 页面加载完成后隐藏加载动画
 	        window.addEventListener('load', function() {
 	            const loader = document.getElementById('pageLoader');
