@@ -4874,6 +4874,13 @@
             document.getElementById('authModal').classList.remove('show');
         }
 		
+		function scrollToSection(id) {
+            const target = document.querySelector('#' + id);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+		
 		// 打开添加收货地址弹窗
 		function addReceiveAddress() { 
 		    document.getElementById('addReceiveAddressModal').classList.add('show'); 
