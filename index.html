@@ -4,7 +4,7 @@
 <head>
 	<link rel="icon" type="image/png" href="./favicon.png">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>破壁者 - 乡村零门槛电商生态圈</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -1297,108 +1297,118 @@
 	    }
 	    
 	    @media (max-width: 768px) {
-	        .container {
-	            padding-right: 12px;
-	            padding-left: 12px;
+	        html { font-size: 14px; }
+	        body { 
+	            padding-top: 56px; 
+	            padding-bottom: 65px;
+	            overflow-x: hidden;
 	        }
 	        
-	        /* Hero区域自适应 */
-	        .hero-section {
-	            padding: 60px 0;
+	        /* 容器 */
+	        .container { 
+	            padding-left: 8px !important; 
+	            padding-right: 8px !important;
+	            width: 100%;
+	            max-width: 100%;
 	        }
 	        
-	        .hero-section .row {
-	            flex-direction: column;
-	        }
-	        
-	        .hero-section img {
-	            max-height: 200px !important;
-	            margin-bottom: 20px;
-	        }
-	        
-	        .hero-title {
-	            font-size: 1.6rem;
-	        }
-	        
-	        .hero-subtitle {
-	            font-size: 1rem;
-	        }
+	        /* Hero区域 */
+	        .hero-section { padding: 30px 10px; }
+	        .hero-title { font-size: 1.3rem !important; }
+	        .hero-subtitle { font-size: 0.85rem !important; }
+	        .hero-section img { max-height: 100px !important; margin-bottom: 10px; }
 	        
 	        /* 商品网格 - 2列 */
-	        #productGrid .col-md-6.col-lg-4 {
-	            width: 50%;
-	            padding: 0 8px;
-	        }
-	        
-	        #productGrid {
-	            margin: 0 -8px;
-	        }
-	        
-	        /* 认证专区 */
-	        #certifiedProductsGrid .col-md-4.col-lg-3 {
-	            width: 50%;
-	        }
-	        
-	        /* 盲盒专区 */
-	        .blind-box-section {
-	            padding: 20px;
-	        }
-	        
-	        /* 模态框 */
-	        .auth-content, 
-	        .ai-generator-content, 
-	        .cart-content, 
-	        .profile-content, 
-	        .payment-content {
-	            width: 95%;
-	            max-height: 95vh;
-	            padding: 20px;
-	        }
-	        
-	        /* 支付方式 - 2列 */
-	        .payment-methods {
-	            grid-template-columns: repeat(2, 1fr);
-	            gap: 10px;
-	        }
-	        
-	        /* 表单元素防止缩放 */
-	        input, select, textarea, .form-control, .form-select {
-	            font-size: 16px !important;
-	        }
-	        
-	        /* 语音助手位置 */
-	        .voice-assistant-btn {
-	            bottom: 80px;
-	            right: 15px;
-	            width: 55px;
-	            height: 55px;
-	        }
-	        
-	        .voice-chat-box {
-	            width: 90%;
-	            right: 5%;
-	            left: 5%;
-	            bottom: 100px;
-	        }
-	        
-	        /* 底部导航显示 */
-	        .bottom-nav {
+	        #productGrid { 
+	            margin: 0 -6px !important;
 	            display: flex;
-	        }
-	        
-	        body {
-	            padding-bottom: 70px;
-	        }
-	        
-	        /* 商品详情页 */
-	        #productDetailModal [style*="height: 300px"] {
-	            height: 200px !important;
-	        }
-	        
-	        /* flex换行 */
-	        .d-flex.gap-3, .d-flex.gap-2, .d-flex.gap-1 {
 	            flex-wrap: wrap;
 	        }
+	        #productGrid .col-6 {
+	            width: 50%;
+	            padding: 0 6px !important;
+	            margin-bottom: 12px;
+	        }
+	        .product-img { height: 120px !important; }
+	        .product-name { font-size: 0.8rem !important; }
+	        .product-price { font-size: 1rem !important; }
+	        .product-seller { font-size: 0.6rem !important; }
+	        
+	        /* 按钮大小 */
+	        .btn-custom, .btn-outline-light { padding: 5px 10px; font-size: 0.7rem; }
+	        .btn-merchant, .btn-customer, .btn-login { padding: 4px 8px; font-size: 0.7rem; }
+	        
+	        /* 盲盒专区 */
+	        .blind-box-section { padding: 15px; }
+	        .blind-box-card { padding: 12px !important; }
+	        .blind-box-icon { font-size: 2rem !important; }
+	        .blind-box-card h4 { font-size: 1rem; }
+	        .blind-box-card .price { font-size: 1.3rem !important; }
+	        
+	        /* 模态框 */
+	        .auth-content, .cart-content, .profile-content, .payment-content {
+	            width: 95%;
+	            max-height: 85vh;
+	            padding: 15px;
+	        }
+	        
+	        /* 支付方式 */
+	        .payment-methods { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+	        .payment-method { padding: 12px; }
+	        .payment-method i { font-size: 1.5rem; }
+	        
+	        /* 表单元素 */
+	        input, select, textarea, .form-control, .form-select { 
+	            font-size: 14px !important; 
+	            padding: 8px 10px;
+	        }
+	        
+	        /* 语音助手 */
+	        .voice-assistant-btn { bottom: 70px; right: 15px; width: 45px; height: 45px; }
+	        .voice-assistant-btn i { font-size: 1.2rem; }
+	        .voice-chat-box { width: 90%; right: 5%; left: 5%; bottom: 90px; }
+	        
+	        /* 底部导航 */
+	        .bottom-nav { display: flex; padding: 6px 0; }
+	        .bottom-nav-item i { font-size: 1.1rem; }
+	        .bottom-nav-item span { font-size: 0.65rem; }
+	        
+	        /* 商品卡片内边距 */
+	        .product-body { padding: 8px; }
+	        
+	        /* 服务卡片 */
+	        .service-card { padding: 12px; }
+	        .icon-box { width: 40px; height: 40px; font-size: 1.2rem; }
+	        .card-title { font-size: 0.9rem; }
+	        .card-text { font-size: 0.75rem; }
+	        
+	        /* 认证专区 */
+	        .certify-zone { padding: 15px; }
+	        .standard-card { padding: 10px; }
+	        .standard-card h6 { font-size: 0.75rem; }
+	        .standard-card small { font-size: 0.6rem; }
+	        
+	        /* 页脚 */
+	        footer { padding: 30px 0 20px; }
+	        footer h5 { font-size: 0.9rem; }
+	        footer p, footer li { font-size: 0.7rem; }
+	        
+	        /* 身份选择器 */
+	        .user-type-selector { flex-direction: row !important; gap: 8px; }
+	        .user-type-card { padding: 8px !important; }
+	        .user-type-card i { font-size: 1.3rem; }
+	        .user-type-card div { font-size: 0.7rem; }
+	        
+	        /* 购物车 */
+	        .cart-item { padding: 10px; }
+	        .cart-item-img { width: 50px; height: 50px; }
+	        .cart-item-info h6 { font-size: 0.8rem; }
+	        .cart-item-price { font-size: 0.9rem; }
+	        
+	        /* 订单卡片 */
+	        .order-card { padding: 12px; }
+	        .order-card strong { font-size: 0.7rem; }
+	        .order-card p { font-size: 0.7rem; }
 	    }
 	    
 	    /* 电脑端隐藏底部导航（确保） */
@@ -3061,7 +3071,7 @@
             </i>
             <span>购物车</span>
         </div>
-        <div class="bottom-nav-item" onclick="checkLoginAndOpen('profile')">
+        <div class="bottom-nav-item" onclick="checkAndOpenProfile()">
             <i class="fas fa-user"></i>
             <span>我的</span>
         </div>
@@ -3184,21 +3194,16 @@
 		    const container = document.getElementById('certifiedProductsGrid');
 		    if(!container) return;
 		    container.innerHTML = certified.map(p => `
-		        <div class="col-md-4 col-lg-3">
+		        <div class="col-6 col-md-4 col-lg-3" style="padding: 0 6px; margin-bottom: 12px;">
 		            <div class="product-card">
-		                <span class="product-badge certified" style="background:#FFD966; position:absolute; top:10px; right:10px;"><i class="fas fa-check-circle"></i> 乡村好物认证</span>
-		                <img src="${p.image}" class="product-img" style="height:160px;" alt="${p.name}">
-		                <div class="product-body p-3">
-		                    <h6 class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</h6>
-		                    <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.seller}</div>
-		                    <div class="d-flex justify-content-between align-items-center mt-2">
-		                        <span class="product-price" style="white-space: nowrap;">¥${p.price.toFixed(2)}/${p.unit}</span>
-		                        <div class="d-flex gap-1">
-		                            <button class="btn btn-sm btn-outline-warning" onclick="viewTrace('${p.traceCode}')" style="white-space: nowrap; border-radius: 20px; padding: 4px 10px; font-size: 0.7rem; min-width: 60px;"><i class="fas fa-qrcode me-1"></i>溯源</button>
-		                            <button class="btn btn-sm btn-warning" onclick=""event.stopPropagation();openProductDetail(${p.id})" style="white-space: nowrap; border-radius: 20px; padding: 4px 10px; font-size: 0.7rem; min-width: 60px; background: linear-gradient(135deg, #FF8F00, #FFA726); color: white; border: none;"><i class="fas fa-eye me-1"></i>购买
-		                        </div>
+		                <img src="${p.image}" class="product-img" style="height: 120px; object-fit: cover; width: 100%;" alt="${p.name}">
+		                <div class="product-body p-2">
+		                    <h6 class="product-name" style="font-size: 0.75rem; white-space: nowrap; overflow: hidden;">${p.name}</h6>
+		                    <div class="text-muted small" style="font-size: 0.6rem;">${p.seller}</div>
+		                    <div class="d-flex justify-content-between align-items-center mt-1">
+		                        <span class="product-price" style="font-size: 0.9rem;">¥${p.price.toFixed(2)}/${p.unit}</span>
+		                        <button class="btn btn-sm btn-warning" onclick="event.stopPropagation();openProductDetail(${p.id})" style="padding: 2px 8px; font-size: 0.6rem;">购买</button>
 		                    </div>
-		                    <div class="mt-2"><span class="certify-tag"><i class="fas fa-leaf"></i> 官方认证·扫码溯源</span></div>
 		                </div>
 		            </div>
 		        </div>
@@ -3211,37 +3216,27 @@
 		    if(!grid) return;
 		    const displayProducts = products.slice(0, currentDisplayCount);
 		    grid.innerHTML = displayProducts.map(p => `
-		        <div class="col-md-6 col-lg-4">
-		            <div class="product-card">
-		                ${p.isCertified ? `<span class="product-badge certified" style="position:absolute; top:10px; right:10px; background:#FFD966;"><i class="fas fa-medal"></i> 乡村好物认证</span>` : `<span class="product-badge">${p.badge}</span>`}
-		                <img src="${p.image}" class="product-img" alt="${p.name}" onerror="this.src='https://placehold.co/400x200?text=图片加载失败'">
-		                <div class="product-body p-3" onclick="openProductDetail(${p.id})" style="cursor:pointer;">
-		                    <h5 class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name} ${p.isCertified ? '<i class="fas fa-check-circle text-warning"></i>' : ''}</h5>
-		                    <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fas fa-store"></i> ${p.seller}</div>
-		                    <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fas fa-map-marker-alt"></i> ${p.address}</div>
-		                    <div class="d-flex justify-content-between align-items-center mt-2">
-		                        <span class="product-price" style="white-space: nowrap;">¥${p.price.toFixed(2)}/${p.unit}</span>
-		                        <div class="d-flex gap-1">
-		                            ${p.isCertified ? `<button class="btn btn-sm btn-outline-warning" onclick="event.stopPropagation();viewTrace('${p.traceCode}')" style="white-space: nowrap; border-radius: 20px; padding: 4px 10px; font-size: 0.7rem; min-width: 60px;"><i class="fas fa-qrcode me-1"></i>溯源</button>` : ''}
-		                            <button class="btn btn-sm btn-warning" onclick=""event.stopPropagation();openProductDetail(${p.id})" style="white-space: nowrap; border-radius: 20px; padding: 4px 10px; font-size: 0.7rem; min-width: 60px; background: linear-gradient(135deg, #FF8F00, #FFA726); color: white; border: none;"><i class="fas fa-eye me-1"></i>购买
-		                        </div>
-		                    </div>
-		                    ${p.isCertified ? `<div class="mt-2"><span class="certify-tag"><i class="fas fa-shield-alt"></i> 溯源可查·品质保障</span></div>` : ''}
+		        <div class="col-6 col-md-6 col-lg-4" style="padding: 0 6px; margin-bottom: 15px;">
+		            <div class="product-card" onclick="openProductDetail(${p.id})" style="height: 100%;">
+		                <img src="${p.image}" class="product-img" style="height: 140px; width: 100%; object-fit: cover;" alt="${p.name}" onerror="this.src='https://placehold.co/300x140?text=图片'">
+		                <div class="product-body" style="padding: 10px;">
+		                    <h5 class="product-name" style="font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</h5>
+		                    <div class="product-price" style="font-size: 1.1rem; color: #FF8F00; font-weight: bold;">¥${p.price.toFixed(2)}/${p.unit}</div>
+		                    <div class="product-seller" style="font-size: 0.65rem; color: #999;">${p.seller}</div>
 		                </div>
 		            </div>
 		        </div>
 		    `).join('');
 		    
-		    // 控制加载更多按钮状态
 		    const loadBtn = document.getElementById('loadMoreBtn');
 		    if (loadBtn) {
 		        if (currentDisplayCount >= products.length) {
 		            loadBtn.disabled = true;
-		            loadBtn.innerHTML = '<i class="fas fa-check me-2"></i>已加载全部';
+		            loadBtn.innerHTML = '已加载全部';
 		            loadBtn.style.opacity = '0.6';
 		        } else {
 		            loadBtn.disabled = false;
-		            loadBtn.innerHTML = '<i class="fas fa-plus me-2"></i>加载更多';
+		            loadBtn.innerHTML = '加载更多';
 		            loadBtn.style.opacity = '1';
 		        }
 		    }
