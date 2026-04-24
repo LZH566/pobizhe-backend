@@ -94,6 +94,20 @@
             background: #6A1B9A;
             transform: translateY(-2px);
         }
+		.btn-login {
+		    background: #FF8F00;
+		    border: none;
+		    color: white;
+		    border-radius: 25px;
+		    padding: 8px 20px;
+		    margin-right: 8px;
+		    transition: all 0.3s;
+		}
+		.btn-login:hover {
+		    background: #F57C00;
+		    transform: translateY(-2px);
+		    color: white;
+		}
         .btn-custom {
             background: linear-gradient(135deg, var(--secondary-color), #FFA726);
             color: white;
@@ -1574,6 +1588,9 @@
                         </div>
                     </li>
                     <li class="nav-item ms-3" id="authButtons">
+                        <button class="btn-login" onclick="openAuthModal('login')">
+                            <i class="fas fa-sign-in-alt me-1"></i>登录
+                        </button>
                         <button class="btn-merchant" onclick="openMerchantApplyModal()">
                             <i class="fas fa-store me-1"></i>商家入驻
                         </button>
@@ -1581,7 +1598,6 @@
                             <i class="fas fa-shopping-cart me-1"></i>顾客注册
                         </button>
                     </li>
-				
                 </ul>
             </div>
         </div>
@@ -3273,12 +3289,11 @@
 
     <!-- 底部导航 (移动端) -->
     <div class="bottom-nav">
-        <div class="bottom-nav-item active" onclick="scrollToSection('home')">
+        <div class="bottom-nav-item" onclick="scrollToSection('home')">
             <i class="fas fa-home"></i>
             <span>首页</span>
         </div>
-        <div class="bottom-nav-item" onclick="scrollToSec
-		tion('products')">
+        <div class="bottom-nav-item" onclick="scrollToSection('products')">
             <i class="fas fa-shopping-bag"></i>
             <span>商品</span>
         </div>
@@ -3287,6 +3302,10 @@
                 <span class="cart-badge" id="mobileCartBadge" style="display: none; position: absolute;">0</span>
             </i>
             <span>购物车</span>
+        </div>
+        <div class="bottom-nav-item" onclick="openAuthModal('login')">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>登录</span>
         </div>
         <div class="bottom-nav-item" onclick="checkLoginAndOpen('profile')">
             <i class="fas fa-user"></i>
