@@ -3986,11 +3986,29 @@
             if (savedOrders) {
                 userOrders = JSON.parse(savedOrders);
             }
+            
+            // ========== 修改这里 ==========
             if (savedAddresses) {
                 userAddresses = JSON.parse(savedAddresses);
-				console.log('地址已加载:', userAddresses);
+                // 兼容旧数据：确保有 receiveAddresses 和 shipAddresses 数组
+                if (!userAddresses.receiveAddresses) {
+                    userAddresses.receiveAddresses = [];
+                }
+                if (!userAddresses.shipAddresses) {
+                    userAddresses.shipAddresses = [];
+                }
+                console.log('地址已加载:', userAddresses);
+            } else {
+                // 没有地址数据时，初始化空数组
+                userAddresses = {
+                    receiveAddresses: [],
+                    shipAddresses: []
+                };
+                console.log('地址已初始化');
             }
-			updateUserInfo();
+            // ============================
+            
+            updateUserInfo();
         }
 
         function saveToStorage() {
@@ -4861,9 +4879,24 @@
                 openAuthModal('customer');
                 return;
             }
-            // 先渲染地址列表
-            renderReceiveAddresses();
-            if (currentUser.type === 'merchant') {
+            
+            // ========== 确保数据结构存在 ==========
+            if (!userAddresses) {
+                userAddresses = {};
+            }
+            if (!userAddresses.receiveAddresses) {
+                userAddresses.receiveAddresses = [];
+            }
+            if (!userAddresses.shipAddresses) {
+                userAddresses.shipAddresses = [];
+            }
+            // ====================================
+            
+            // 渲染地址列表
+            if (typeof renderReceiveAddresses === 'function') {
+                renderReceiveAddresses();
+            }
+            if (currentUser.type === 'merchant' && typeof renderShipAddresses === 'function') {
                 renderShipAddresses();
             }
             
@@ -4874,36 +4907,18 @@
             if (currentUser.type === 'merchant') {
                 if (customerDiv) customerDiv.style.display = 'none';
                 if (merchantDiv) merchantDiv.style.display = 'block';
-                // 渲染商家专用的收货地址列表
-                const merchantReceiveList = document.getElementById('merchantReceiveAddressList');
-                if (merchantReceiveList) {
-                    renderReceiveAddressesForMerchant();
-                }
             } else {
                 if (customerDiv) customerDiv.style.display = 'block';
                 if (merchantDiv) merchantDiv.style.display = 'none';
             }
             
-            document.getElementById('addressModal').classList.add('show');
-			
-            // 重置表单
-            document.getElementById('sendProvince').value = '';
-            document.getElementById('sendCity').value = '';
-            document.getElementById('sendTown').value = '';
-            document.getElementById('sendVillage').value = '';
-            document.getElementById('receiveName').value = userAddresses.receiveName || '';
-            document.getElementById('receivePhone').value = userAddresses.receivePhone || '';
-            document.getElementById('receiveProvince').value = '';
-            document.getElementById('receiveCity').value = '';
-            document.getElementById('receiveDistrict').value = '';
-            document.getElementById('receiveDetail').value = '';
-            
-            const addressTab = document.getElementById('addressTab');
-            const customerTitle = document.getElementById('customerAddressTitle');
-            const sendAddressDiv = document.getElementById('sendAddress');
-            const receiveAddressDiv = document.getElementById('receiveAddress');
-            const sendAddressTabBtn = document.getElementById('sendAddressTabBtn');
-            const receiveAddressTabBtn = document.getElementById('receiveAddressTabBtn');
+            // 打开弹窗
+            const modal = document.getElementById('addressModal');
+            if (modal) {
+                modal.classList.add('show');
+            } else {
+                console.error('找不到 addressModal 元素');
+            }
         }
 		
 		// 商家专用的收货地址渲染函数
@@ -6282,6 +6297,14 @@
 		
 		// 渲染收货地址列表
 		function renderReceiveAddresses() {
+		    // 添加这两行判断
+		    if (!userAddresses || !userAddresses.receiveAddresses) {
+		        console.warn('userAddresses.receiveAddresses 不存在，已初始化');
+		        if (!userAddresses) userAddresses = {};
+		        userAddresses.receiveAddresses = [];
+		        userAddresses.shipAddresses = [];
+		        return;
+		    }
 		    const container = document.getElementById('receiveAddressList');
 		    if (!container) return;
 		    
@@ -6657,4 +6680,4 @@
 	    </div>
 	</div>
 </body>
-</html>git add index.html
+</html>
