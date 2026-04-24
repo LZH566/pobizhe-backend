@@ -3202,7 +3202,7 @@
 		                    <div class="text-muted small" style="font-size: 0.6rem;">${p.seller}</div>
 		                    <div class="d-flex justify-content-between align-items-center mt-1">
 		                        <span class="product-price" style="font-size: 0.9rem;">¥${p.price.toFixed(2)}/${p.unit}</span>
-		                        <button class="btn btn-sm btn-warning" onclick="addToCart(${p.id})" style="padding: 2px 8px; font-size: 0.6rem;">购买</button>
+		                        <button class="btn btn-sm btn-warning" onclick="event.stopPropagation();openProductDetail(${p.id})" style="padding: 2px 8px; font-size: 0.6rem;">购买</button>
 		                    </div>
 		                </div>
 		            </div>
