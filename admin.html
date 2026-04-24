@@ -221,6 +221,157 @@
             border-radius: 25px;
             cursor: pointer;
         }
+        
+        /* 模拟消费者下单区域 */
+        .mock-order-section {
+            background: linear-gradient(135deg, #FFF3E0, #FFE0B2);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .mock-order-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #E65100;
+            margin-bottom: 15px;
+        }
+        .mock-order-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .mock-product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .mock-product-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .mock-product-card.selected {
+            border-color: #2E7D32;
+            background: #E8F5E9;
+        }
+        .mock-product-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .mock-product-price {
+            color: #E65100;
+            font-weight: bold;
+        }
+        .mock-product-stock {
+            font-size: 12px;
+            color: #999;
+        }
+        
+        /* 订单管理表格 */
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .orders-table th,
+        .orders-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .orders-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        .orders-table tr:hover {
+            background: #f9f9f9;
+        }
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .status-badge.pending {
+            background: #FFF3E0;
+            color: #F57C00;
+        }
+        .status-badge.shipped {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+        .status-badge.completed {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
+        
+        /* 添加订单按钮 */
+        .add-order-btn {
+            background: #FF8F00;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .add-order-btn:hover {
+            background: #F57C00;
+        }
+        
+        /* 数量控制 */
+        .qty-control {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .qty-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+        }
+        
+        /* 模态框 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
         @media (max-width: 768px) {
             .stats {
                 grid-template-columns: repeat(2, 1fr);
@@ -235,6 +386,9 @@
             }
             .detail-grid {
                 grid-template-columns: 1fr;
+            }
+            .mock-order-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -254,6 +408,37 @@
         <input type="text" id="apiUrl" placeholder="https://pobizhe-backend.vercel.app" value="https://pobizhe-backend.vercel.app">
         <button onclick="setApiUrl()"><i class="fas fa-save me-1"></i>保存</button>
         <small class="text-muted">默认为您的 Vercel 后端地址</small>
+    </div>
+
+    <!-- ========== 新增：模拟消费者下单区域 ========== -->
+    <div class="mock-order-section">
+        <div class="mock-order-title">
+            <i class="fas fa-shopping-cart me-2"></i>模拟消费者下单
+        </div>
+        <div class="row align-items-end mb-3">
+            <div class="col-md-4">
+                <label class="form-label">选择测试用户</label>
+                <select id="testUserSelect" class="form-select">
+                    <option value="">-- 请选择测试用户 --</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">收货地址</label>
+                <input type="text" id="testAddress" class="form-control" placeholder="测试地址" value="山东省济南市长清区大学路1号">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">联系电话</label>
+                <input type="text" id="testPhone" class="form-control" placeholder="联系电话" value="13800138000">
+            </div>
+        </div>
+        <div class="mock-order-grid" id="mockProductGrid">
+            <!-- 商品列表将动态填充 -->
+        </div>
+        <div class="text-center mt-3">
+            <button class="add-order-btn" onclick="submitMockOrder()">
+                <i class="fas fa-shopping-cart me-2"></i>提交测试订单
+            </button>
+        </div>
     </div>
 
     <!-- 统计卡片 -->
@@ -282,11 +467,52 @@
         <button class="tab" data-status="pending">待审核</button>
         <button class="tab" data-status="approved">已通过</button>
         <button class="tab" data-status="rejected">已拒绝</button>
+        <button class="tab" data-status="orders">📋 订单管理</button>
     </div>
 
-    <!-- 申请列表 -->
+    <!-- 申请列表（订单列表） -->
     <div class="applications" id="applications">
         <div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载中...</div>
+    </div>
+</div>
+
+<!-- 添加商品模态框 -->
+<div id="addProductModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5><i class="fas fa-plus-circle me-2"></i>添加测试商品</h5>
+            <button class="btn-close" onclick="closeAddProductModal()">&times;</button>
+        </div>
+        <div>
+            <div class="mb-3">
+                <label>商品名称</label>
+                <input type="text" id="newProductName" class="form-control" placeholder="例如：测试苹果">
+            </div>
+            <div class="mb-3">
+                <label>价格 (元)</label>
+                <input type="number" id="newProductPrice" class="form-control" placeholder="5.5">
+            </div>
+            <div class="mb-3">
+                <label>单位</label>
+                <select id="newProductUnit" class="form-select">
+                    <option value="斤">斤</option>
+                    <option value="箱">箱</option>
+                    <option value="个">个</option>
+                    <option value="份">份</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label>库存</label>
+                <input type="number" id="newProductStock" class="form-control" placeholder="1000">
+            </div>
+            <div class="mb-3">
+                <label>商家名称</label>
+                <input type="text" id="newProductSeller" class="form-control" placeholder="测试商家">
+            </div>
+            <button class="btn btn-custom w-100" onclick="addTestProduct()">
+                <i class="fas fa-check me-2"></i>添加商品
+            </button>
+        </div>
     </div>
 </div>
 
@@ -294,6 +520,20 @@
     // API 基础地址
     let API_BASE = localStorage.getItem('ADMIN_API_BASE') || 'https://pobizhe-backend.vercel.app';
     let currentStatus = 'all';
+    
+    // 本地存储的Key
+    const STORAGE_KEYS = {
+        USERS: 'pobizhe_all_users',
+        ORDERS: 'pobizhe_orders',
+        PRODUCTS: 'pobizhe_products'
+    };
+    
+    // 全局数据
+    let allUsers = [];
+    let allOrders = [];
+    let testProducts = [];
+    let selectedTestProductId = null;
+    let productQuantities = {};
     
     // 设置 API 地址
     function setApiUrl() {
@@ -303,6 +543,332 @@
         alert('API 地址已保存，将重新加载数据');
         loadStatistics();
         loadApplications();
+    }
+    
+    // 加载本地数据
+    function loadLocalData() {
+        const savedUsers = localStorage.getItem(STORAGE_KEYS.USERS);
+        if (savedUsers) {
+            allUsers = JSON.parse(savedUsers);
+        } else {
+            // 初始化测试用户
+            allUsers = [
+                {
+                    userId: 'test001',
+                    account: 'C123456',
+                    name: '测试顾客',
+                    nickname: '测试用户',
+                    phone: '13800138000',
+                    password: '123456',
+                    type: 'customer',
+                    address: '山东省济南市长清区',
+                    verified: true,
+                    registerDate: new Date().toISOString()
+                }
+            ];
+            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(allUsers));
+        }
+        
+        const savedOrders = localStorage.getItem(STORAGE_KEYS.ORDERS);
+        if (savedOrders) {
+            allOrders = JSON.parse(savedOrders);
+        } else {
+            allOrders = [];
+        }
+        
+        const savedProducts = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
+        if (savedProducts) {
+            testProducts = JSON.parse(savedProducts);
+        } else {
+            // 初始化测试商品
+            testProducts = [
+                { id: 1, name: '烟台红富士苹果', price: 5.5, unit: '斤', stock: 100, seller: '山东·张农户', image: './images/yantai-apple.jpeg' },
+                { id: 2, name: '东北五常大米', price: 8.0, unit: '斤', stock: 200, seller: '黑龙江·李农户', image: './images/rice.jpeg' },
+                { id: 3, name: '赣南脐橙', price: 6.0, unit: '斤', stock: 150, seller: '江西·王农户', image: './images/orange.jpeg' },
+                { id: 4, name: '新疆红枣', price: 12.0, unit: '斤', stock: 80, seller: '新疆·赵农户', image: './images/jujube.png' }
+            ];
+            localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(testProducts));
+        }
+        
+        // 初始化商品数量
+        testProducts.forEach(p => {
+            productQuantities[p.id] = 1;
+        });
+    }
+    
+    // 保存订单到本地
+    function saveOrdersToLocal() {
+        localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(allOrders));
+        // 同时同步到前台订单列表（如果有）
+        if (typeof window !== 'undefined' && window.syncOrdersToFront) {
+            window.syncOrdersToFront(allOrders);
+        }
+    }
+    
+    // 加载测试用户下拉框
+    function loadTestUsers() {
+        const select = document.getElementById('testUserSelect');
+        select.innerHTML = '<option value="">-- 请选择测试用户 --</option>';
+        const customers = allUsers.filter(u => u.type === 'customer');
+        customers.forEach(user => {
+            select.innerHTML += `<option value="${user.userId}" data-name="${user.name}" data-phone="${user.phone}">${user.name} (${user.account})</option>`;
+        });
+        // 如果没有测试用户，添加一个默认的
+        if (customers.length === 0) {
+            const defaultUser = {
+                userId: 'test001',
+                account: 'C123456',
+                name: '测试顾客',
+                phone: '13800138000',
+                type: 'customer',
+                address: '山东省济南市'
+            };
+            allUsers.push(defaultUser);
+            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(allUsers));
+            loadTestUsers();
+        }
+    }
+    
+    // 渲染测试商品网格
+    function renderMockProducts() {
+        const container = document.getElementById('mockProductGrid');
+        if (!container) return;
+        
+        container.innerHTML = testProducts.map(product => `
+            <div class="mock-product-card ${selectedTestProductId === product.id ? 'selected' : ''}" 
+                 onclick="toggleProductSelect(${product.id})">
+                <div class="mock-product-name">${product.name}</div>
+                <div class="mock-product-price">¥${product.price}/${product.unit}</div>
+                <div class="mock-product-stock">库存: ${product.stock}</div>
+                <div class="mt-2 qty-control">
+                    <button class="qty-btn" onclick="event.stopPropagation(); changeQty(${product.id}, -1)">-</button>
+                    <span id="qty-${product.id}">${productQuantities[product.id] || 1}</span>
+                    <button class="qty-btn" onclick="event.stopPropagation(); changeQty(${product.id}, 1)">+</button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    // 切换商品选择
+    function toggleProductSelect(productId) {
+        selectedTestProductId = selectedTestProductId === productId ? null : productId;
+        renderMockProducts();
+    }
+    
+    // 修改数量
+    function changeQty(productId, delta) {
+        const newQty = (productQuantities[productId] || 1) + delta;
+        if (newQty >= 1 && newQty <= (testProducts.find(p => p.id === productId)?.stock || 999)) {
+            productQuantities[productId] = newQty;
+            document.getElementById(`qty-${productId}`).textContent = newQty;
+        }
+    }
+    
+    // 提交测试订单
+    function submitMockOrder() {
+        const userId = document.getElementById('testUserSelect').value;
+        if (!userId) {
+            alert('请选择测试用户');
+            return;
+        }
+        
+        if (!selectedTestProductId) {
+            alert('请选择要购买的商品');
+            return;
+        }
+        
+        const user = allUsers.find(u => u.userId === userId);
+        const product = testProducts.find(p => p.id === selectedTestProductId);
+        const quantity = productQuantities[selectedTestProductId] || 1;
+        const address = document.getElementById('testAddress').value;
+        const phone = document.getElementById('testPhone').value;
+        
+        if (!address) {
+            alert('请输入收货地址');
+            return;
+        }
+        
+        const subtotal = product.price * quantity;
+        const shippingFee = subtotal >= 19.9 ? 0 : 8;
+        const total = subtotal + shippingFee;
+        
+        // 检查库存
+        if (quantity > product.stock) {
+            alert(`库存不足，当前库存：${product.stock}`);
+            return;
+        }
+        
+        // 更新库存
+        product.stock -= quantity;
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(testProducts));
+        renderMockProducts();
+        
+        // 创建订单
+        const newOrder = {
+            id: 'ORD' + Date.now(),
+            userId: userId,
+            userName: user.name,
+            items: [{
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                unit: product.unit,
+                quantity: quantity,
+                image: product.image
+            }],
+            subtotal: subtotal,
+            shippingFee: shippingFee,
+            total: total,
+            status: 'pending',
+            address: address,
+            receiver: user.name,
+            phone: phone,
+            date: new Date().toLocaleDateString(),
+            createdAt: new Date().toISOString()
+        };
+        
+        allOrders.unshift(newOrder);
+        saveOrdersToLocal();
+        
+        // 重置选择
+        selectedTestProductId = null;
+        productQuantities[selectedTestProductId] = 1;
+        renderMockProducts();
+        
+        alert(`订单创建成功！\n订单号：${newOrder.id}\n总金额：¥${total.toFixed(2)}`);
+        
+        // 如果当前在订单管理标签页，刷新订单列表
+        if (currentStatus === 'orders') {
+            loadOrderList();
+        }
+    }
+    
+    // 添加测试商品
+    function addTestProduct() {
+        const name = document.getElementById('newProductName').value;
+        const price = parseFloat(document.getElementById('newProductPrice').value);
+        const unit = document.getElementById('newProductUnit').value;
+        const stock = parseInt(document.getElementById('newProductStock').value);
+        const seller = document.getElementById('newProductSeller').value;
+        
+        if (!name || isNaN(price) || isNaN(stock)) {
+            alert('请填写完整商品信息');
+            return;
+        }
+        
+        const newProduct = {
+            id: Date.now(),
+            name: name,
+            price: price,
+            unit: unit,
+            stock: stock,
+            seller: seller || '测试商家',
+            image: 'https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?w=400'
+        };
+        
+        testProducts.push(newProduct);
+        productQuantities[newProduct.id] = 1;
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(testProducts));
+        renderMockProducts();
+        closeAddProductModal();
+        alert('商品添加成功');
+    }
+    
+    function openAddProductModal() {
+        document.getElementById('addProductModal').classList.add('show');
+    }
+    
+    function closeAddProductModal() {
+        document.getElementById('addProductModal').classList.remove('show');
+        document.getElementById('newProductName').value = '';
+        document.getElementById('newProductPrice').value = '';
+        document.getElementById('newProductStock').value = '';
+        document.getElementById('newProductSeller').value = '';
+    }
+    
+    // 加载订单列表
+    function loadOrderList() {
+        const container = document.getElementById('applications');
+        
+        if (allOrders.length === 0) {
+            container.innerHTML = `
+                <div class="loading">
+                    <i class="fas fa-inbox me-2"></i>暂无订单<br>
+                    <button class="btn btn-sm btn-outline-success mt-2" onclick="document.querySelector('.tab[data-status=\"orders\"]').scrollIntoView(); openAddProductModal()">
+                        <i class="fas fa-plus me-1"></i>添加测试商品
+                    </button>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = `
+            <div style="padding: 15px; background: #f8f9fa; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+                <span><strong>📋 订单管理</strong> (共 ${allOrders.length} 条订单)</span>
+                <button class="btn btn-sm btn-outline-success" onclick="openAddProductModal()">
+                    <i class="fas fa-plus me-1"></i>添加商品
+                </button>
+            </div>
+            <table class="orders-table">
+                <thead>
+                    <tr>
+                        <th>订单号</th>
+                        <th>用户</th>
+                        <th>商品</th>
+                        <th>数量</th>
+                        <th>总金额</th>
+                        <th>状态</th>
+                        <th>下单时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${allOrders.map(order => `
+                        <tr>
+                            <td><small>${order.id}</small></td>
+                            <td>${order.userName || order.receiver}</td>
+                            <td>${order.items.map(i => i.name).join(',')}</td>
+                            <td>${order.items.reduce((sum, i) => sum + i.quantity, 0)}</td>
+                            <td style="color:#E65100; font-weight:bold;">¥${order.total.toFixed(2)}</td>
+                            <td>
+                                <span class="status-badge ${order.status}">
+                                    ${order.status === 'pending' ? '待发货' : order.status === 'shipped' ? '已发货' : '已完成'}
+                                </span>
+                            </td>
+                            <td><small>${order.date}</small></td>
+                            <td>
+                                ${order.status === 'pending' ? `<button class="btn btn-sm btn-success" onclick="shipOrder('${order.id}')">发货</button>` : ''}
+                                <button class="btn btn-sm btn-danger" onclick="deleteOrder('${order.id}')">删除</button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+    
+    // 发货
+    function shipOrder(orderId) {
+        const order = allOrders.find(o => o.id === orderId);
+        if (order) {
+            order.status = 'shipped';
+            saveOrdersToLocal();
+            loadOrderList();
+            alert('已标记为发货');
+        }
+    }
+    
+    // 删除订单
+    function deleteOrder(orderId) {
+        if (confirm('确定删除这个订单吗？')) {
+            const index = allOrders.findIndex(o => o.id === orderId);
+            if (index !== -1) {
+                allOrders.splice(index, 1);
+                saveOrdersToLocal();
+                loadOrderList();
+                alert('订单已删除');
+            }
+        }
     }
     
     // 加载统计数据
@@ -324,6 +890,11 @@
     
     // 加载申请列表
     async function loadApplications() {
+        if (currentStatus === 'orders') {
+            loadOrderList();
+            return;
+        }
+        
         const container = document.getElementById('applications');
         container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载中...</div>';
         
@@ -451,14 +1022,26 @@
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
             currentStatus = tab.dataset.status;
-            loadApplications();
+            
+            if (currentStatus === 'orders') {
+                loadOrderList();
+            } else {
+                loadApplications();
+            }
         });
     });
     
     // 初始化页面
-    document.getElementById('apiUrl').value = API_BASE;
-    loadStatistics();
-    loadApplications();
+    function init() {
+        document.getElementById('apiUrl').value = API_BASE;
+        loadLocalData();
+        loadTestUsers();
+        renderMockProducts();
+        loadStatistics();
+        loadApplications();
+    }
+    
+    init();
 </script>
 </body>
 </html>
