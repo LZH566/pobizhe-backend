@@ -2037,7 +2037,14 @@
             <button class="auth-close" onclick="closeAuthModal()">&times;</button>
             
             <!-- 双选项卡头部 -->
+            <!-- 三选项卡头部 -->
             <div class="d-flex border-bottom mb-4" style="border-radius: 15px 15px 0 0; background: #f8f9fa;">
+                <button class="tab-btn-login" id="loginTabBtn" onclick="switchAuthTab('login')" 
+                    style="flex:1; padding: 15px; border: none; background: none; font-weight: bold; 
+                           font-size: 1.1rem; color: #666; transition: all 0.3s;">
+                    <i class="fas fa-sign-in-alt me-2"></i>登录<br>
+                    <small style="font-size: 0.7rem; font-weight: normal;">已有账号</small>
+                </button>
                 <button class="tab-btn-customer" id="customerTabBtn" onclick="switchAuthTab('customer')" 
                     style="flex:1; padding: 15px; border: none; background: none; font-weight: bold; 
                            font-size: 1.1rem; border-bottom: 3px solid var(--primary-color); color: var(--primary-color);
@@ -2052,6 +2059,51 @@
                     <small style="font-size: 0.7rem; font-weight: normal;">卖农产品</small>
                 </button>
             </div>
+			
+			<!-- ========== 登录面板 ========== -->
+			<div id="loginPanel" style="display: none;">
+			    <div class="text-center mb-4">
+			        <i class="fas fa-seedling" style="font-size: 3rem; color: var(--primary-color);"></i>
+			        <h5 class="mt-2 text-muted">欢迎回来</h5>
+			    </div>
+			    
+			    <!-- 账号输入 -->
+			    <div class="mb-3">
+			        <label class="form-label fw-bold">账号 <span class="text-danger">*</span></label>
+			        <div class="input-group">
+			            <span class="input-group-text"><i class="fas fa-user"></i></span>
+			            <input type="text" class="form-control" id="loginAccount" placeholder="请输入账号">
+			        </div>
+			        <small class="text-muted">顾客账号格式: C + 手机号后6位 | 商家账号格式: S + 手机号后6位</small>
+			    </div>
+			    
+			    <!-- 密码输入 -->
+			    <div class="mb-3">
+			        <label class="form-label fw-bold">密码 <span class="text-danger">*</span></label>
+			        <div class="input-group">
+			            <span class="input-group-text"><i class="fas fa-lock"></i></span>
+			            <input type="password" class="form-control" id="loginPassword" placeholder="请输入密码">
+			            <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('loginPassword')">
+			                <i class="fas fa-eye"></i>
+			            </button>
+			        </div>
+			    </div>
+			    
+			    <div class="mb-4 form-check">
+			        <input type="checkbox" class="form-check-input" id="rememberMe">
+			        <label class="form-check-label" for="rememberMe">记住密码</label>
+			    </div>
+			    
+			    <div class="d-grid">
+			        <button class="btn btn-custom btn-lg" onclick="handleLogin()">
+			            <i class="fas fa-sign-in-alt me-2"></i>登录
+			        </button>
+			    </div>
+			    
+			    <div class="text-center mt-3">
+			        <small class="text-muted">还没有账号？点击上方"顾客注册"或"商家入驻"</small>
+			    </div>
+			</div>
             
             <!-- ========== 顾客注册面板 ========== -->
             <div id="customerRegisterPanel">
@@ -2082,7 +2134,12 @@
                 <!-- 昵称（选填） -->
                 <div class="mb-3">
                     <label class="form-label fw-bold">昵称</label>
-                    <input type="text" class="form-control" id="regNickname" placeholder="请输入昵称（选填）">
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="regNickname" placeholder="请输入昵称（选填）">
+                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('regNickname')" title="语音输入">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
                 </div>
                 
                 <!-- 身份证号 -->
@@ -2103,6 +2160,32 @@
                         <input type="tel" class="form-control" id="regPhone" placeholder="点击麦克风或输入手机号">
                         <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('regPhone')" title="语音输入">
                             <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 设置密码（新增） -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">设置密码 <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="regPassword" placeholder="请设置登录密码（6-20位）">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('regPassword')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('regPassword')" title="语音输入">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted">密码长度6-20位，建议包含字母和数字</small>
+                </div>
+                
+                <!-- 确认密码（新增） -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">确认密码 <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="regConfirmPassword" placeholder="请再次输入密码">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('regConfirmPassword')">
+                            <i class="fas fa-eye"></i>
                         </button>
                     </div>
                 </div>
@@ -2189,6 +2272,32 @@
                         <input type="tel" class="form-control" id="merchantPhone" placeholder="请输入手机号">
                         <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantPhone')">
                             <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- 设置密码（新增） -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">设置密码 <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="merchantPassword" placeholder="请设置登录密码（6-20位）">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('merchantPassword')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantPassword')">
+                            <i class="fas fa-microphone"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted">密码长度6-20位，建议包含字母和数字</small>
+                </div>
+                
+                <!-- 确认密码（新增） -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">确认密码 <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <input type="password" class="form-control" id="merchantConfirmPassword" placeholder="请再次输入密码">
+                        <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordVisibility('merchantConfirmPassword')">
+                            <i class="fas fa-eye"></i>
                         </button>
                     </div>
                 </div>
@@ -3213,6 +3322,374 @@
 		let currentIdCardBack = '';
 		let currentOriginProof = '';
 		let currentFoodLicense = '';
+		
+		// 全局用户数据存储
+		let allUsers = [];
+		
+		// 加载所有用户
+		function loadAllUsers() {
+		    const saved = localStorage.getItem('pobizhe_all_users');
+		    if (saved) {
+		        allUsers = JSON.parse(saved);
+		    }
+		}
+		
+		// 保存所有用户
+		function saveAllUsers() {
+		    localStorage.setItem('pobizhe_all_users', JSON.stringify(allUsers));
+		}
+		
+		// 生成唯一账号（带唯一性检查）- 替换这个函数
+		function generateAccount(type, phone) {
+		    const suffix = phone.slice(-6);  // 手机号后6位
+		    let account = '';
+		    let isUnique = false;
+		    let attempts = 0;
+		    const maxAttempts = 10;
+		    
+		    while (!isUnique && attempts < maxAttempts) {
+		        const randomNum = Math.floor(1000 + Math.random() * 9000);  // 4位随机数
+		        account = type === 'customer' ? `C${randomNum}${suffix}` : `S${randomNum}${suffix}`;
+		        
+		        // 检查账号是否已存在
+		        isUnique = !allUsers.some(u => u.account === account);
+		        attempts++;
+		    }
+		    
+		    // 如果10次尝试后仍未生成唯一账号，添加时间戳后缀
+		    if (!isUnique) {
+		        const timestamp = Date.now().toString().slice(-4);
+		        account = type === 'customer' ? `C${timestamp}${suffix}` : `S${timestamp}${suffix}`;
+		    }
+		    
+		    return account;
+		}
+		
+		// 切换密码可见性
+		function togglePasswordVisibility(inputId) {
+		    const input = document.getElementById(inputId);
+		    if (input.type === 'password') {
+		        input.type = 'text';
+		    } else {
+		        input.type = 'password';
+		    }
+		}
+		
+		// 切换注册/登录选项卡
+		function switchAuthTab(type) {
+		    const loginPanel = document.getElementById('loginPanel');
+		    const customerPanel = document.getElementById('customerRegisterPanel');
+		    const merchantPanel = document.getElementById('merchantRegisterPanel');
+		    const loginBtn = document.getElementById('loginTabBtn');
+		    const customerBtn = document.getElementById('customerTabBtn');
+		    const merchantBtn = document.getElementById('merchantTabBtn');
+		    
+		    // 重置所有面板
+		    if (loginPanel) loginPanel.style.display = 'none';
+		    if (customerPanel) customerPanel.style.display = 'none';
+		    if (merchantPanel) merchantPanel.style.display = 'none';
+		    
+		    // 重置按钮样式
+		    const resetStyle = (btn) => {
+		        if (btn) {
+		            btn.style.borderBottom = 'none';
+		            btn.style.color = '#666';
+		        }
+		    };
+		    resetStyle(loginBtn);
+		    resetStyle(customerBtn);
+		    resetStyle(merchantBtn);
+		    
+		    // 显示选中面板
+		    if (type === 'login') {
+		        if (loginPanel) {
+		            loginPanel.style.display = 'block';
+		            if (loginBtn) {
+		                loginBtn.style.borderBottom = '3px solid var(--primary-color)';
+		                loginBtn.style.color = 'var(--primary-color)';
+		            }
+		        }
+		    } else if (type === 'customer') {
+		        if (customerPanel) {
+		            customerPanel.style.display = 'block';
+		            if (customerBtn) {
+		                customerBtn.style.borderBottom = '3px solid var(--primary-color)';
+		                customerBtn.style.color = 'var(--primary-color)';
+		            }
+		        }
+		    } else if (type === 'merchant') {
+		        if (merchantPanel) {
+		            merchantPanel.style.display = 'block';
+		            if (merchantBtn) {
+		                merchantBtn.style.borderBottom = '3px solid var(--primary-color)';
+		                merchantBtn.style.color = 'var(--primary-color)';
+		            }
+		        }
+		    }
+		}
+		
+		// 登录处理
+		function handleLogin() {
+		    const account = document.getElementById('loginAccount').value.trim();
+		    const password = document.getElementById('loginPassword').value;
+		    const rememberMe = document.getElementById('rememberMe').checked;
+		    
+		    if (!account || !password) {
+		        showToast('请输入账号和密码');
+		        return;
+		    }
+		    
+		    // 查找用户
+		    const user = allUsers.find(u => u.account === account && u.password === password);
+		    
+		    if (!user) {
+		        showToast('账号或密码错误');
+		        return;
+		    }
+		    
+		    // 登录成功
+		    currentUser = {
+		        userId: user.userId,
+		        account: user.account,
+		        name: user.name,
+		        nickname: user.nickname,
+		        phone: user.phone,
+		        type: user.type,
+		        address: user.address,
+		        verified: user.verified || false,
+		        merchantInfo: user.merchantInfo,
+		        registerDate: user.registerDate
+		    };
+		    
+		    // 记住密码
+		    if (rememberMe) {
+		        localStorage.setItem('pobizhe_remembered_account', account);
+		        localStorage.setItem('pobizhe_remembered_password', password);
+		    } else {
+		        localStorage.removeItem('pobizhe_remembered_account');
+		        localStorage.removeItem('pobizhe_remembered_password');
+		    }
+		    
+		    saveToStorage();
+		    updateUserInfo();
+		    closeAuthModal();
+		    showToast(`欢迎回来，${user.nickname || user.name}！`);
+		}
+		
+		// 修改顾客注册处理
+		function handleCustomerRegister() {
+		    const name = document.getElementById('regName')?.value;
+		    const nickname = document.getElementById('regNickname')?.value;
+		    const idCard = document.getElementById('regIdCard')?.value;
+		    const phone = document.getElementById('regPhone')?.value;
+		    const address = document.getElementById('regAddress')?.value;
+		    const password = document.getElementById('regPassword')?.value;
+		    const confirmPassword = document.getElementById('regConfirmPassword')?.value;
+		    const agree = document.getElementById('agreeTerms')?.checked;
+		    
+		    if (!name || !idCard || !phone || !address || !password) {
+		        showToast('请填写所有必填项');
+		        return;
+		    }
+		    
+		    if (password !== confirmPassword) {
+		        showToast('两次输入的密码不一致');
+		        return;
+		    }
+		    
+		    if (password.length < 6 || password.length > 20) {
+		        showToast('密码长度应为6-20位');
+		        return;
+		    }
+		    
+		    if (!agree) {
+		        showToast('请阅读并同意用户协议');
+		        return;
+		    }
+		    
+		    if (idCard.length !== 18 && idCard.length !== 15) {
+		        showToast('请输入正确的身份证号');
+		        return;
+		    }
+		    
+		    // 检查手机号是否已注册
+		    if (allUsers.some(u => u.phone === phone)) {
+		        showToast('该手机号已注册，请直接登录');
+		        return;
+		    }
+		    
+		    // 保存头像
+		    const avatarImg = document.querySelector('#customerAvatarPreview img');
+		    if (avatarImg) {
+		        localStorage.setItem('pobizhe_avatar', avatarImg.src);
+		    }
+		    
+		    // 生成账号
+		    const account = generateAccount('customer', phone);
+		    
+		    // 创建用户
+		    const newUser = {
+		        userId: Date.now().toString() + phone.slice(-6),
+		        account: account,
+		        name: name,
+		        nickname: nickname || name,
+		        phone: phone,
+		        password: password,
+		        type: 'customer',
+		        address: address,
+		        verified: false,
+		        registerDate: new Date().toISOString()
+		    };
+		    
+		    allUsers.push(newUser);
+		    saveAllUsers();
+		    
+		    currentUser = {
+		        userId: newUser.userId,
+		        account: newUser.account,
+		        name: newUser.name,
+		        nickname: newUser.nickname,
+		        phone: newUser.phone,
+		        type: newUser.type,
+		        address: newUser.address,
+		        verified: false,
+		        registerDate: newUser.registerDate
+		    };
+		    
+		    saveToStorage();
+		    updateUserInfo();
+		    closeAuthModal();
+		    showToast(`注册成功！您的账号是：${account}，请牢记`);
+		}
+		
+		// 修改商家注册处理
+		function handleMerchantRegister() {
+		    const entityType = document.getElementById('merchantEntityType')?.value;
+		    const legalName = document.getElementById('merchantLegalName')?.value;
+		    const idNumber = document.getElementById('merchantIdNumber')?.value;
+		    const phone = document.getElementById('merchantPhone')?.value;
+		    const bankCard = document.getElementById('merchantBankCard')?.value;
+		    const bankName = document.getElementById('merchantBankName')?.value;
+		    const shipAddress = document.getElementById('merchantShipAddress')?.value;
+		    const password = document.getElementById('merchantPassword')?.value;
+		    const confirmPassword = document.getElementById('merchantConfirmPassword')?.value;
+		    const agree = document.getElementById('merchantAgreeTerms')?.checked;
+		    
+		    // 获取上传的文件
+		    const idFront = document.getElementById('merchantIdFrontInput')?.files[0];
+		    const idBack = document.getElementById('merchantIdBackInput')?.files[0];
+		    const originProof = document.getElementById('merchantOriginProofInput')?.files[0];
+		    
+		    // 获取店铺名称和产地
+		    const shopName = document.getElementById('merchantShopName')?.value;
+		    const origin = document.getElementById('merchantOrigin')?.value;
+		    
+		    if (!legalName || !idNumber || !phone || !shipAddress || !password || !shopName || !origin) {
+		        showToast('请填写所有必填项');
+		        return;
+		    }
+		    
+		    if (password !== confirmPassword) {
+		        showToast('两次输入的密码不一致');
+		        return;
+		    }
+		    
+		    if (password.length < 6 || password.length > 20) {
+		        showToast('密码长度应为6-20位');
+		        return;
+		    }
+		    
+		    if (!idFront || !idBack || !originProof) {
+		        showToast('请上传身份证正反面和产地证明');
+		        return;
+		    }
+		    
+		    if (!agree) {
+		        showToast('请阅读并同意商家入驻协议');
+		        return;
+		    }
+		    
+		    if (idNumber.length !== 18 && idNumber.length !== 15) {
+		        showToast('请输入正确的身份证号');
+		        return;
+		    }
+		    
+		    // 检查手机号是否已注册
+		    if (allUsers.some(u => u.phone === phone)) {
+		        showToast('该手机号已注册，请直接登录');
+		        return;
+		    }
+		    
+		    // 保存头像
+		    const avatarImg = document.querySelector('#merchantAvatarPreview img');
+		    if (avatarImg) {
+		        localStorage.setItem('pobizhe_avatar', avatarImg.src);
+		    }
+		    
+		    // 生成账号（商家账号以S开头）
+		    const account = generateAccount('merchant', phone);
+		    
+		    // 创建用户
+		    const newUser = {
+		        userId: Date.now().toString() + phone.slice(-6),
+		        account: account,
+		        name: legalName,
+		        phone: phone,
+		        password: password,
+		        type: 'merchant',
+		        address: shipAddress,
+		        verified: false,
+		        isApplying: true,
+		        merchantInfo: {
+		            entityType: entityType,
+		            idNumber: idNumber,
+		            bankCard: bankCard,
+		            bankName: bankName,
+		            shipAddress: shipAddress,
+		            shopName: shopName,
+		            origin: origin,
+		            // ... 其他信息
+		        },
+		        registerDate: new Date().toISOString()
+		    };
+		    
+		    allUsers.push(newUser);
+		    saveAllUsers();
+		    
+		    currentUser = {
+		        userId: newUser.userId,
+		        account: newUser.account,
+		        name: newUser.name,
+		        phone: newUser.phone,
+		        type: newUser.type,
+		        address: newUser.address,
+		        verified: false,
+		        isApplying: true,
+		        merchantInfo: newUser.merchantInfo,
+		        registerDate: newUser.registerDate
+		    };
+		    
+		    saveToStorage();
+		    updateUserInfo();
+		    closeAuthModal();
+		    
+		    showToast(`入驻申请已提交！您的账号是：${account}，请牢记。我们将尽快审核，预计1-3个工作日完成`);
+		}
+		
+		// 修改 openAuthModal 函数
+		function openAuthModal(type = 'login') {
+		    resetAuthForms();
+		    switchAuthTab(type);
+		    // 如果有记住的账号密码，自动填充
+		    const rememberedAccount = localStorage.getItem('pobizhe_remembered_account');
+		    const rememberedPassword = localStorage.getItem('pobizhe_remembered_password');
+		    if (rememberedAccount && rememberedPassword && type === 'login') {
+		        document.getElementById('loginAccount').value = rememberedAccount;
+		        document.getElementById('loginPassword').value = rememberedPassword;
+		        document.getElementById('rememberMe').checked = true;
+		    }
+		    document.getElementById('authModal').classList.add('show');
+		}
 
         // 商品数据（15 个）
         const products = [
@@ -4076,6 +4553,7 @@
             loadProducts();
 			loadCertifiedZone();
             loadFromStorage();
+			loadAllUsers();
 			loadMerchantApplications();
 	        // 页面加载完成后隐藏加载动画
 	        window.addEventListener('load', function() {
