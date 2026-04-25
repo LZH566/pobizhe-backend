@@ -359,7 +359,7 @@
     <div class="order-detail-content">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5><i class="fas fa-receipt me-2"></i>订单详情</h5>
-            <button class="btn-close" onclick="closeOrderDetail()">&times;</button>
+            <button class="btn-close" onclick="closeOrderDetail()" style="background: none; border: none; font-size: 1.5rem;">&times;</button>
         </div>
         <div id="orderDetailContent"></div>
         <div class="mt-3 text-end">
@@ -375,7 +375,6 @@
     
     let API_BASE = localStorage.getItem('ADMIN_API_BASE') || 'https://pobizhe-backend.vercel.app';
     let currentStatus = 'all';
-    let currentOrderItems = [];
     
     // ========== Supabase API 函数 ==========
     async function supabaseRequest(method, table, data = null, query = '') {
@@ -456,15 +455,16 @@
                         ${orders.map(order => `
                             <tr>
                                 <td><small>${order.order_no}</small></td>
-                                <td>${order.user_name}</td>
-                                <td>${order.receiver_name}</td>
+                                <td>${escapeHtml(order.user_name)}</td>
+                                <td>${escapeHtml(order.receiver_name)}</td>
                                 <td style="color:#E65100; font-weight:bold;">¥${order.final_amount}</td>
                                 <td><span class="status-badge ${order.status}">${getStatusText(order.status)}</span></td>
                                 <td><small>${new Date(order.created_at).toLocaleString()}</small></td>
                                 <td>
                                     <button class="btn btn-sm btn-info" onclick="viewOrderDetail('${order.order_no}')">详情</button>
-                                    ${order.status === 'pending' ? `<button class="btn btn-sm btn-success" onclick="shipOrder('${order.order_no}')">发货</button>` : ''}
-                                </td>
+                                    ${order.status === 'pending' ? `<button class="btn btn-sm btn-success ms-1" onclick="shipOrder('${order.order_no}')">发货</button>` : ''}
+                                    ${order.status === 'pending' ? `<button class="btn btn-sm btn-danger ms-1" onclick="cancelOrder('${order.order_no}')">取消</button>` : ''}
+                                 </td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -489,7 +489,7 @@
             
             const itemsHtml = order.items.map(item => `
                 <tr>
-                    <td>${item.product_name}</td>
+                    <td>${escapeHtml(item.product_name)}</td>
                     <td>¥${item.product_price}/${item.product_unit}</td>
                     <td>${item.quantity}</td>
                     <td>¥${item.subtotal}</td>
@@ -499,9 +499,9 @@
             document.getElementById('orderDetailContent').innerHTML = `
                 <div class="mb-3">
                     <p><strong>订单号：</strong>${order.order_no}</p>
-                    <p><strong>用户：</strong>${order.user_name} (${order.user_phone})</p>
-                    <p><strong>收货人：</strong>${order.receiver_name} ${order.receiver_phone}</p>
-                    <p><strong>收货地址：</strong>${order.receiver_address}</p>
+                    <p><strong>用户：</strong>${escapeHtml(order.user_name)} (${order.user_phone})</p>
+                    <p><strong>收货人：</strong>${escapeHtml(order.receiver_name)} ${order.receiver_phone}</p>
+                    <p><strong>收货地址：</strong>${escapeHtml(order.receiver_address)}</p>
                     <p><strong>下单时间：</strong>${new Date(order.created_at).toLocaleString()}</p>
                     <p><strong>订单状态：</strong><span class="status-badge ${order.status}">${getStatusText(order.status)}</span></p>
                 </div>
@@ -542,8 +542,27 @@
         }
     }
     
+    // 取消订单
+    async function cancelOrder(orderNo) {
+        if (!confirm('确定要取消该订单吗？取消后不可恢复。')) return;
+        
+        try {
+            await updateOrderStatus(orderNo, 'cancelled');
+            alert('订单已取消');
+            loadOrderList();
+        } catch (error) {
+            console.error('取消失败:', error);
+            alert('取消失败，请重试');
+        }
+    }
+    
     function getStatusText(status) {
-        const map = { 'pending': '待发货', 'shipped': '已发货', 'completed': '已完成', 'cancelled': '已取消' };
+        const map = { 
+            'pending': '待发货', 
+            'shipped': '已发货', 
+            'completed': '已完成', 
+            'cancelled': '已取消' 
+        };
         return map[status] || status;
     }
     
@@ -620,7 +639,12 @@
     }
     
     function getEntityTypeText(type) {
-        const map = { 'personal': '个人农户', 'familyFarm': '家庭农场', 'cooperative': '合作社', 'company': '企业' };
+        const map = { 
+            'personal': '个人农户', 
+            'familyFarm': '家庭农场', 
+            'cooperative': '合作社', 
+            'company': '企业' 
+        };
         return map[type] || type || '未填写';
     }
     
