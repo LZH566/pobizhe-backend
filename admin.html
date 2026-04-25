@@ -29,6 +29,31 @@
             border-radius: 15px;
             margin-bottom: 25px;
         }
+        /* 主标签页 */
+        .main-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        .main-tab {
+            padding: 12px 30px;
+            background: white;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .main-tab:hover {
+            background: #e8f5e9;
+        }
+        .main-tab.active {
+            background: #2E7D32;
+            color: white;
+        }
         /* 统计卡片 */
         .stats {
             display: grid;
@@ -43,6 +68,7 @@
             text-align: center;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             transition: all 0.3s;
+            cursor: pointer;
         }
         .stat-card:hover {
             transform: translateY(-3px);
@@ -57,61 +83,63 @@
             color: #666;
             margin-top: 8px;
         }
-        /* 标签页 */
-        .tabs {
+        /* 子标签页 */
+        .sub-tabs {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
         }
-        .tab {
-            padding: 10px 25px;
-            background: white;
+        .sub-tab {
+            padding: 8px 20px;
+            background: none;
             border: none;
-            border-radius: 30px;
             cursor: pointer;
             font-size: 14px;
+            color: #666;
+            border-radius: 20px;
             transition: all 0.3s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
-        .tab:hover {
-            background: #e8f5e9;
+        .sub-tab:hover {
+            background: #f0f0f0;
         }
-        .tab.active {
+        .sub-tab.active {
             background: #2E7D32;
             color: white;
         }
-        /* 申请列表 */
-        .applications {
+        /* 订单卡片 */
+        .orders-list, .applications-list {
             background: white;
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        .app-item {
+        .order-card, .app-item {
             padding: 20px;
             border-bottom: 1px solid #eee;
-            cursor: pointer;
             transition: background 0.2s;
         }
-        .app-item:hover {
+        .order-card:hover, .app-item:hover {
             background: #f9f9f9;
         }
-        .app-header {
+        .order-header, .app-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             flex-wrap: wrap;
             gap: 10px;
         }
-        .app-name {
+        .order-id, .app-name {
             font-weight: bold;
             font-size: 16px;
         }
-        .app-shop {
+        .order-user, .app-shop {
             color: #2E7D32;
             margin-left: 10px;
+            font-size: 13px;
         }
         .status {
             padding: 4px 12px;
@@ -123,6 +151,14 @@
             background: #FFF3E0;
             color: #F57C00;
         }
+        .status-shipped {
+            background: #E3F2FD;
+            color: #1976D2;
+        }
+        .status-completed {
+            background: #E8F5E9;
+            color: #2E7D32;
+        }
         .status-approved {
             background: #E8F5E9;
             color: #2E7D32;
@@ -131,14 +167,64 @@
             background: #FFEBEE;
             color: #D32F2F;
         }
-        .app-detail {
+        .order-items {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .order-address {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .order-total {
+            font-weight: bold;
+            color: #F57C00;
+            font-size: 18px;
+        }
+        .order-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .btn-sm {
+            padding: 5px 12px;
+            font-size: 12px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-ship {
+            background: #2196F3;
+            color: white;
+        }
+        .btn-delete {
+            background: #f44336;
+            color: white;
+        }
+        .btn-approve {
+            background: #2E7D32;
+            color: white;
+        }
+        .btn-reject {
+            background: #D32F2F;
+            color: white;
+        }
+        .order-detail, .app-detail {
             display: none;
             margin-top: 15px;
             padding: 15px;
             background: #f8f9fa;
             border-radius: 10px;
         }
-        .app-detail.show {
+        .order-detail.show, .app-detail.show {
             display: block;
         }
         .detail-grid {
@@ -160,27 +246,6 @@
             color: #333;
             word-break: break-all;
         }
-        .review-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .btn-approve {
-            background: #2E7D32;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-        }
-        .btn-reject {
-            background: #D32F2F;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 25px;
-            cursor: pointer;
-        }
         .remark-input {
             width: 100%;
             padding: 10px;
@@ -194,7 +259,11 @@
             padding: 40px;
             color: #666;
         }
-        /* API 设置区域 */
+        .empty {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+        }
         .api-setting {
             background: #e8f5e9;
             padding: 15px 20px;
@@ -221,6 +290,18 @@
             border-radius: 25px;
             cursor: pointer;
         }
+        .filter-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-select {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            background: white;
+        }
         @media (max-width: 768px) {
             .stats {
                 grid-template-columns: repeat(2, 1fr);
@@ -229,7 +310,7 @@
             .stat-number {
                 font-size: 1.5rem;
             }
-            .app-header {
+            .order-header, .app-header {
                 flex-direction: column;
                 align-items: flex-start;
             }
@@ -243,8 +324,8 @@
 <div class="container">
     <!-- 头部 -->
     <div class="header">
-        <h2><i class="fas fa-store me-2"></i>破壁者 - 商家入驻管理后台</h2>
-        <p class="mb-0 opacity-75">查看、审核和管理商家入驻申请</p>
+        <h2><i class="fas fa-store me-2"></i>破壁者 - 管理员后台</h2>
+        <p class="mb-0 opacity-75">管理消费者订单、商家入驻申请、用户和商品</p>
     </div>
 
     <!-- API 地址设置 -->
@@ -256,107 +337,420 @@
         <small class="text-muted">默认为您的 Vercel 后端地址</small>
     </div>
 
-    <!-- 统计卡片 -->
-    <div class="stats">
-        <div class="stat-card">
-            <div class="stat-number" id="statTotal">-</div>
-            <div class="stat-label">总申请数</div>
+    <!-- 主标签页 -->
+    <div class="main-tabs">
+        <button class="main-tab active" data-main="orders">📋 消费者订单</button>
+        <button class="main-tab" data-main="applications">🏪 商家入驻申请</button>
+        <button class="main-tab" data-main="users">👥 用户管理</button>
+        <button class="main-tab" data-main="products">📦 商品管理</button>
+        <button class="main-tab" data-main="statistics">📊 数据统计</button>
+    </div>
+
+    <!-- ==================== 消费者订单区域 ==================== -->
+    <div id="ordersPanel">
+        <!-- 订单统计卡片 -->
+        <div class="stats" id="orderStats">
+            <div class="stat-card" onclick="filterOrders('all')">
+                <div class="stat-number" id="orderTotal">0</div>
+                <div class="stat-label">总订单</div>
+            </div>
+            <div class="stat-card" onclick="filterOrders('pending')">
+                <div class="stat-number" id="orderPending">0</div>
+                <div class="stat-label">待发货</div>
+            </div>
+            <div class="stat-card" onclick="filterOrders('shipped')">
+                <div class="stat-number" id="orderShipped">0</div>
+                <div class="stat-label">已发货</div>
+            </div>
+            <div class="stat-card" onclick="filterOrders('completed')">
+                <div class="stat-number" id="orderCompleted">0</div>
+                <div class="stat-label">已完成</div>
+            </div>
         </div>
-        <div class="stat-card">
-            <div class="stat-number" id="statPending">-</div>
-            <div class="stat-label">待审核</div>
+
+        <!-- 订单筛选栏 -->
+        <div class="filter-bar">
+            <select id="orderStatusFilter" class="filter-select" onchange="filterOrders()">
+                <option value="all">全部订单</option>
+                <option value="pending">待发货</option>
+                <option value="shipped">已发货</option>
+                <option value="completed">已完成</option>
+            </select>
+            <input type="text" id="orderSearchInput" class="filter-select" placeholder="搜索订单号/用户/手机号" style="width: 200px;" onkeyup="filterOrders()">
+            <button class="filter-select" onclick="resetOrderFilters()" style="background:#f0f0f0;">重置筛选</button>
         </div>
-        <div class="stat-card">
-            <div class="stat-number" id="statApproved">-</div>
-            <div class="stat-label">已通过</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="statRejected">-</div>
-            <div class="stat-label">已拒绝</div>
+
+        <!-- 订单列表 -->
+        <div class="orders-list" id="ordersList">
+            <div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载订单中...</div>
         </div>
     </div>
 
-    <!-- 标签页 -->
-    <div class="tabs">
-        <button class="tab active" data-status="all">全部</button>
-        <button class="tab" data-status="pending">待审核</button>
-        <button class="tab" data-status="approved">已通过</button>
-        <button class="tab" data-status="rejected">已拒绝</button>
+    <!-- ==================== 商家入驻申请区域 ==================== -->
+    <div id="applicationsPanel" style="display: none;">
+        <!-- 申请统计卡片 -->
+        <div class="stats">
+            <div class="stat-card" onclick="filterApplications('all')">
+                <div class="stat-number" id="appTotal">-</div>
+                <div class="stat-label">总申请</div>
+            </div>
+            <div class="stat-card" onclick="filterApplications('pending')">
+                <div class="stat-number" id="appPending">-</div>
+                <div class="stat-label">待审核</div>
+            </div>
+            <div class="stat-card" onclick="filterApplications('approved')">
+                <div class="stat-number" id="appApproved">-</div>
+                <div class="stat-label">已通过</div>
+            </div>
+            <div class="stat-card" onclick="filterApplications('rejected')">
+                <div class="stat-number" id="appRejected">-</div>
+                <div class="stat-label">已拒绝</div>
+            </div>
+        </div>
+
+        <!-- 申请筛选项 -->
+        <div class="filter-bar">
+            <select id="appStatusFilter" class="filter-select" onchange="filterApplications()">
+                <option value="all">全部申请</option>
+                <option value="pending">待审核</option>
+                <option value="approved">已通过</option>
+                <option value="rejected">已拒绝</option>
+            </select>
+        </div>
+
+        <!-- 申请列表 -->
+        <div class="applications-list" id="applicationsList">
+            <div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载中...</div>
+        </div>
     </div>
 
-    <!-- 申请列表 -->
-    <div class="applications" id="applications">
-        <div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载中...</div>
+    <!-- ==================== 用户管理区域 ==================== -->
+    <div id="usersPanel" style="display: none;">
+        <div class="stats">
+            <div class="stat-card" onclick="filterUsers('all')">
+                <div class="stat-number" id="userTotal">0</div>
+                <div class="stat-label">总用户</div>
+            </div>
+            <div class="stat-card" onclick="filterUsers('customer')">
+                <div class="stat-number" id="userCustomer">0</div>
+                <div class="stat-label">顾客</div>
+            </div>
+            <div class="stat-card" onclick="filterUsers('merchant')">
+                <div class="stat-number" id="userMerchant">0</div>
+                <div class="stat-label">商家</div>
+            </div>
+            <div class="stat-card" onclick="filterUsers('pendingMerchant')">
+                <div class="stat-number" id="userPendingMerchant">0</div>
+                <div class="stat-label">待审核商家</div>
+            </div>
+        </div>
+        <div class="filter-bar">
+            <input type="text" id="userSearchInput" class="filter-select" placeholder="搜索姓名/手机号/账号" style="width: 250px;" onkeyup="filterUsers()">
+        </div>
+        <div class="orders-list" id="usersList">
+            <div class="loading">加载中...</div>
+        </div>
+    </div>
+
+    <!-- ==================== 商品管理区域 ==================== -->
+    <div id="productsPanel" style="display: none;">
+        <div class="filter-bar">
+            <input type="text" id="productSearchInput" class="filter-select" placeholder="搜索商品名称" style="width: 250px;" onkeyup="filterProducts()">
+        </div>
+        <div class="orders-list" id="productsList">
+            <div class="loading">加载中...</div>
+        </div>
+    </div>
+
+    <!-- ==================== 数据统计区域 ==================== -->
+    <div id="statisticsPanel" style="display: none;">
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="statsTotalOrders">0</div>
+                <div class="stat-label">总订单数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statsTotalSales">¥0</div>
+                <div class="stat-label">总销售额</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statsTotalUsers">0</div>
+                <div class="stat-label">总用户数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statsTotalProducts">0</div>
+                <div class="stat-label">总商品数</div>
+            </div>
+        </div>
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="statsTodayOrders">0</div>
+                <div class="stat-label">今日订单</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statsTodaySales">¥0</div>
+                <div class="stat-label">今日销售额</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statsMerchantCount">0</div>
+                <div class="stat-label">商家数量</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="statsCustomerCount">0</div>
+                <div class="stat-label">顾客数量</div>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    // API 基础地址
+    // ========== 全局变量 ==========
     let API_BASE = localStorage.getItem('ADMIN_API_BASE') || 'https://pobizhe-backend.vercel.app';
-    let currentStatus = 'all';
+    let currentMainTab = 'orders';
+    let currentOrderFilter = 'all';
+    let currentAppFilter = 'all';
+    let currentUserFilter = 'all';
+    let currentProductSearch = '';
+    let orderSearchKeyword = '';
     
-    // 设置 API 地址
+    // 存储数据
+    let allOrders = [];
+    let allUsers = [];
+    let allProducts = [];
+    let allApplications = [];
+    
+    // ========== API 设置 ==========
     function setApiUrl() {
         const input = document.getElementById('apiUrl');
         API_BASE = input.value.trim();
         localStorage.setItem('ADMIN_API_BASE', API_BASE);
         alert('API 地址已保存，将重新加载数据');
-        loadStatistics();
-        loadApplications();
+        loadAllData();
     }
     
-    // 加载统计数据
-    async function loadStatistics() {
+    // ========== 主标签页切换 ==========
+    function switchMainTab(tab) {
+        currentMainTab = tab;
+        document.querySelectorAll('.main-tab').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.main-tab[data-main="${tab}"]`).classList.add('active');
+        
+        document.getElementById('ordersPanel').style.display = tab === 'orders' ? 'block' : 'none';
+        document.getElementById('applicationsPanel').style.display = tab === 'applications' ? 'block' : 'none';
+        document.getElementById('usersPanel').style.display = tab === 'users' ? 'block' : 'none';
+        document.getElementById('productsPanel').style.display = tab === 'products' ? 'block' : 'none';
+        document.getElementById('statisticsPanel').style.display = tab === 'statistics' ? 'block' : 'none';
+        
+        // 刷新对应数据
+        if (tab === 'orders') loadOrders();
+        else if (tab === 'applications') loadApplications();
+        else if (tab === 'users') loadUsers();
+        else if (tab === 'products') loadProducts();
+        else if (tab === 'statistics') loadStatistics();
+    }
+    
+    // ========== 订单管理 ==========
+    async function loadOrders() {
         try {
-            const response = await fetch(`${API_BASE}/api/merchant/statistics`);
+            const response = await fetch(`${API_BASE}/api/orders`);
             const result = await response.json();
             if (result.success) {
-                document.getElementById('statTotal').textContent = result.data.total || 0;
-                document.getElementById('statPending').textContent = result.data.pending || 0;
-                document.getElementById('statApproved').textContent = result.data.approved || 0;
-                document.getElementById('statRejected').textContent = result.data.rejected || 0;
+                allOrders = result.data || [];
+            } else {
+                allOrders = getLocalOrders();
             }
         } catch (error) {
-            console.error('加载统计失败:', error);
-            document.getElementById('statTotal').textContent = '错误';
+            console.log('后端无订单API，使用本地数据');
+            allOrders = getLocalOrders();
+        }
+        updateOrderStats();
+        renderOrders();
+    }
+    
+    function getLocalOrders() {
+        const savedOrders = localStorage.getItem('pobizhe_orders');
+        const orders = savedOrders ? JSON.parse(savedOrders) : [];
+        const savedUsers = localStorage.getItem('pobizhe_all_users');
+        const users = savedUsers ? JSON.parse(savedUsers) : [];
+        
+        return orders.map(order => {
+            const user = users.find(u => u.userId === order.userId);
+            return {
+                ...order,
+                userName: user?.name || order.userName || '用户',
+                userPhone: user?.phone || order.phone || ''
+            };
+        });
+    }
+    
+    function updateOrderStats() {
+        const total = allOrders.length;
+        const pending = allOrders.filter(o => o.status === 'pending').length;
+        const shipped = allOrders.filter(o => o.status === 'shipped').length;
+        const completed = allOrders.filter(o => o.status === 'completed').length;
+        
+        document.getElementById('orderTotal').textContent = total;
+        document.getElementById('orderPending').textContent = pending;
+        document.getElementById('orderShipped').textContent = shipped;
+        document.getElementById('orderCompleted').textContent = completed;
+    }
+    
+    function filterOrders(status) {
+        if (status) {
+            currentOrderFilter = status;
+            document.getElementById('orderStatusFilter').value = status;
+        } else {
+            currentOrderFilter = document.getElementById('orderStatusFilter').value;
+        }
+        orderSearchKeyword = document.getElementById('orderSearchInput').value.toLowerCase();
+        renderOrders();
+    }
+    
+    function resetOrderFilters() {
+        currentOrderFilter = 'all';
+        orderSearchKeyword = '';
+        document.getElementById('orderStatusFilter').value = 'all';
+        document.getElementById('orderSearchInput').value = '';
+        renderOrders();
+    }
+    
+    function renderOrders() {
+        const container = document.getElementById('ordersList');
+        let filtered = [...allOrders];
+        
+        if (currentOrderFilter !== 'all') {
+            filtered = filtered.filter(o => o.status === currentOrderFilter);
+        }
+        if (orderSearchKeyword) {
+            filtered = filtered.filter(o => 
+                o.id.toLowerCase().includes(orderSearchKeyword) ||
+                (o.userName && o.userName.toLowerCase().includes(orderSearchKeyword)) ||
+                (o.phone && o.phone.includes(orderSearchKeyword))
+            );
+        }
+        
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty"><i class="fas fa-inbox me-2"></i>暂无订单</div>';
+            return;
+        }
+        
+        container.innerHTML = filtered.map(order => `
+            <div class="order-card" onclick="toggleOrderDetail('${order.id}')">
+                <div class="order-header">
+                    <div>
+                        <span class="order-id">📋 订单号：${order.id}</span>
+                        <span class="order-user"><i class="fas fa-user me-1"></i>${escapeHtml(order.userName || order.receiver)}</span>
+                    </div>
+                    <span class="status status-${order.status}">
+                        ${order.status === 'pending' ? '待发货' : order.status === 'shipped' ? '已发货' : '已完成'}
+                    </span>
+                </div>
+                <div class="order-items">
+                    <i class="fas fa-box me-1"></i>${order.items.map(i => `${i.name} ×${i.quantity}`).join('、')}
+                </div>
+                <div class="order-address">
+                    <i class="fas fa-map-marker-alt me-1"></i>${order.address}
+                </div>
+                <div class="order-footer">
+                    <span class="order-total">¥${order.total.toFixed(2)}</span>
+                    <div class="order-actions" onclick="event.stopPropagation()">
+                        ${order.status === 'pending' ? `<button class="btn-sm btn-ship" onclick="shipOrder('${order.id}')">🚚 确认发货</button>` : ''}
+                        <button class="btn-sm btn-delete" onclick="deleteOrder('${order.id}')">🗑️ 删除</button>
+                    </div>
+                </div>
+                <div class="order-detail" id="order-detail-${order.id}">
+                    <div class="detail-grid">
+                        <div class="detail-item"><div class="detail-label">收货人</div><div class="detail-value">${escapeHtml(order.receiver)} ${order.phone}</div></div>
+                        <div class="detail-item"><div class="detail-label">收货地址</div><div class="detail-value">${escapeHtml(order.address)}</div></div>
+                        <div class="detail-item"><div class="detail-label">支付方式</div><div class="detail-value">${order.paymentMethod || '微信支付'}</div></div>
+                        <div class="detail-item"><div class="detail-label">下单时间</div><div class="detail-value">${order.date || new Date(order.createdAt).toLocaleString()}</div></div>
+                    </div>
+                    <div class="detail-grid">
+                        <div class="detail-item"><div class="detail-label">商品明细</div><div class="detail-value">${order.items.map(i => `${i.name}：¥${i.price} × ${i.quantity}`).join('<br>')}</div></div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    function toggleOrderDetail(orderId) {
+        const detail = document.getElementById(`order-detail-${orderId}`);
+        if (detail) detail.classList.toggle('show');
+    }
+    
+    async function shipOrder(orderId) {
+        if (!confirm('确认已发货吗？')) return;
+        
+        const order = allOrders.find(o => o.id === orderId);
+        if (order) {
+            order.status = 'shipped';
+            saveOrdersToStorage();
+            renderOrders();
+            updateOrderStats();
+            showToast('已标记为发货');
         }
     }
     
-    // 加载申请列表
+    async function deleteOrder(orderId) {
+        if (!confirm('确认删除这个订单吗？')) return;
+        
+        const index = allOrders.findIndex(o => o.id === orderId);
+        if (index !== -1) {
+            allOrders.splice(index, 1);
+            saveOrdersToStorage();
+            renderOrders();
+            updateOrderStats();
+            showToast('订单已删除');
+        }
+    }
+    
+    function saveOrdersToStorage() {
+        localStorage.setItem('pobizhe_orders', JSON.stringify(allOrders));
+    }
+    
+    // ========== 商家入驻申请管理 ==========
     async function loadApplications() {
-        const container = document.getElementById('applications');
+        const container = document.getElementById('applicationsList');
         container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载中...</div>';
         
         try {
             let url = `${API_BASE}/api/merchant/applications?page=1&pageSize=50`;
-            if (currentStatus !== 'all') {
-                url += `&status=${currentStatus}`;
-            }
+            if (currentAppFilter !== 'all') url += `&status=${currentAppFilter}`;
             const response = await fetch(url);
             const result = await response.json();
             
             if (result.success && result.data) {
-                renderApplications(result.data);
+                allApplications = result.data;
+                renderApplications();
             } else {
-                container.innerHTML = '<div class="loading">暂无申请数据</div>';
+                container.innerHTML = '<div class="empty">暂无申请数据</div>';
             }
         } catch (error) {
             console.error('加载申请失败:', error);
-            container.innerHTML = '<div class="loading"><i class="fas fa-exclamation-triangle me-2"></i>连接失败，请检查API地址</div>';
+            container.innerHTML = '<div class="empty"><i class="fas fa-exclamation-triangle me-2"></i>连接失败，请检查API地址</div>';
         }
     }
     
-    // 渲染申请列表
-    function renderApplications(applications) {
-        const container = document.getElementById('applications');
+    function filterApplications() {
+        currentAppFilter = document.getElementById('appStatusFilter').value;
+        loadApplications();
+    }
+    
+    function renderApplications() {
+        const container = document.getElementById('applicationsList');
         
-        if (!applications || applications.length === 0) {
-            container.innerHTML = '<div class="loading">暂无申请记录</div>';
+        if (!allApplications || allApplications.length === 0) {
+            container.innerHTML = '<div class="empty">暂无申请记录</div>';
             return;
         }
         
-        container.innerHTML = applications.map(app => `
-            <div class="app-item" onclick="toggleDetail(${app.id})">
+        // 更新统计
+        document.getElementById('appTotal').textContent = allApplications.length;
+        document.getElementById('appPending').textContent = allApplications.filter(a => a.status === 'pending').length;
+        document.getElementById('appApproved').textContent = allApplications.filter(a => a.status === 'approved').length;
+        document.getElementById('appRejected').textContent = allApplications.filter(a => a.status === 'rejected').length;
+        
+        container.innerHTML = allApplications.map(app => `
+            <div class="app-item" onclick="toggleAppDetail(${app.id})">
                 <div class="app-header">
                     <div>
                         <span class="app-name">${escapeHtml(app.name)}</span>
@@ -369,52 +763,33 @@
                 <div style="font-size: 13px; color: #666;">
                     📞 ${app.phone} | 🏷️ ${app.category || '未填写'} | 📅 ${new Date(app.created_at).toLocaleDateString()}
                 </div>
-                <div class="app-detail" id="detail-${app.id}">
+                <div class="app-detail" id="app-detail-${app.id}">
                     <div class="detail-grid">
                         <div class="detail-item"><div class="detail-label">身份证号</div><div class="detail-value">${escapeHtml(app.id_card)}</div></div>
                         <div class="detail-item"><div class="detail-label">银行卡号</div><div class="detail-value">${escapeHtml(app.bank_card) || '未填写'}</div></div>
                         <div class="detail-item"><div class="detail-label">开户行</div><div class="detail-value">${escapeHtml(app.bank_name) || '未填写'}</div></div>
                         <div class="detail-item"><div class="detail-label">产地</div><div class="detail-value">${escapeHtml(app.origin)}</div></div>
                         <div class="detail-item"><div class="detail-label">结算周期</div><div class="detail-value">${app.settlement_period || '未设置'}</div></div>
-                        <div class="detail-item"><div class="detail-label">主体类型</div><div class="detail-value">${getEntityTypeText(app.entity_type)}</div></div>
                         <div class="detail-item"><div class="detail-label">申请时间</div><div class="detail-value">${new Date(app.created_at).toLocaleString()}</div></div>
                     </div>
                     <textarea id="remark-${app.id}" class="remark-input" placeholder="审核备注（可选）" rows="2">${escapeHtml(app.review_remark || '')}</textarea>
-                    <div class="review-buttons">
-                        ${app.status !== 'approved' ? `<button class="btn-approve" onclick="event.stopPropagation(); reviewApplication(${app.id}, 'approved')">✅ 通过审核</button>` : ''}
-                        ${app.status !== 'rejected' ? `<button class="btn-reject" onclick="event.stopPropagation(); reviewApplication(${app.id}, 'rejected')">❌ 拒绝</button>` : ''}
+                    <div class="review-buttons" onclick="event.stopPropagation()">
+                        ${app.status !== 'approved' ? `<button class="btn-approve" onclick="reviewApplication(${app.id}, 'approved')">✅ 通过审核</button>` : ''}
+                        ${app.status !== 'rejected' ? `<button class="btn-reject" onclick="reviewApplication(${app.id}, 'rejected')">❌ 拒绝</button>` : ''}
                     </div>
                 </div>
             </div>
         `).join('');
     }
     
-    // 获取主体类型文本
-    function getEntityTypeText(type) {
-        const map = {
-            'personal': '个人农户',
-            'familyFarm': '家庭农场',
-            'cooperative': '合作社',
-            'company': '企业'
-        };
-        return map[type] || type || '未填写';
+    function toggleAppDetail(id) {
+        const detail = document.getElementById(`app-detail-${id}`);
+        if (detail) detail.classList.toggle('show');
     }
     
-    // 切换详情显示
-    function toggleDetail(id) {
-        const detail = document.getElementById(`detail-${id}`);
-        if (detail) {
-            detail.classList.toggle('show');
-        }
-    }
-    
-    // 审核申请
     async function reviewApplication(id, status) {
         const remark = document.getElementById(`remark-${id}`)?.value || '';
-        
-        if (!confirm(`确定要将该申请${status === 'approved' ? '通过' : '拒绝'}吗？`)) {
-            return;
-        }
+        if (!confirm(`确定要将该申请${status === 'approved' ? '通过' : '拒绝'}吗？`)) return;
         
         try {
             const response = await fetch(`${API_BASE}/api/merchant/review/${id}`, {
@@ -426,7 +801,6 @@
             
             if (result.success) {
                 alert('审核完成');
-                loadStatistics();
                 loadApplications();
             } else {
                 alert('操作失败：' + (result.message || '未知错误'));
@@ -437,7 +811,168 @@
         }
     }
     
-    // HTML 转义
+    // ========== 用户管理 ==========
+    function loadUsers() {
+        const saved = localStorage.getItem('pobizhe_all_users');
+        allUsers = saved ? JSON.parse(saved) : [];
+        renderUsers();
+    }
+    
+    function filterUsers() {
+        currentUserFilter = document.getElementById('userSearchInput')?.value || '';
+        renderUsers();
+    }
+    
+    function renderUsers() {
+        const container = document.getElementById('usersList');
+        let filtered = [...allUsers];
+        
+        if (currentUserFilter) {
+            const keyword = currentUserFilter.toLowerCase();
+            filtered = filtered.filter(u => 
+                u.name?.toLowerCase().includes(keyword) ||
+                u.phone?.includes(keyword) ||
+                u.account?.toLowerCase().includes(keyword)
+            );
+        }
+        
+        const total = allUsers.length;
+        const customers = allUsers.filter(u => u.type === 'customer').length;
+        const merchants = allUsers.filter(u => u.type === 'merchant').length;
+        const pendingMerchants = allUsers.filter(u => u.type === 'merchant' && u.isApplying).length;
+        
+        document.getElementById('userTotal').textContent = total;
+        document.getElementById('userCustomer').textContent = customers;
+        document.getElementById('userMerchant').textContent = merchants;
+        document.getElementById('userPendingMerchant').textContent = pendingMerchants;
+        
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty">暂无用户</div>';
+            return;
+        }
+        
+        container.innerHTML = `
+            <table class="table table-bordered" style="width:100%; border-collapse: collapse;">
+                <thead style="background:#f5f5f5;">
+                    <tr><th>账号</th><th>姓名</th><th>手机号</th><th>类型</th><th>注册时间</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                    ${filtered.map(user => `
+                        <tr>
+                            <td>${escapeHtml(user.account)}</td>
+                            <td>${escapeHtml(user.name)}</td>
+                            <td>${escapeHtml(user.phone)}</td>
+                            <td>${user.type === 'merchant' ? (user.isApplying ? '商家(待审核)' : '商家') : '顾客'}</td>
+                            <td>${new Date(user.registerDate).toLocaleDateString()}</td>
+                            <td><button class="btn-sm btn-delete" onclick="deleteUser('${user.userId}')">删除</button></td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+    
+    function deleteUser(userId) {
+        if (!confirm('确定删除这个用户吗？')) return;
+        const index = allUsers.findIndex(u => u.userId === userId);
+        if (index !== -1) {
+            allUsers.splice(index, 1);
+            localStorage.setItem('pobizhe_all_users', JSON.stringify(allUsers));
+            loadUsers();
+            showToast('用户已删除');
+        }
+    }
+    
+    // ========== 商品管理 ==========
+    function loadProducts() {
+        const saved = localStorage.getItem('pobizhe_products');
+        allProducts = saved ? JSON.parse(saved) : getDefaultProducts();
+        renderProducts();
+    }
+    
+    function getDefaultProducts() {
+        return [
+            { id: 1, name: '烟台红富士苹果', price: 5.5, unit: '斤', seller: '山东·张农户' },
+            { id: 2, name: '东北五常大米', price: 8.0, unit: '斤', seller: '黑龙江·李农户' },
+            { id: 3, name: '赣南脐橙', price: 6.0, unit: '斤', seller: '江西·王农户' },
+            { id: 4, name: '新疆红枣', price: 12.0, unit: '斤', seller: '新疆·赵农户' }
+        ];
+    }
+    
+    function filterProducts() {
+        currentProductSearch = document.getElementById('productSearchInput')?.value.toLowerCase() || '';
+        renderProducts();
+    }
+    
+    function renderProducts() {
+        const container = document.getElementById('productsList');
+        let filtered = [...allProducts];
+        
+        if (currentProductSearch) {
+            filtered = filtered.filter(p => p.name.toLowerCase().includes(currentProductSearch));
+        }
+        
+        if (filtered.length === 0) {
+            container.innerHTML = '<div class="empty">暂无商品</div>';
+            return;
+        }
+        
+        container.innerHTML = filtered.map(product => `
+            <div class="order-card" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <div style="flex:1;">
+                    <div class="order-id">${escapeHtml(product.name)}</div>
+                    <div class="order-items">商家：${escapeHtml(product.seller)}</div>
+                    <div class="order-total" style="font-size: 16px;">¥${product.price}/${product.unit}</div>
+                </div>
+                <button class="btn-sm btn-delete" onclick="deleteProduct(${product.id})">删除商品</button>
+            </div>
+        `).join('');
+    }
+    
+    function deleteProduct(productId) {
+        if (!confirm('确定删除这个商品吗？')) return;
+        const index = allProducts.findIndex(p => p.id === productId);
+        if (index !== -1) {
+            allProducts.splice(index, 1);
+            localStorage.setItem('pobizhe_products', JSON.stringify(allProducts));
+            renderProducts();
+            showToast('商品已删除');
+        }
+    }
+    
+    // ========== 数据统计 ==========
+    function loadStatistics() {
+        const totalOrders = allOrders.length;
+        const totalSales = allOrders.reduce((sum, o) => sum + o.total, 0);
+        const totalUsers = allUsers.length;
+        const totalProducts = allProducts.length;
+        
+        const today = new Date().toLocaleDateString();
+        const todayOrders = allOrders.filter(o => o.date === today).length;
+        const todaySales = allOrders.filter(o => o.date === today).reduce((sum, o) => sum + o.total, 0);
+        
+        const merchants = allUsers.filter(u => u.type === 'merchant').length;
+        const customers = allUsers.filter(u => u.type === 'customer').length;
+        
+        document.getElementById('statsTotalOrders').textContent = totalOrders;
+        document.getElementById('statsTotalSales').textContent = '¥' + totalSales.toFixed(2);
+        document.getElementById('statsTotalUsers').textContent = totalUsers;
+        document.getElementById('statsTotalProducts').textContent = totalProducts;
+        document.getElementById('statsTodayOrders').textContent = todayOrders;
+        document.getElementById('statsTodaySales').textContent = '¥' + todaySales.toFixed(2);
+        document.getElementById('statsMerchantCount').textContent = merchants;
+        document.getElementById('statsCustomerCount').textContent = customers;
+    }
+    
+    // ========== 工具函数 ==========
+    function showToast(message) {
+        const toast = document.createElement('div');
+        toast.style.cssText = 'position:fixed; bottom:20px; right:20px; background:#2E7D32; color:white; padding:12px 24px; border-radius:30px; z-index:9999; animation:fadeInOut 2s ease;';
+        toast.innerHTML = `<i class="fas fa-check-circle me-2"></i>${message}`;
+        document.body.appendChild(toast);
+        setTimeout(() => toast.remove(), 2000);
+    }
+    
     function escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');
@@ -445,20 +980,21 @@
         return div.innerHTML;
     }
     
-    // 标签页切换
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-            currentStatus = tab.dataset.status;
-            loadApplications();
-        });
+    function loadAllData() {
+        loadOrders();
+        loadApplications();
+        loadUsers();
+        loadProducts();
+        loadStatistics();
+    }
+    
+    // ========== 初始化 ==========
+    document.querySelectorAll('.main-tab').forEach(tab => {
+        tab.addEventListener('click', () => switchMainTab(tab.dataset.main));
     });
     
-    // 初始化页面
     document.getElementById('apiUrl').value = API_BASE;
-    loadStatistics();
-    loadApplications();
+    loadAllData();
 </script>
 </body>
 </html>
