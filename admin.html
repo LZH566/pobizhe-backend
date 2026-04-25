@@ -21,6 +21,7 @@
             max-width: 1400px;
             margin: 0 auto;
         }
+        /* 头部 */
         .header {
             background: linear-gradient(135deg, #2E7D32, #4CAF50);
             color: white;
@@ -28,6 +29,7 @@
             border-radius: 15px;
             margin-bottom: 25px;
         }
+        /* 统计卡片 */
         .stats {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -55,6 +57,7 @@
             color: #666;
             margin-top: 8px;
         }
+        /* 标签页 */
         .tabs {
             display: flex;
             gap: 10px;
@@ -78,6 +81,7 @@
             background: #2E7D32;
             color: white;
         }
+        /* 申请列表 */
         .applications {
             background: white;
             border-radius: 15px;
@@ -190,6 +194,7 @@
             padding: 40px;
             color: #666;
         }
+        /* API 设置区域 */
         .api-setting {
             background: #e8f5e9;
             padding: 15px 20px;
@@ -216,83 +221,6 @@
             border-radius: 25px;
             cursor: pointer;
         }
-        
-        /* 订单管理表格 */
-        .orders-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .orders-table th,
-        .orders-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-        .orders-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-        }
-        .orders-table tr:hover {
-            background: #f9f9f9;
-        }
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            display: inline-block;
-        }
-        .status-badge.pending {
-            background: #FFF3E0;
-            color: #F57C00;
-        }
-        .status-badge.shipped {
-            background: #E3F2FD;
-            color: #1976D2;
-        }
-        .status-badge.completed {
-            background: #E8F5E9;
-            color: #2E7D32;
-        }
-        .status-badge.cancelled {
-            background: #FFEBEE;
-            color: #D32F2F;
-        }
-        
-        /* 订单详情模态框 */
-        .order-detail-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .order-detail-modal.show {
-            display: flex;
-        }
-        .order-detail-content {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            max-width: 600px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-        }
-        .order-items-table {
-            width: 100%;
-            margin: 15px 0;
-        }
-        .order-items-table th, .order-items-table td {
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-        }
-        
         @media (max-width: 768px) {
             .stats {
                 grid-template-columns: repeat(2, 1fr);
@@ -308,22 +236,18 @@
             .detail-grid {
                 grid-template-columns: 1fr;
             }
-            .orders-table {
-                font-size: 12px;
-            }
-            .orders-table th, .orders-table td {
-                padding: 8px;
-            }
         }
     </style>
 </head>
 <body>
 <div class="container">
+    <!-- 头部 -->
     <div class="header">
-        <h2><i class="fas fa-store me-2"></i>破壁者 - 管理员后台</h2>
-        <p class="mb-0 opacity-75">查看、审核商家入驻申请，管理所有订单</p>
+        <h2><i class="fas fa-store me-2"></i>破壁者 - 商家入驻管理后台</h2>
+        <p class="mb-0 opacity-75">查看、审核和管理商家入驻申请</p>
     </div>
 
+    <!-- API 地址设置 -->
     <div class="api-setting">
         <i class="fas fa-link"></i>
         <span>后端API地址：</span>
@@ -334,239 +258,54 @@
 
     <!-- 统计卡片 -->
     <div class="stats">
-        <div class="stat-card"><div class="stat-number" id="statTotal">-</div><div class="stat-label">总申请数</div></div>
-        <div class="stat-card"><div class="stat-number" id="statPending">-</div><div class="stat-label">待审核</div></div>
-        <div class="stat-card"><div class="stat-number" id="statApproved">-</div><div class="stat-label">已通过</div></div>
-        <div class="stat-card"><div class="stat-number" id="statRejected">-</div><div class="stat-label">已拒绝</div></div>
+        <div class="stat-card">
+            <div class="stat-number" id="statTotal">-</div>
+            <div class="stat-label">总申请数</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="statPending">-</div>
+            <div class="stat-label">待审核</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="statApproved">-</div>
+            <div class="stat-label">已通过</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="statRejected">-</div>
+            <div class="stat-label">已拒绝</div>
+        </div>
     </div>
 
     <!-- 标签页 -->
     <div class="tabs">
-        <button class="tab active" data-status="all">商家申请</button>
+        <button class="tab active" data-status="all">全部</button>
         <button class="tab" data-status="pending">待审核</button>
         <button class="tab" data-status="approved">已通过</button>
         <button class="tab" data-status="rejected">已拒绝</button>
-        <button class="tab" data-status="orders">📋 订单管理</button>
     </div>
 
+    <!-- 申请列表 -->
     <div class="applications" id="applications">
         <div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载中...</div>
     </div>
 </div>
 
-<!-- 订单详情模态框 -->
-<div id="orderDetailModal" class="order-detail-modal">
-    <div class="order-detail-content">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5><i class="fas fa-receipt me-2"></i>订单详情</h5>
-            <button class="btn-close" onclick="closeOrderDetail()" style="background: none; border: none; font-size: 1.5rem;">&times;</button>
-        </div>
-        <div id="orderDetailContent"></div>
-        <div class="mt-3 text-end">
-            <button class="btn btn-secondary" onclick="closeOrderDetail()">关闭</button>
-        </div>
-    </div>
-</div>
-
 <script>
-    // ========== Supabase 配置 ==========
-    const SUPABASE_URL = 'https://snqlzwwtlkmeflvhezfk.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlenZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ';
-    
+    // API 基础地址
     let API_BASE = localStorage.getItem('ADMIN_API_BASE') || 'https://pobizhe-backend.vercel.app';
     let currentStatus = 'all';
     
-    // ========== Supabase API 函数 ==========
-    async function supabaseRequest(method, table, data = null, query = '') {
-        const url = `${SUPABASE_URL}/rest/v1/${table}${query ? `?${query}` : ''}`;
-        const headers = {
-            'apikey': SUPABASE_KEY,
-            'Authorization': `Bearer ${SUPABASE_KEY}`,
-            'Content-Type': 'application/json'
-        };
-        
-        const options = { method, headers };
-        if (data && (method === 'POST' || method === 'PATCH')) {
-            options.body = JSON.stringify(data);
-        }
-        
-        const response = await fetch(url, options);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        return response.json();
-    }
-    
-    // 获取所有订单（带订单明细）
-    async function getAllOrders() {
-        try {
-            // 获取订单主表
-            const orders = await supabaseRequest('GET', 'orders', null, 'order=created_at.desc');
-            // 获取订单明细
-            const orderItems = await supabaseRequest('GET', 'order_items', null, 'order=order_no');
-            
-            // 合并订单和明细
-            const ordersWithItems = orders.map(order => ({
-                ...order,
-                items: orderItems.filter(item => item.order_no === order.order_no)
-            }));
-            
-            return ordersWithItems;
-        } catch (error) {
-            console.error('获取订单失败:', error);
-            return [];
-        }
-    }
-    
-    // 更新订单状态
-    async function updateOrderStatus(orderNo, status) {
-        return supabaseRequest('PATCH', 'orders', { status, updated_at: new Date().toISOString() }, `order_no=eq.${orderNo}`);
-    }
-    
+    // 设置 API 地址
     function setApiUrl() {
         const input = document.getElementById('apiUrl');
         API_BASE = input.value.trim();
         localStorage.setItem('ADMIN_API_BASE', API_BASE);
-        alert('API 地址已保存');
+        alert('API 地址已保存，将重新加载数据');
         loadStatistics();
         loadApplications();
     }
     
-    // 加载订单列表
-    async function loadOrderList() {
-        const container = document.getElementById('applications');
-        container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载订单中...</div>';
-        
-        try {
-            const orders = await getAllOrders();
-            
-            if (!orders || orders.length === 0) {
-                container.innerHTML = '<div class="loading"><i class="fas fa-inbox me-2"></i>暂无订单</div>';
-                return;
-            }
-            
-            container.innerHTML = `
-                <div style="padding: 15px; background: #f8f9fa; border-bottom: 1px solid #eee;">
-                    <strong><i class="fas fa-shopping-cart me-2"></i>订单管理</strong> (共 ${orders.length} 条订单)
-                </div>
-                <table class="orders-table">
-                    <thead>
-                        <tr><th>订单号</th><th>用户</th><th>收货人</th><th>金额</th><th>状态</th><th>下单时间</th><th>操作</th></tr>
-                    </thead>
-                    <tbody>
-                        ${orders.map(order => `
-                            <tr>
-                                <td><small>${order.order_no}</small></td>
-                                <td>${escapeHtml(order.user_name)}</td>
-                                <td>${escapeHtml(order.receiver_name)}</td>
-                                <td style="color:#E65100; font-weight:bold;">¥${order.final_amount}</td>
-                                <td><span class="status-badge ${order.status}">${getStatusText(order.status)}</span></td>
-                                <td><small>${new Date(order.created_at).toLocaleString()}</small></td>
-                                <td>
-                                    <button class="btn btn-sm btn-info" onclick="viewOrderDetail('${order.order_no}')">详情</button>
-                                    ${order.status === 'pending' ? `<button class="btn btn-sm btn-success ms-1" onclick="shipOrder('${order.order_no}')">发货</button>` : ''}
-                                    ${order.status === 'pending' ? `<button class="btn btn-sm btn-danger ms-1" onclick="cancelOrder('${order.order_no}')">取消</button>` : ''}
-                                 </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
-        } catch (error) {
-            console.error('加载订单失败:', error);
-            container.innerHTML = '<div class="loading">加载订单失败，请检查网络</div>';
-        }
-    }
-    
-    // 查看订单详情
-    async function viewOrderDetail(orderNo) {
-        try {
-            const orders = await getAllOrders();
-            const order = orders.find(o => o.order_no === orderNo);
-            
-            if (!order) {
-                alert('订单不存在');
-                return;
-            }
-            
-            const itemsHtml = order.items.map(item => `
-                <tr>
-                    <td>${escapeHtml(item.product_name)}</td>
-                    <td>¥${item.product_price}/${item.product_unit}</td>
-                    <td>${item.quantity}</td>
-                    <td>¥${item.subtotal}</td>
-                </tr>
-            `).join('');
-            
-            document.getElementById('orderDetailContent').innerHTML = `
-                <div class="mb-3">
-                    <p><strong>订单号：</strong>${order.order_no}</p>
-                    <p><strong>用户：</strong>${escapeHtml(order.user_name)} (${order.user_phone})</p>
-                    <p><strong>收货人：</strong>${escapeHtml(order.receiver_name)} ${order.receiver_phone}</p>
-                    <p><strong>收货地址：</strong>${escapeHtml(order.receiver_address)}</p>
-                    <p><strong>下单时间：</strong>${new Date(order.created_at).toLocaleString()}</p>
-                    <p><strong>订单状态：</strong><span class="status-badge ${order.status}">${getStatusText(order.status)}</span></p>
-                </div>
-                <h6>商品列表：</h6>
-                <table class="order-items-table">
-                    <thead><tr><th>商品</th><th>单价</th><th>数量</th><th>小计</th></tr></thead>
-                    <tbody>${itemsHtml}</tbody>
-                    <tfoot>
-                        <tr><td colspan="3" class="text-end"><strong>商品总金额：</strong></td><td>¥${order.total_amount}</td></tr>
-                        <tr><td colspan="3" class="text-end"><strong>运费：</strong></td><td>¥${order.shipping_fee}</td></tr>
-                        <tr><td colspan="3" class="text-end"><strong>实付金额：</strong></td><td><strong style="color:#E65100;">¥${order.final_amount}</strong></td></tr>
-                    </tfoot>
-                </table>
-            `;
-            
-            document.getElementById('orderDetailModal').classList.add('show');
-        } catch (error) {
-            console.error('查看订单详情失败:', error);
-            alert('加载订单详情失败');
-        }
-    }
-    
-    function closeOrderDetail() {
-        document.getElementById('orderDetailModal').classList.remove('show');
-    }
-    
-    // 发货
-    async function shipOrder(orderNo) {
-        if (!confirm('确定将该订单标记为已发货吗？')) return;
-        
-        try {
-            await updateOrderStatus(orderNo, 'shipped');
-            alert('已标记为发货');
-            loadOrderList();
-        } catch (error) {
-            console.error('发货失败:', error);
-            alert('发货失败，请重试');
-        }
-    }
-    
-    // 取消订单
-    async function cancelOrder(orderNo) {
-        if (!confirm('确定要取消该订单吗？取消后不可恢复。')) return;
-        
-        try {
-            await updateOrderStatus(orderNo, 'cancelled');
-            alert('订单已取消');
-            loadOrderList();
-        } catch (error) {
-            console.error('取消失败:', error);
-            alert('取消失败，请重试');
-        }
-    }
-    
-    function getStatusText(status) {
-        const map = { 
-            'pending': '待发货', 
-            'shipped': '已发货', 
-            'completed': '已完成', 
-            'cancelled': '已取消' 
-        };
-        return map[status] || status;
-    }
-    
-    // ========== 商家申请相关函数 ==========
+    // 加载统计数据
     async function loadStatistics() {
         try {
             const response = await fetch(`${API_BASE}/api/merchant/statistics`);
@@ -583,25 +322,23 @@
         }
     }
     
+    // 加载申请列表
     async function loadApplications() {
-        if (currentStatus === 'orders') {
-            await loadOrderList();
-            return;
-        }
-        
         const container = document.getElementById('applications');
         container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载中...</div>';
         
         try {
             let url = `${API_BASE}/api/merchant/applications?page=1&pageSize=50`;
-            if (currentStatus !== 'all') url += `&status=${currentStatus}`;
+            if (currentStatus !== 'all') {
+                url += `&status=${currentStatus}`;
+            }
             const response = await fetch(url);
             const result = await response.json();
             
-            if (result.success && result.data && result.data.length > 0) {
+            if (result.success && result.data) {
                 renderApplications(result.data);
             } else {
-                container.innerHTML = '<div class="loading">暂无申请记录</div>';
+                container.innerHTML = '<div class="loading">暂无申请数据</div>';
             }
         } catch (error) {
             console.error('加载申请失败:', error);
@@ -609,15 +346,29 @@
         }
     }
     
+    // 渲染申请列表
     function renderApplications(applications) {
         const container = document.getElementById('applications');
+        
+        if (!applications || applications.length === 0) {
+            container.innerHTML = '<div class="loading">暂无申请记录</div>';
+            return;
+        }
+        
         container.innerHTML = applications.map(app => `
             <div class="app-item" onclick="toggleDetail(${app.id})">
                 <div class="app-header">
-                    <div><span class="app-name">${escapeHtml(app.name)}</span><span class="app-shop">｜ ${escapeHtml(app.shop_name)}</span></div>
-                    <span class="status status-${app.status}">${app.status === 'pending' ? '待审核' : app.status === 'approved' ? '已通过' : '已拒绝'}</span>
+                    <div>
+                        <span class="app-name">${escapeHtml(app.name)}</span>
+                        <span class="app-shop">｜ ${escapeHtml(app.shop_name)}</span>
+                    </div>
+                    <span class="status status-${app.status}">
+                        ${app.status === 'pending' ? '待审核' : app.status === 'approved' ? '已通过' : '已拒绝'}
+                    </span>
                 </div>
-                <div style="font-size: 13px; color: #666;">📞 ${app.phone} | 🏷️ ${app.category || '未填写'} | 📅 ${new Date(app.created_at).toLocaleDateString()}</div>
+                <div style="font-size: 13px; color: #666;">
+                    📞 ${app.phone} | 🏷️ ${app.category || '未填写'} | 📅 ${new Date(app.created_at).toLocaleDateString()}
+                </div>
                 <div class="app-detail" id="detail-${app.id}">
                     <div class="detail-grid">
                         <div class="detail-item"><div class="detail-label">身份证号</div><div class="detail-value">${escapeHtml(app.id_card)}</div></div>
@@ -638,24 +389,32 @@
         `).join('');
     }
     
+    // 获取主体类型文本
     function getEntityTypeText(type) {
-        const map = { 
-            'personal': '个人农户', 
-            'familyFarm': '家庭农场', 
-            'cooperative': '合作社', 
-            'company': '企业' 
+        const map = {
+            'personal': '个人农户',
+            'familyFarm': '家庭农场',
+            'cooperative': '合作社',
+            'company': '企业'
         };
         return map[type] || type || '未填写';
     }
     
+    // 切换详情显示
     function toggleDetail(id) {
         const detail = document.getElementById(`detail-${id}`);
-        if (detail) detail.classList.toggle('show');
+        if (detail) {
+            detail.classList.toggle('show');
+        }
     }
     
+    // 审核申请
     async function reviewApplication(id, status) {
         const remark = document.getElementById(`remark-${id}`)?.value || '';
-        if (!confirm(`确定要将该申请${status === 'approved' ? '通过' : '拒绝'}吗？`)) return;
+        
+        if (!confirm(`确定要将该申请${status === 'approved' ? '通过' : '拒绝'}吗？`)) {
+            return;
+        }
         
         try {
             const response = await fetch(`${API_BASE}/api/merchant/review/${id}`, {
@@ -664,6 +423,7 @@
                 body: JSON.stringify({ status, reviewRemark: remark })
             });
             const result = await response.json();
+            
             if (result.success) {
                 alert('审核完成');
                 loadStatistics();
@@ -677,6 +437,7 @@
         }
     }
     
+    // HTML 转义
     function escapeHtml(text) {
         if (!text) return '';
         const div = document.createElement('div');
@@ -694,14 +455,10 @@
         });
     });
     
-    // 初始化
-    function init() {
-        document.getElementById('apiUrl').value = API_BASE;
-        loadStatistics();
-        loadApplications();
-    }
-    
-    init();
+    // 初始化页面
+    document.getElementById('apiUrl').value = API_BASE;
+    loadStatistics();
+    loadApplications();
 </script>
 </body>
 </html>

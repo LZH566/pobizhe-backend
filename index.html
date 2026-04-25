@@ -3344,47 +3344,6 @@
 		// 全局用户数据存储
 		let allUsers = [];
 		
-		// ========== Supabase 配置（添加到全局变量后面）==========
-		const SUPABASE_URL = 'https://snqlzwwtlkmeflvhezfk.supabase.co';
-		const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlenZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ';
-		
-		// 保存订单到 Supabase 的辅助函数
-		async function saveOrderToSupabase(orderData, orderItems) {
-		    try {
-		        // 保存订单主表
-		        await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
-		            method: 'POST',
-		            headers: {
-		                'apikey': SUPABASE_KEY,
-		                'Authorization': `Bearer ${SUPABASE_KEY}`,
-		                'Content-Type': 'application/json',
-		                'Prefer': 'return-minimal'
-		            },
-		            body: JSON.stringify(orderData)
-		        });
-		        
-		        // 保存订单明细
-		        for (const item of orderItems) {
-		            await fetch(`${SUPABASE_URL}/rest/v1/order_items`, {
-		                method: 'POST',
-		                headers: {
-		                    'apikey': SUPABASE_KEY,
-		                    'Authorization': `Bearer ${SUPABASE_KEY}`,
-		                    'Content-Type': 'application/json',
-		                    'Prefer': 'return-minimal'
-		                },
-		                body: JSON.stringify(item)
-		            });
-		        }
-		        console.log('订单已同步到 Supabase');
-		        return true;
-		    } catch (error) {
-		        console.error('订单同步失败:', error);
-		        return false;
-		    }
-		}
-		// ========== Supabase 配置结束 ==========
-		
 		// 加载所有用户
 		function loadAllUsers() {
 		    const saved = localStorage.getItem('pobizhe_all_users');
@@ -4853,13 +4812,17 @@
             
             userOrders.unshift(order);
             
-            // ========== 保存到 Supabase（新增）==========
+            // ========== 新增：保存订单到 Supabase ==========
+            const SUPABASE_URL = 'https://snqlzwwtlkmeflvhezfk.supabase.co';
+            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlenZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ';
+            
+            // 订单主表数据
             const supabaseOrder = {
                 order_no: order.id,
                 user_id: currentUser.userId || currentUser.phone,
                 user_name: currentUser.name,
                 user_phone: currentUser.phone,
-                user_type: currentUser.type || 'customer',
+                user_type: currentUser.type,
                 total_amount: subtotal,
                 shipping_fee: shippingFee,
                 final_amount: total,
@@ -4871,6 +4834,7 @@
                 created_at: new Date().toISOString()
             };
             
+            // 订单明细数据
             const supabaseOrderItems = shoppingCart.map(item => ({
                 order_no: order.id,
                 product_id: item.id,
@@ -4883,8 +4847,43 @@
                 seller_name: item.seller || '商家'
             }));
             
-            saveOrderToSupabase(supabaseOrder, supabaseOrderItems);
-            // ========== 保存结束 ==========
+            // 保存到 Supabase
+            async function saveToSupabase() {
+                try {
+                    // 保存订单主表
+                    await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+                        method: 'POST',
+                        headers: {
+                            'apikey': SUPABASE_KEY,
+                            'Authorization': `Bearer ${SUPABASE_KEY}`,
+                            'Content-Type': 'application/json',
+                            'Prefer': 'return-minimal'
+                        },
+                        body: JSON.stringify(supabaseOrder)
+                    });
+                    
+                    // 保存订单明细
+                    for (const item of supabaseOrderItems) {
+                        await fetch(`${SUPABASE_URL}/rest/v1/order_items`, {
+                            method: 'POST',
+                            headers: {
+                                'apikey': SUPABASE_KEY,
+                                'Authorization': `Bearer ${SUPABASE_KEY}`,
+                                'Content-Type': 'application/json',
+                                'Prefer': 'return-minimal'
+                            },
+                            body: JSON.stringify(item)
+                        });
+                    }
+                    console.log('订单已同步到 Supabase');
+                } catch (error) {
+                    console.error('保存订单到Supabase失败:', error);
+                    // 不影响用户体验，只记录错误
+                }
+            }
+            
+            saveToSupabase();
+            // ========== Supabase 保存结束 ==========
             
             shoppingCart = [];
             saveToStorage();
@@ -6555,7 +6554,7 @@
 		    // 创建订单 - 绑定当前用户
 		    const order = {
 		        id: 'ORD' + Date.now(),
-		        userId: currentUser.userId || currentUser.phone,
+		        userId: currentUser.userId || currentUser.phone,  // 绑定用户
 		        userName: currentUser.name,
 		        items: [{
 		            id: directBuyProduct.id,
@@ -6575,40 +6574,8 @@
 		        date: new Date().toLocaleDateString()
 		    };
 		    
+		    // 只添加到当前用户的订单列表
 		    userOrders.unshift(order);
-		    
-		    // ========== 保存到 Supabase（新增）==========
-		    const supabaseOrder = {
-		        order_no: order.id,
-		        user_id: currentUser.userId || currentUser.phone,
-		        user_name: currentUser.name,
-		        user_phone: currentUser.phone,
-		        user_type: currentUser.type || 'customer',
-		        total_amount: subtotal,
-		        shipping_fee: shippingFee,
-		        final_amount: total,
-		        status: 'pending',
-		        payment_method: 'wechat',
-		        receiver_name: userAddresses.receiveName || currentUser.name,
-		        receiver_phone: userAddresses.receivePhone || currentUser.phone,
-		        receiver_address: userAddresses.receiveAddress,
-		        created_at: new Date().toISOString()
-		    };
-		    
-		    const supabaseOrderItems = [{
-		        order_no: order.id,
-		        product_id: directBuyProduct.id,
-		        product_name: directBuyProduct.name,
-		        product_price: directBuyProduct.price,
-		        product_unit: directBuyProduct.unit,
-		        quantity: qty,
-		        subtotal: directBuyProduct.price * qty,
-		        product_image: directBuyProduct.image,
-		        seller_name: directBuyProduct.seller || '商家'
-		    }];
-		    
-		    saveOrderToSupabase(supabaseOrder, supabaseOrderItems);
-		    // ========== 保存结束 ==========
 		    
 		    saveToStorage();
 		    updateCartBadge();
