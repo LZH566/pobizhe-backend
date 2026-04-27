@@ -2978,6 +2978,10 @@
                     <h6 class="mb-4 pb-2 border-bottom">
                         <i class="fas fa-id-card me-2" style="color: var(--primary-color);"></i>基本信息
                     </h6>
+			        <div class="info-row mb-3 d-flex">
+			            <div class="info-label" style="width: 100px; font-weight: 600; color: #555;">🔑 账号：</div>
+			            <div class="info-value" id="infoAccount" style="color: #333; font-family: monospace;">--</div>
+			        </div>
                     <div class="info-row mb-3 d-flex">
                         <div class="info-label" style="width: 100px; font-weight: 600; color: #555;">👤 姓名：</div>
                         <div class="info-value" id="infoName" style="color: #333;">--</div>
@@ -6694,6 +6698,12 @@
 		    document.getElementById('infoType').textContent = currentUser.type === 'merchant' ? '商家' : '顾客';
 		    document.getElementById('infoAddress').textContent = currentUser.address || userAddresses.receiveAddress || '未填写';
 		    
+		    // ========== 显示用户账号 ==========
+		    const accountElement = document.getElementById('infoAccount');
+		    if (accountElement) {
+		        accountElement.textContent = currentUser.account || '未生成';
+		    }
+			
 		    // 认证状态
 		    if (currentUser.verified) {
 		        document.getElementById('infoVerified').innerHTML = '<span class="text-success"><i class="fas fa-check-circle"></i> 已认证</span>';
@@ -7966,7 +7976,7 @@
 	                    <input type="tel" class="form-control" id="wechatPhone" placeholder="请输入微信绑定的手机号">
 	                </div>
 	                <div class="mb-3">
-	                    <label class="form-label fw-bold">验证码</label>
+	                    <label class="form-label fw-bold">验证码 <span style="color: #f39c12; font-size: 0.75rem; font-weight: normal;">（模拟验证码：123456）</span></label>
 	                    <div class="input-group">
 	                        <input type="text" class="form-control" id="wechatCode" placeholder="请输入验证码">
 	                        <button class="btn btn-outline-primary" onclick="sendBindCode('wechat')">获取验证码</button>
