@@ -427,19 +427,19 @@
     <!-- ==================== 用户管理区域 ==================== -->
     <div id="usersPanel" style="display: none;">
         <div class="stats">
-            <div class="stat-card" onclick="filterUsers('all')">
+            <div class="stat-card" onclick="filterUsersByType('all')">
                 <div class="stat-number" id="userTotal">0</div>
                 <div class="stat-label">总用户</div>
             </div>
-            <div class="stat-card" onclick="filterUsers('customer')">
+            <div class="stat-card" onclick="filterUsersByType('customer')">
                 <div class="stat-number" id="userCustomer">0</div>
                 <div class="stat-label">顾客</div>
             </div>
-            <div class="stat-card" onclick="filterUsers('merchant')">
+            <div class="stat-card" onclick="filterUsersByType('merchant')">
                 <div class="stat-number" id="userMerchant">0</div>
                 <div class="stat-label">商家</div>
             </div>
-            <div class="stat-card" onclick="filterUsers('pendingMerchant')">
+            <div class="stat-card" onclick="filterUsersByType('pendingMerchant')">
                 <div class="stat-number" id="userPendingMerchant">0</div>
                 <div class="stat-label">待审核商家</div>
             </div>
@@ -812,9 +812,28 @@
     }
     
     // ========== 用户管理 ==========
-    function loadUsers() {
-        const saved = localStorage.getItem('pobizhe_all_users');
-        allUsers = saved ? JSON.parse(saved) : [];
+    async function loadUsers() {
+        const container = document.getElementById('usersList');
+        container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载用户中...</div>';
+        
+        try {
+            const response = await fetch(`${API_BASE}/api/users`);
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                allUsers = result.data;
+            } else {
+                // 如果接口返回格式不符合，尝试用本地数据
+                console.warn('后端返回格式异常:', result);
+                const saved = localStorage.getItem('pobizhe_all_users');
+                allUsers = saved ? JSON.parse(saved) : [];
+            }
+        } catch (error) {
+            console.error('加载用户失败:', error);
+            // 失败时回退到本地数据
+            const saved = localStorage.getItem('pobizhe_all_users');
+            allUsers = saved ? JSON.parse(saved) : [];
+        }
         renderUsers();
     }
     
@@ -827,19 +846,32 @@
         const container = document.getElementById('usersList');
         let filtered = [...allUsers];
         
-        if (currentUserFilter) {
+        // 搜索过滤
+        if (currentUserFilter && currentUserFilter !== 'all') {
             const keyword = currentUserFilter.toLowerCase();
             filtered = filtered.filter(u => 
-                u.name?.toLowerCase().includes(keyword) ||
-                u.phone?.includes(keyword) ||
-                u.account?.toLowerCase().includes(keyword)
+                (u.name && u.name.toLowerCase().includes(keyword)) ||
+                (u.phone && u.phone.includes(keyword)) ||
+                (u.account && u.account.toLowerCase().includes(keyword))
             );
         }
         
+        // 类型过滤（如果有点击统计卡片）
+        if (currentUserFilterType && currentUserFilterType !== 'all') {
+            if (currentUserFilterType === 'customer') {
+                filtered = filtered.filter(u => u.type === 'customer');
+            } else if (currentUserFilterType === 'merchant') {
+                filtered = filtered.filter(u => u.type === 'merchant');
+            } else if (currentUserFilterType === 'pendingMerchant') {
+                filtered = filtered.filter(u => u.type === 'merchant' && u.isApplying === true);
+            }
+        }
+        
+        // 更新统计数字
         const total = allUsers.length;
         const customers = allUsers.filter(u => u.type === 'customer').length;
         const merchants = allUsers.filter(u => u.type === 'merchant').length;
-        const pendingMerchants = allUsers.filter(u => u.type === 'merchant' && u.isApplying).length;
+        const pendingMerchants = allUsers.filter(u => u.type === 'merchant' && u.isApplying === true).length;
         
         document.getElementById('userTotal').textContent = total;
         document.getElementById('userCustomer').textContent = customers;
@@ -852,19 +884,32 @@
         }
         
         container.innerHTML = `
-            <table class="table table-bordered" style="width:100%; border-collapse: collapse;">
+            <table style="width:100%; border-collapse: collapse; background:white; border-radius:12px; overflow:hidden;">
                 <thead style="background:#f5f5f5;">
-                    <tr><th>账号</th><th>姓名</th><th>手机号</th><th>类型</th><th>注册时间</th><th>操作</th></tr>
+                    <tr style="border-bottom:1px solid #ddd;">
+                        <th style="padding:12px; text-align:left;">账号</th>
+                        <th style="padding:12px; text-align:left;">姓名</th>
+                        <th style="padding:12px; text-align:left;">手机号</th>
+                        <th style="padding:12px; text-align:left;">类型</th>
+                        <th style="padding:12px; text-align:left;">注册时间</th>
+                        <th style="padding:12px; text-align:left;">操作</th>
+                    </tr>
                 </thead>
                 <tbody>
                     ${filtered.map(user => `
-                        <tr>
-                            <td>${escapeHtml(user.account)}</td>
-                            <td>${escapeHtml(user.name)}</td>
-                            <td>${escapeHtml(user.phone)}</td>
-                            <td>${user.type === 'merchant' ? (user.isApplying ? '商家(待审核)' : '商家') : '顾客'}</td>
-                            <td>${new Date(user.registerDate).toLocaleDateString()}</td>
-                            <td><button class="btn-sm btn-delete" onclick="deleteUser('${user.userId}')">删除</button></td>
+                        <tr style="border-bottom:1px solid #eee;">
+                            <td style="padding:12px;">${escapeHtml(user.account || '-')}</td>
+                            <td style="padding:12px;">${escapeHtml(user.name || '-')}</td>
+                            <td style="padding:12px;">${escapeHtml(user.phone || '-')}</td>
+                            <td style="padding:12px;">
+                                ${user.type === 'merchant' 
+                                    ? (user.isApplying ? '<span class="status status-pending">商家(待审核)</span>' : '<span class="status status-approved">商家</span>') 
+                                    : '<span class="status status-completed">顾客</span>'}
+                            </td>
+                            <td style="padding:12px;">${user.registerDate ? new Date(user.registerDate).toLocaleDateString() : '-'}</td>
+                            <td style="padding:12px;">
+                                <button class="btn-sm btn-delete" onclick="deleteUser('${user.userId}')">删除</button>
+                            </td>
                         </tr>
                     `).join('')}
                 </tbody>
@@ -872,14 +917,48 @@
         `;
     }
     
-    function deleteUser(userId) {
+    // 用于类型过滤的变量
+    let currentUserFilterType = 'all';
+    
+    function filterUsersByType(type) {
+        currentUserFilterType = type;
+        // 清空搜索框
+        document.getElementById('userSearchInput').value = '';
+        currentUserFilter = '';
+        renderUsers();
+    }
+    
+    async function deleteUser(userId) {
         if (!confirm('确定删除这个用户吗？')) return;
-        const index = allUsers.findIndex(u => u.userId === userId);
-        if (index !== -1) {
-            allUsers.splice(index, 1);
-            localStorage.setItem('pobizhe_all_users', JSON.stringify(allUsers));
-            loadUsers();
-            showToast('用户已删除');
+        
+        // 尝试调用后端删除接口
+        try {
+            const response = await fetch(`${API_BASE}/api/users/${userId}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            const result = await response.json();
+            if (result.success) {
+                showToast('用户已删除');
+                loadUsers(); // 重新加载列表
+            } else {
+                // 如果后端没有删除接口，从本地删除
+                const index = allUsers.findIndex(u => u.userId === userId);
+                if (index !== -1) {
+                    allUsers.splice(index, 1);
+                    renderUsers();
+                    showToast('用户已删除（本地）');
+                }
+            }
+        } catch (error) {
+            // 网络错误时从本地删除
+            console.error('删除失败:', error);
+            const index = allUsers.findIndex(u => u.userId === userId);
+            if (index !== -1) {
+                allUsers.splice(index, 1);
+                renderUsers();
+                showToast('用户已删除（本地）');
+            }
         }
     }
     
