@@ -7225,6 +7225,398 @@
             });
         });
 		
+		// ========== 支付账号绑定管理 ==========
+		let pendingPaymentAmount = 0;
+		let pendingPaymentMethod = null;
+		let pendingOrderData = null;
+		
+		// 获取已绑定的支付账号
+		function getBoundPaymentAccount(method) {
+		    const bound = localStorage.getItem(`pobizhe_bound_${method}`);
+		    if (bound) {
+		        try {
+		            return JSON.parse(bound);
+		        } catch(e) {
+		            return null;
+		        }
+		    }
+		    return null;
+		}
+		
+		// 保存绑定的支付账号
+		function saveBoundPaymentAccount(method, accountInfo) {
+		    localStorage.setItem(`pobizhe_bound_${method}`, JSON.stringify(accountInfo));
+		}
+		
+		// 检查支付方式是否已绑定
+		function checkPaymentBound(method, amount, orderData) {
+		    pendingPaymentAmount = amount;
+		    pendingPaymentMethod = method;
+		    pendingOrderData = orderData;
+		    
+		    const boundAccount = getBoundPaymentAccount(method);
+		    
+		    if (boundAccount) {
+		        // 已绑定，显示绑定信息并直接支付
+		        showBoundAccountAndPay(method, boundAccount, amount, orderData);
+		    } else {
+		        // 未绑定，显示绑定弹窗
+		        showBindPaymentModal(method);
+		    }
+		}
+		
+		// 显示已绑定账号并自动支付
+		function showBoundAccountAndPay(method, account, amount, orderData) {
+		    const modal = document.getElementById('bindPaymentModal');
+		    const bindContent = document.getElementById('bindPaymentContent');
+		    const boundDisplay = document.getElementById('boundPaymentDisplay');
+		    const boundInfo = document.getElementById('boundInfo');
+		    
+		    let displayHtml = '';
+		    switch(method) {
+		        case 'wechat':
+		            displayHtml = `<div><i class="fab fa-weixin me-2" style="color:#07C160;"></i>微信支付</div>
+		                          <div class="text-muted small">绑定手机：${maskPhone(account.phone)}</div>`;
+		            break;
+		        case 'alipay':
+		            displayHtml = `<div><i class="fab fa-alipay me-2" style="color:#1677FF;"></i>支付宝</div>
+		                          <div class="text-muted small">账号：${maskAccount(account.account)}</div>
+		                          <div class="text-muted small">姓名：${account.realName}</div>`;
+		            break;
+		        case 'bank':
+		            displayHtml = `<div><i class="fas fa-university me-2" style="color:#F57C00;"></i>银行卡</div>
+		                          <div class="text-muted small">卡号：${maskBankCard(account.cardNumber)}</div>
+		                          <div class="text-muted small">开户行：${account.bankName}</div>`;
+		            break;
+		        case 'proxy':
+		            displayHtml = `<div><i class="fas fa-user-friends me-2" style="color:#6f42c1;"></i>他人代付</div>
+		                          <div class="text-muted small">代付人：${account.name}</div>
+		                          <div class="text-muted small">电话：${maskPhone(account.phone)}</div>
+		                          <div class="text-muted small">关系：${account.relation}</div>`;
+		            break;
+		    }
+		    
+		    boundInfo.innerHTML = displayHtml;
+		    bindContent.style.display = 'none';
+		    boundDisplay.style.display = 'block';
+		    modal.classList.add('show');
+		}
+		
+		// 显示绑定弹窗
+		function showBindPaymentModal(method) {
+		    const modal = document.getElementById('bindPaymentModal');
+		    const bindContent = document.getElementById('bindPaymentContent');
+		    const boundDisplay = document.getElementById('boundPaymentDisplay');
+		    
+		    // 隐藏所有面板
+		    document.getElementById('wechatBindPanel').style.display = 'none';
+		    document.getElementById('alipayBindPanel').style.display = 'none';
+		    document.getElementById('bankBindPanel').style.display = 'none';
+		    document.getElementById('proxyBindPanel').style.display = 'none';
+		    
+		    // 显示对应的面板
+		    switch(method) {
+		        case 'wechat':
+		            document.getElementById('wechatBindPanel').style.display = 'block';
+		            break;
+		        case 'alipay':
+		            document.getElementById('alipayBindPanel').style.display = 'block';
+		            break;
+		        case 'bank':
+		            document.getElementById('bankBindPanel').style.display = 'block';
+		            break;
+		        case 'proxy':
+		            document.getElementById('proxyBindPanel').style.display = 'block';
+		            break;
+		    }
+		    
+		    bindContent.style.display = 'block';
+		    boundDisplay.style.display = 'none';
+		    modal.classList.add('show');
+		}
+		
+		// 关闭绑定弹窗
+		function closeBindPaymentModal() {
+		    document.getElementById('bindPaymentModal').classList.remove('show');
+		    // 重置显示状态
+		    document.getElementById('bindPaymentContent').style.display = 'block';
+		    document.getElementById('boundPaymentDisplay').style.display = 'none';
+		}
+		
+		// 显示绑定面板（用于更换绑定）
+		function showBindPanel() {
+		    const bindContent = document.getElementById('bindPaymentContent');
+		    const boundDisplay = document.getElementById('boundPaymentDisplay');
+		    bindContent.style.display = 'block';
+		    boundDisplay.style.display = 'none';
+		}
+		
+		// 确认绑定
+		function confirmBindPayment(method) {
+		    let accountInfo = null;
+		    
+		    switch(method) {
+		        case 'wechat':
+		            const phone = document.getElementById('wechatPhone').value;
+		            const code = document.getElementById('wechatCode').value;
+		            if (!phone || !code) {
+		                showToast('请填写手机号和验证码');
+		                return;
+		            }
+		            if (!/^1[3-9]\d{9}$/.test(phone)) {
+		                showToast('请输入正确的手机号');
+		                return;
+		            }
+		            accountInfo = { type: 'wechat', phone: phone, bindTime: new Date().toISOString() };
+		            break;
+		            
+		        case 'alipay':
+		            const account = document.getElementById('alipayAccount').value;
+		            const realName = document.getElementById('alipayRealName').value;
+		            if (!account || !realName) {
+		                showToast('请填写支付宝账号和真实姓名');
+		                return;
+		            }
+		            accountInfo = { type: 'alipay', account: account, realName: realName, bindTime: new Date().toISOString() };
+		            break;
+		            
+		        case 'bank':
+		            const cardName = document.getElementById('bankCardName').value;
+		            const cardNumber = document.getElementById('bankCardNumber').value;
+		            const bankName = document.getElementById('bankName').value;
+		            const bankPhone = document.getElementById('bankPhone').value;
+		            if (!cardName || !cardNumber || !bankName || !bankPhone) {
+		                showToast('请填写完整的银行卡信息');
+		                return;
+		            }
+		            if (!/^\d{16,19}$/.test(cardNumber.replace(/\s/g, ''))) {
+		                showToast('请输入正确的银行卡号');
+		                return;
+		            }
+		            accountInfo = { type: 'bank', cardName: cardName, cardNumber: cardNumber, bankName: bankName, phone: bankPhone, bindTime: new Date().toISOString() };
+		            break;
+		            
+		        case 'proxy':
+		            const proxyName = document.getElementById('proxyName').value;
+		            const proxyPhone = document.getElementById('proxyPhone').value;
+		            const relation = document.getElementById('proxyRelation').value;
+		            if (!proxyName || !proxyPhone) {
+		                showToast('请填写代付人信息');
+		                return;
+		            }
+		            accountInfo = { type: 'proxy', name: proxyName, phone: proxyPhone, relation: relation, bindTime: new Date().toISOString() };
+		            break;
+		    }
+		    
+		    if (accountInfo) {
+		        saveBoundPaymentAccount(method, accountInfo);
+		        showToast(`${getMethodName(method)}绑定成功！`);
+		        closeBindPaymentModal();
+		        
+		        // 绑定成功后继续支付
+		        executePayment(pendingPaymentMethod, pendingPaymentAmount, pendingOrderData);
+		    }
+		}
+		
+		// 继续支付（已绑定时调用）
+		function proceedToPayment() {
+		    closeBindPaymentModal();
+		    executePayment(pendingPaymentMethod, pendingPaymentAmount, pendingOrderData);
+		}
+		
+		// 执行支付
+		function executePayment(method, amount, orderData) {
+		    showToast(`正在使用${getMethodName(method)}支付 ¥${amount.toFixed(2)}...`);
+		    
+		    // 模拟支付成功
+		    setTimeout(() => {
+		        showToast(`支付成功！¥${amount.toFixed(2)}已支付`);
+		        
+		        // 如果是代付，发送通知（模拟）
+		        if (method === 'proxy') {
+		            const proxyInfo = getBoundPaymentAccount('proxy');
+		            if (proxyInfo) {
+		                showToast(`已通知 ${proxyInfo.name}(${proxyInfo.relation}) 为您付款`);
+		            }
+		        }
+		        
+		        // 创建订单并清空购物车
+		        if (orderData && orderData.createOrder) {
+		            orderData.createOrder();
+		        } else if (orderData && orderData.isDirectBuy) {
+		            // 直接购买
+		            confirmDirectBuyOrder();
+		        } else {
+		            // 购物车结算
+		            confirmPaymentOrder();
+		        }
+		        
+		        closePayment();
+		    }, 1500);
+		}
+		
+		// 获取支付方式名称
+		function getMethodName(method) {
+		    const names = {
+		        'wechat': '微信支付',
+		        'alipay': '支付宝',
+		        'bank': '银行卡',
+		        'proxy': '他人代付'
+		    };
+		    return names[method] || method;
+		}
+		
+		// 发送绑定验证码
+		function sendBindCode(method) {
+		    const phoneInput = document.getElementById(`${method}Phone`);
+		    if (phoneInput && phoneInput.value) {
+		        if (!/^1[3-9]\d{9}$/.test(phoneInput.value)) {
+		            showToast('请输入正确的手机号');
+		            return;
+		        }
+		    }
+		    showToast(`验证码已发送至 ${phoneInput ? phoneInput.value : '您的手机'}`);
+		}
+		
+		// 脱敏显示手机号
+		function maskPhone(phone) {
+		    if (!phone) return '';
+		    return phone.slice(0, 3) + '****' + phone.slice(-4);
+		}
+		
+		// 脱敏显示账号
+		function maskAccount(account) {
+		    if (!account) return '';
+		    if (account.includes('@')) {
+		        const [name, domain] = account.split('@');
+		        return name.slice(0, 2) + '***@' + domain;
+		    }
+		    return account.slice(0, 3) + '****' + account.slice(-4);
+		}
+		
+		// 订单支付确认（购物车版本）
+		function confirmPaymentOrder() {
+		    // 原有的 confirmPayment 逻辑
+		    if (typeof window.originalConfirmPayment === 'function') {
+		        window.originalConfirmPayment();
+		    } else {
+		        // 默认订单创建逻辑
+		        if (shoppingCart.length === 0) {
+		            showToast('购物车为空');
+		            return;
+		        }
+		        
+		        const defaultAddress = getDefaultReceiveAddress();
+		        if (!defaultAddress) {
+		            showToast('请先设置收货地址');
+		            closePayment();
+		            openAddressModal();
+		            return;
+		        }
+		        
+		        const subtotal = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+		        const shippingFee = subtotal >= 19.9 ? 0 : 8;
+		        const total = subtotal + shippingFee;
+		        
+		        const order = {
+		            id: 'ORD' + Date.now(),
+		            userId: currentUser ? (currentUser.userId || currentUser.phone) : 'guest',
+		            userName: currentUser ? currentUser.name : '游客',
+		            items: [...shoppingCart],
+		            subtotal: subtotal,
+		            shippingFee: shippingFee,
+		            total: total,
+		            status: 'pending',
+		            paymentMethod: selectedPaymentMethod,
+		            address: defaultAddress.address,
+		            receiver: defaultAddress.name,
+		            phone: defaultAddress.phone,
+		            date: new Date().toLocaleDateString()
+		        };
+		        
+		        userOrders.unshift(order);
+		        shoppingCart = [];
+		        saveToStorage();
+		        updateCartBadge();
+		        closePayment();
+		        showToast('支付成功！订单已提交');
+		        updateProfileStats();
+		    }
+		}
+		
+		// 直接购买订单确认
+		function confirmDirectBuyOrder() {
+		    if (directBuyProduct) {
+		        const qty = parseInt(document.getElementById('directBuyQty')?.value) || 1;
+		        const subtotal = directBuyProduct.price * qty;
+		        const shippingFee = subtotal >= 19.9 ? 0 : 8;
+		        const total = subtotal + shippingFee;
+		        
+		        const order = {
+		            id: 'ORD' + Date.now(),
+		            userId: currentUser ? (currentUser.userId || currentUser.phone) : 'guest',
+		            userName: currentUser ? currentUser.name : '游客',
+		            items: [{
+		                id: directBuyProduct.id,
+		                name: directBuyProduct.name,
+		                price: directBuyProduct.price,
+		                unit: directBuyProduct.unit,
+		                quantity: qty,
+		                image: directBuyProduct.image
+		            }],
+		            subtotal: subtotal,
+		            shippingFee: shippingFee,
+		            total: total,
+		            status: 'pending',
+		            address: userAddresses.receiveAddress,
+		            receiver: userAddresses.receiveName || (currentUser ? currentUser.name : ''),
+		            phone: currentUser ? currentUser.phone : '',
+		            date: new Date().toLocaleDateString()
+		        };
+		        
+		        userOrders.unshift(order);
+		        saveToStorage();
+		        closeDirectBuyModal();
+		        closeProductDetail();
+		        showToast('支付成功！订单已提交');
+		        updateProfileStats();
+		        directBuyProduct = null;
+		    }
+		}
+		
+		// 保存原始 confirmPayment 函数
+		window.originalConfirmPayment = confirmPayment;
+		
+		// 重写 confirmPayment
+		function confirmPayment() {
+		    if (shoppingCart.length === 0) {
+		        showToast('购物车为空');
+		        return;
+		    }
+		    
+		    const defaultAddress = getDefaultReceiveAddress();
+		    if (!defaultAddress) {
+		        showToast('请先设置收货地址');
+		        closePayment();
+		        openAddressModal();
+		        return;
+		    }
+		    
+		    const total = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+		    const shippingFee = total >= 19.9 ? 0 : 8;
+		    const finalTotal = total + shippingFee;
+		    
+		    // 订单数据
+		    const orderData = {
+		        total: finalTotal,
+		        createOrder: window.originalConfirmPayment,
+		        isDirectBuy: false
+		    };
+		    
+		    // 检查支付方式是否已绑定
+		    checkPaymentBound(selectedPaymentMethod, finalTotal, orderData);
+		}
+		
 		// ==========================================
 		// 模块 2：商品详情与离线模式逻辑 (JS功能)
 		// ==========================================
@@ -7381,6 +7773,126 @@
 	        <input type="text" class="form-control mb-2" id="newShipTown" placeholder="县/区">
 	        <input type="text" class="form-control mb-3" id="newShipVillage" placeholder="镇/村">
 	        <button class="btn btn-custom w-100" onclick="saveNewShipAddress()">保存地址</button>
+	    </div>
+	</div>
+	<!-- 绑定支付账号模态框 -->
+	<div class="auth-modal" id="bindPaymentModal">
+	    <div class="auth-content" style="max-width: 500px;">
+	        <button class="auth-close" onclick="closeBindPaymentModal()">&times;</button>
+	        <h3 class="text-center mb-4" style="color: var(--primary-color);">
+	            <i class="fas fa-credit-card me-2"></i>绑定支付账号
+	        </h3>
+	        
+	        <div id="bindPaymentContent">
+	            <!-- 微信支付绑定 -->
+	            <div id="wechatBindPanel" style="display: none;">
+	                <div class="text-center mb-4">
+	                    <i class="fab fa-weixin" style="font-size: 4rem; color: #07C160;"></i>
+	                    <h5 class="mt-2">绑定微信账号</h5>
+	                </div>
+	                <div class="mb-3">
+	                    <label class="form-label fw-bold">微信绑定的手机号</label>
+	                    <input type="tel" class="form-control" id="wechatPhone" placeholder="请输入微信绑定的手机号">
+	                </div>
+	                <div class="mb-3">
+	                    <label class="form-label fw-bold">验证码</label>
+	                    <div class="input-group">
+	                        <input type="text" class="form-control" id="wechatCode" placeholder="请输入验证码">
+	                        <button class="btn btn-outline-primary" onclick="sendBindCode('wechat')">获取验证码</button>
+	                    </div>
+	                </div>
+	                <button class="btn btn-custom w-100" onclick="confirmBindPayment('wechat')">确认绑定</button>
+	            </div>
+	            
+	            <!-- 支付宝绑定 -->
+	            <div id="alipayBindPanel" style="display: none;">
+	                <div class="text-center mb-4">
+	                    <i class="fab fa-alipay" style="font-size: 4rem; color: #1677FF;"></i>
+	                    <h5 class="mt-2">绑定支付宝账号</h5>
+	                </div>
+	                <div class="mb-3">
+	                    <label class="form-label fw-bold">支付宝账号（手机号/邮箱）</label>
+	                    <input type="text" class="form-control" id="alipayAccount" placeholder="请输入支付宝账号">
+	                </div>
+	                <div class="mb-3">
+	                    <label class="form-label fw-bold">真实姓名</label>
+	                    <input type="text" class="form-control" id="alipayRealName" placeholder="请输入真实姓名">
+	                </div>
+	                <button class="btn btn-custom w-100" onclick="confirmBindPayment('alipay')">确认绑定</button>
+	            </div>
+	            
+	            <!-- 银行卡绑定 -->
+	            <div id="bankBindPanel" style="display: none;">
+	                <div class="text-center mb-4">
+	                    <i class="fas fa-university" style="font-size: 4rem; color: #F57C00;"></i>
+	                    <h5 class="mt-2">绑定银行卡</h5>
+	                </div>
+	                <div class="mb-3">
+	                    <label class="form-label fw-bold">持卡人姓名</label>
+	                    <input type="text" class="form-control" id="bankCardName" placeholder="请输入持卡人姓名">
+	                </div>
+	                <div class="mb-3">
+	                    <label class="form-label fw-bold">银行卡号</label>
+	                    <input type="text" class="form-control" id="bankCardNumber" placeholder="请输入银行卡号">
+	                </div>
+	                <div class="row mb-3">
+	                    <div class="col-6">
+	                        <label class="form-label fw-bold">开户行</label>
+	                        <input type="text" class="form-control" id="bankName" placeholder="开户行名称">
+	                    </div>
+	                    <div class="col-6">
+	                        <label class="form-label fw-bold">预留手机号</label>
+	                        <input type="tel" class="form-control" id="bankPhone" placeholder="预留手机号">
+	                    </div>
+	                </div>
+	                <button class="btn btn-custom w-100" onclick="confirmBindPayment('bank')">确认绑定</button>
+	            </div>
+	            
+	            <!-- 他人代付绑定 -->
+	            <div id="proxyBindPanel" style="display: none;">
+	                <div class="text-center mb-4">
+	                    <i class="fas fa-user-friends" style="font-size: 4rem; color: #6f42c1;"></i>
+	                    <h5 class="mt-2">设置代付人</h5>
+	                </div>
+	                <div class="alert alert-info">
+	                    <i class="fas fa-info-circle me-2"></i>
+	                    他人代付：由亲友帮您支付订单，适合不熟悉线上支付的用户
+	                </div>
+	                <div class="mb-3">
+	                    <label class="form-label fw-bold">代付人姓名</label>
+	                    <input type="text" class="form-control" id="proxyName" placeholder="请输入代付人姓名">
+	                </div>
+	                <div class="mb-3">
+	                    <label class="form-label fw-bold">代付人手机号</label>
+	                    <input type="tel" class="form-control" id="proxyPhone" placeholder="请输入代付人手机号">
+	                </div>
+	                <div class="mb-3">
+	                    <label class="form-label fw-bold">代付人与您的关系</label>
+	                    <select class="form-select" id="proxyRelation">
+	                        <option value="家人">家人</option>
+	                        <option value="邻居">邻居</option>
+	                        <option value="朋友">朋友</option>
+	                        <option value="其他">其他</option>
+	                    </select>
+	                </div>
+	                <button class="btn btn-custom w-100" onclick="confirmBindPayment('proxy')">确认设置</button>
+	            </div>
+	        </div>
+	        
+	        <!-- 已绑定账号显示 -->
+	        <div id="boundPaymentDisplay" style="display: none;">
+	            <div class="text-center mb-3">
+	                <i class="fas fa-check-circle" style="font-size: 3rem; color: #27ae60;"></i>
+	                <h5 class="mt-2">已绑定支付方式</h5>
+	            </div>
+	            <div class="p-3" style="background: #f5f5f5; border-radius: 12px;" id="boundInfo">
+	                <!-- 动态显示绑定的账号信息 -->
+	            </div>
+	            <div class="d-flex gap-2 mt-3">
+	                <button class="btn btn-outline-primary flex-fill" onclick="showBindPanel()">更换绑定</button>
+	                <button class="btn btn-custom flex-fill" onclick="proceedToPayment()">继续支付</button>
+	            </div>
+	        </div>
 	    </div>
 	</div>
 </body>
