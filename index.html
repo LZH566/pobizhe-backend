@@ -2615,6 +2615,38 @@
 				    </div>
 				</div>
 				
+				<!-- ========== 新增：库存更新频率 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">📊 库存更新频率</label>
+				    <select class="form-select" id="inventoryFrequency">
+				        <option value="daily" selected>每日更新</option>
+				        <option value="weekly">每周更新</option>
+				        <option value="monthly">每月更新</option>
+				        <option value="irregular">不定期更新</option>
+				    </select>
+				    <small class="text-muted">多久更新一次库存数量</small>
+				</div>
+				
+				<!-- ========== 新增：物流能力 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🚚 物流能力</label>
+				    <div class="d-flex gap-3">
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="shippingType" id="shippingSelf" value="self" checked>
+				            <label class="form-check-label" for="shippingSelf">自己能发货</label>
+				        </div>
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="shippingType" id="shippingPlatform" value="platform">
+				            <label class="form-check-label" for="shippingPlatform">需要平台统一协调物流</label>
+				        </div>
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="shippingType" id="shippingBoth" value="both">
+				            <label class="form-check-label" for="shippingBoth">两者都可以</label>
+				        </div>
+				    </div>
+				    <small class="text-muted">选择您的发货方式，平台将据此提供物流方案</small>
+				</div>
+				
 				<!-- ========== 新增：物流能力 ========== -->
 				<div class="mb-3">
 				    <label class="form-label fw-bold">🚚 您能发货的地区</label>
@@ -2761,26 +2793,32 @@
 				    <div class="row">
 				        <div class="col-md-3 col-6">
 				            <div class="form-check">
-				                <input class="form-check-input" type="checkbox" id="certGreen">
+				                <input class="form-check-input" type="checkbox" id="certGreen" onchange="handleCertChange(this)">
 				                <label class="form-check-label" for="certGreen">绿色食品</label>
 				            </div>
 				        </div>
 				        <div class="col-md-3 col-6">
 				            <div class="form-check">
-				                <input class="form-check-input" type="checkbox" id="certOrganic">
+				                <input class="form-check-input" type="checkbox" id="certOrganic" onchange="handleCertChange(this)">
 				                <label class="form-check-label" for="certOrganic">有机食品</label>
 				            </div>
 				        </div>
 				        <div class="col-md-3 col-6">
 				            <div class="form-check">
-				                <input class="form-check-input" type="checkbox" id="certPollutionFree">
+				                <input class="form-check-input" type="checkbox" id="certPollutionFree" onchange="handleCertChange(this)">
 				                <label class="form-check-label" for="certPollutionFree">无公害农产品</label>
 				            </div>
 				        </div>
 				        <div class="col-md-3 col-6">
 				            <div class="form-check">
-				                <input class="form-check-input" type="checkbox" id="certGeographical">
+				                <input class="form-check-input" type="checkbox" id="certGeographical" onchange="handleCertChange(this)">
 				                <label class="form-check-label" for="certGeographical">地理标志产品</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="certNone" onchange="handleCertNoneChange(this)">
+				                <label class="form-check-label" for="certNone">都没有</label>
 				            </div>
 				        </div>
 				    </div>
@@ -3997,6 +4035,32 @@
 		    }
 		}
 		
+		// 处理认证选项变化（有认证时，取消"都没有"的勾选）
+		function handleCertChange(checkbox) {
+		    if (checkbox.checked) {
+		        // 勾选了某个认证，取消"都没有"的勾选
+		        const certNone = document.getElementById('certNone');
+		        if (certNone) certNone.checked = false;
+		    }
+		}
+		
+		// 处理"都没有"选项变化
+		function handleCertNoneChange(checkbox) {
+		    if (checkbox.checked) {
+		        // 勾选了"都没有"，取消所有其他认证选项
+		        const certGreen = document.getElementById('certGreen');
+		        const certOrganic = document.getElementById('certOrganic');
+		        const certPollutionFree = document.getElementById('certPollutionFree');
+		        const certGeographical = document.getElementById('certGeographical');
+		        
+		        if (certGreen) certGreen.checked = false;
+		        if (certOrganic) certOrganic.checked = false;
+		        if (certPollutionFree) certPollutionFree.checked = false;
+		        if (certGeographical) certGeographical.checked = false;
+		    }
+		}
+
+		
 		// 商家注册处理
 		function handleMerchantRegister() {
 		    const entityType = document.getElementById('merchantEntityType')?.value;
@@ -4009,6 +4073,10 @@
 		    const password = document.getElementById('merchantPassword')?.value;
 		    const confirmPassword = document.getElementById('merchantConfirmPassword')?.value;
 		    const agree = document.getElementById('merchantAgreeTerms')?.checked;
+			// 收集库存更新频率
+			const inventoryFrequency = document.getElementById('inventoryFrequency')?.value || 'daily';
+			// 收集物流能力
+			const shippingType = document.querySelector('input[name="shippingType"]:checked')?.value || 'self';
 		    
 		    // 获取上传的文件
 		    const idFront = document.getElementById('merchantIdFrontInput')?.files[0];
@@ -4170,7 +4238,9 @@
 		            pains: pains,
 		            services: services,
 		            needPresale: needPresale,
-		            needGroup: needGroup
+		            needGroup: needGroup,
+				    inventoryFrequency: inventoryFrequency,  
+				    shippingType: shippingType,              
 		        },
 		        registerDate: new Date().toISOString()
 		    };
