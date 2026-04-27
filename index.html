@@ -7374,7 +7374,7 @@
 		    boundDisplay.style.display = 'none';
 		}
 		
-		// 确认绑定
+		/*// 确认绑定
 		function confirmBindPayment(method) {
 		    let accountInfo = null;
 		    
@@ -7439,7 +7439,7 @@
 		        // 绑定成功后继续支付
 		        executePayment(pendingPaymentMethod, pendingPaymentAmount, pendingOrderData);
 		    }
-		}
+		}*/
 		
 		// 继续支付（已绑定时调用）
 		function proceedToPayment() {
@@ -7447,7 +7447,6 @@
 		    executePayment(pendingPaymentMethod, pendingPaymentAmount, pendingOrderData);
 		}
 		
-		// 执行支付
 		// 执行支付
 		function executePayment(method, amount, orderData) {
 		    showToast(`正在使用${getMethodName(method)}支付 ¥${amount.toFixed(2)}...`);
@@ -7490,7 +7489,7 @@
 		    return names[method] || method;
 		}
 		
-		// 发送绑定验证码
+		/*// 发送绑定验证码
 		function sendBindCode(method) {
 		    const phoneInput = document.getElementById(`${method}Phone`);
 		    if (phoneInput && phoneInput.value) {
@@ -7500,6 +7499,114 @@
 		        }
 		    }
 		    showToast(`验证码已发送至 ${phoneInput ? phoneInput.value : '您的手机'}`);
+		}*/
+		
+		// 发送绑定验证码（演示模式：固定验证码123456）
+		function sendBindCode(method) {
+		    const phoneInput = document.getElementById(`${method}Phone`);
+		    const phone = phoneInput?.value;
+		    
+		    if (!phone) {
+		        showToast('请先填写手机号');
+		        return;
+		    }
+		    
+		    if (!/^1[3-9]\d{9}$/.test(phone)) {
+		        showToast('请输入正确的手机号');
+		        return;
+		    }
+		    
+		    // 演示模式：直接告诉用户验证码
+		    showToast('【演示模式】验证码：123456');
+		    
+		    // 可选：添加倒计时效果
+		    const btn = event.target;
+		    btn.disabled = true;
+		    let seconds = 60;
+		    btn.textContent = `${seconds}秒后重试`;
+		    const timer = setInterval(() => {
+		        seconds--;
+		        btn.textContent = `${seconds}秒后重试`;
+		        if (seconds <= 0) {
+		            clearInterval(timer);
+		            btn.disabled = false;
+		            btn.textContent = '获取验证码';
+		        }
+		    }, 1000);
+		}
+		
+		// 确认绑定（演示模式：验证码固定为123456）
+		function confirmBindPayment(method) {
+		    let accountInfo = null;
+		    let phone = '';
+		    let code = '';
+		    
+		    switch(method) {
+		        case 'wechat':
+		            phone = document.getElementById('wechatPhone')?.value || '';
+		            code = document.getElementById('wechatCode')?.value || '';
+		            if (!phone || !code) {
+		                showToast('请填写手机号和验证码');
+		                return;
+		            }
+		            if (!/^1[3-9]\d{9}$/.test(phone)) {
+		                showToast('请输入正确的手机号');
+		                return;
+		            }
+		            // 演示模式：验证码必须是 123456
+		            if (code !== '123456') {
+		                showToast('验证码错误，演示验证码为 123456');
+		                return;
+		            }
+		            accountInfo = { type: 'wechat', phone: phone, bindTime: new Date().toISOString() };
+		            break;
+		            
+		        case 'alipay':
+		            const account = document.getElementById('alipayAccount')?.value || '';
+		            const realName = document.getElementById('alipayRealName')?.value || '';
+		            if (!account || !realName) {
+		                showToast('请填写支付宝账号和真实姓名');
+		                return;
+		            }
+		            accountInfo = { type: 'alipay', account: account, realName: realName, bindTime: new Date().toISOString() };
+		            break;
+		            
+		        case 'bank':
+		            const cardName = document.getElementById('bankCardName')?.value || '';
+		            const cardNumber = document.getElementById('bankCardNumber')?.value || '';
+		            const bankName = document.getElementById('bankName')?.value || '';
+		            const bankPhone = document.getElementById('bankPhone')?.value || '';
+		            if (!cardName || !cardNumber || !bankName || !bankPhone) {
+		                showToast('请填写完整的银行卡信息');
+		                return;
+		            }
+		            if (!/^\d{16,19}$/.test(cardNumber.replace(/\s/g, ''))) {
+		                showToast('请输入正确的银行卡号');
+		                return;
+		            }
+		            accountInfo = { type: 'bank', cardName: cardName, cardNumber: cardNumber, bankName: bankName, phone: bankPhone, bindTime: new Date().toISOString() };
+		            break;
+		            
+		        case 'proxy':
+		            const proxyName = document.getElementById('proxyName')?.value || '';
+		            const proxyPhone = document.getElementById('proxyPhone')?.value || '';
+		            const relation = document.getElementById('proxyRelation')?.value || '';
+		            if (!proxyName || !proxyPhone) {
+		                showToast('请填写代付人信息');
+		                return;
+		            }
+		            accountInfo = { type: 'proxy', name: proxyName, phone: proxyPhone, relation: relation, bindTime: new Date().toISOString() };
+		            break;
+		    }
+		    
+		    if (accountInfo) {
+		        saveBoundPaymentAccount(method, accountInfo);
+		        showToast(`${getMethodName(method)}绑定成功！`);
+		        closeBindPaymentModal();
+		        
+		        // 绑定成功后继续支付
+		        executePayment(pendingPaymentMethod, pendingPaymentAmount, pendingOrderData);
+		    }
 		}
 		
 		// 脱敏显示手机号
