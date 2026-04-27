@@ -4770,6 +4770,11 @@
             selectedPaymentMethod = method;
             document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
             document.querySelector(`.payment-method.${method}`).classList.add('selected');
+            
+            // 显示提示
+            if (method === 'proxy') {
+                showToast('选择他人代付，将由亲友帮您完成支付');
+            }
         }
 
         function confirmPayment() {
@@ -6531,7 +6536,7 @@
 		    }
 		}
 		
-		// 确认直接购买
+		// 确认直接购买 - 修改为跳转到支付选择页面
 		function confirmDirectBuy() {
 		    if (!userAddresses.receiveAddress) {
 		        showToast('请先设置收货地址');
@@ -6551,39 +6556,57 @@
 		    const shippingFee = subtotal >= 19.9 ? 0 : 8;
 		    const total = subtotal + shippingFee;
 		    
-		    // 创建订单 - 绑定当前用户
-		    const order = {
-		        id: 'ORD' + Date.now(),
-		        userId: currentUser.userId || currentUser.phone,  // 绑定用户
-		        userName: currentUser.name,
-		        items: [{
-		            id: directBuyProduct.id,
-		            name: directBuyProduct.name,
-		            price: directBuyProduct.price,
-		            unit: directBuyProduct.unit,
-		            quantity: qty,
-		            image: directBuyProduct.image
-		        }],
+		    // ========== 修改开始 ==========
+		    // 不直接创建订单，而是存储临时订单信息，跳转到支付选择页面
+		    
+		    // 存储临时订单信息
+		    window.tempDirectBuyOrder = {
+		        product: directBuyProduct,
+		        qty: qty,
 		        subtotal: subtotal,
 		        shippingFee: shippingFee,
-		        total: total,
-		        status: 'pending',
-		        address: userAddresses.receiveAddress,
-		        receiver: userAddresses.receiveName || currentUser.name,
-		        phone: currentUser.phone,
-		        date: new Date().toLocaleDateString()
+		        total: total
 		    };
 		    
-		    // 只添加到当前用户的订单列表
-		    userOrders.unshift(order);
-		    
-		    saveToStorage();
-		    updateCartBadge();
+		    // 关闭直接购买弹窗
 		    closeDirectBuyModal();
 		    closeProductDetail();
 		    
-		    showToast('支付成功！订单已提交');
-		    updateProfileStats();
+		    // 打开支付选择页面（复用购物车支付模态框）
+		    openPaymentForDirectBuy(subtotal, shippingFee, total);
+		    // ========== 修改结束 ==========
+		}
+		
+		// 新增：为直接购买打开支付页面
+		function openPaymentForDirectBuy(subtotal, shippingFee, total) {
+		    // 更新支付模态框的金额显示
+		    document.getElementById('paymentAmount').textContent = '¥' + subtotal.toFixed(2);
+		    document.getElementById('paymentTotal').textContent = '¥' + total.toFixed(2);
+		    
+		    // 更新运费显示
+		    const shippingText = document.querySelector('#paymentModal .text-success');
+		    if (shippingText) {
+		        if (subtotal >= 19.9) {
+		            shippingText.textContent = '¥0.00';
+		        } else {
+		            shippingText.textContent = '¥8.00';
+		        }
+		    }
+		    
+		    // 更新收货地址显示
+		    const defaultAddress = getDefaultReceiveAddress();
+		    if (defaultAddress) {
+		        document.getElementById('paymentReceiver').textContent = defaultAddress.name || (currentUser ? currentUser.name : '未设置');
+		        document.getElementById('paymentPhone').textContent = defaultAddress.phone || (currentUser ? currentUser.phone : '未设置');
+		        document.getElementById('paymentAddress').textContent = defaultAddress.address;
+		    } else {
+		        document.getElementById('paymentReceiver').textContent = currentUser ? currentUser.name : '未设置';
+		        document.getElementById('paymentPhone').textContent = currentUser ? currentUser.phone : '未设置';
+		        document.getElementById('paymentAddress').textContent = '未设置收货地址';
+		    }
+		    
+		    // 显示支付模态框
+		    document.getElementById('paymentModal').classList.add('show');
 		}
 		
 		// 渲染商家商品列表（个人主页）
@@ -7425,6 +7448,7 @@
 		}
 		
 		// 执行支付
+		// 执行支付
 		function executePayment(method, amount, orderData) {
 		    showToast(`正在使用${getMethodName(method)}支付 ¥${amount.toFixed(2)}...`);
 		    
@@ -7443,9 +7467,9 @@
 		        // 创建订单并清空购物车
 		        if (orderData && orderData.createOrder) {
 		            orderData.createOrder();
-		        } else if (orderData && orderData.isDirectBuy) {
-		            // 直接购买
-		            confirmDirectBuyOrder();
+		        } else if (window.tempDirectBuyOrder) {
+		            // 直接购买订单
+		            confirmPaymentOrder();
 		        } else {
 		            // 购物车结算
 		            confirmPaymentOrder();
@@ -7494,13 +7518,53 @@
 		    return account.slice(0, 3) + '****' + account.slice(-4);
 		}
 		
-		// 订单支付确认（购物车版本）
+		// 订单支付确认（支持购物车和直接购买）
 		function confirmPaymentOrder() {
+		    // 1. 优先处理直接购买模式
+		    if (window.tempDirectBuyOrder) {
+		        const tempOrder = window.tempDirectBuyOrder;
+		        
+		        const order = {
+		            id: 'ORD' + Date.now(),
+		            userId: currentUser ? (currentUser.userId || currentUser.phone) : 'guest',
+		            userName: currentUser ? currentUser.name : '游客',
+		            items: [{
+		                id: tempOrder.product.id,
+		                name: tempOrder.product.name,
+		                price: tempOrder.product.price,
+		                unit: tempOrder.product.unit,
+		                quantity: tempOrder.qty,
+		                image: tempOrder.product.image
+		            }],
+		            subtotal: tempOrder.subtotal,
+		            shippingFee: tempOrder.shippingFee,
+		            total: tempOrder.total,
+		            status: 'pending',
+		            paymentMethod: selectedPaymentMethod,
+		            address: userAddresses.receiveAddress || (getDefaultReceiveAddress()?.address || ''),
+		            receiver: userAddresses.receiveName || (getDefaultReceiveAddress()?.name || (currentUser ? currentUser.name : '')),
+		            phone: userAddresses.receivePhone || (getDefaultReceiveAddress()?.phone || (currentUser ? currentUser.phone : '')),
+		            date: new Date().toLocaleDateString()
+		        };
+		        
+		        userOrders.unshift(order);
+		        saveToStorage();
+		        
+		        // 清空临时订单
+		        window.tempDirectBuyOrder = null;
+		        
+		        closePayment();
+		        showToast('支付成功！订单已提交');
+		        updateProfileStats();
+		        return;
+		    }
+		    
+		    // 2. 处理购物车结算
 		    // 原有的 confirmPayment 逻辑
 		    if (typeof window.originalConfirmPayment === 'function') {
 		        window.originalConfirmPayment();
 		    } else {
-		        // 默认订单创建逻辑
+		        // 默认订单创建逻辑（购物车）
 		        if (shoppingCart.length === 0) {
 		            showToast('购物车为空');
 		            return;
