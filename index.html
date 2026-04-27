@@ -2367,6 +2367,49 @@
                     </div>
                 </div>
 				
+				<!-- 在身份证号后面添加（仅企业/合作社显示） -->
+				<div id="corporateAccountField" style="display: none;">
+				    <div class="mb-3">
+				        <label class="form-label fw-bold">🏦 对公账户</label>
+				        <div class="input-group">
+				            <input type="text" class="form-control" id="applyCorporateAccount" placeholder="请输入对公账户">
+				            <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('applyCorporateAccount')">
+				                <i class="fas fa-microphone"></i>
+				            </button>
+				        </div>
+				    </div>
+				</div>
+				
+				<div id="licenseField" style="display: none;">
+				    <div class="mb-3">
+				        <label class="form-label fw-bold">📜 营业执照</label>
+				        <div class="id-card-upload" onclick="document.getElementById('licenseInput').click()">
+				            <i class="fas fa-building"></i>
+				            <p class="mb-0">上传营业执照</p>
+				            <small class="text-muted">支持jpg、png</small>
+				        </div>
+				        <input type="file" id="licenseInput" accept="image/*" style="display: none;" onchange="handleLicenseUpload(event)">
+				        <div id="licensePreview" class="mt-2" style="display: none;">
+				            <img id="licenseImg" src="" style="max-height: 60px; border-radius: 8px;">
+				        </div>
+				    </div>
+				</div>
+				
+				<div id="foodLicenseField" style="display: none;">
+				    <div class="mb-3">
+				        <label class="form-label fw-bold">🍽️ 食品经营/生产许可证</label>
+				        <div class="id-card-upload" onclick="document.getElementById('foodLicenseInput').click()">
+				            <i class="fas fa-utensils"></i>
+				            <p class="mb-0">上传许可证</p>
+				            <small class="text-muted">涉及加工食品时需要</small>
+				        </div>
+				        <input type="file" id="foodLicenseInput" accept="image/*" style="display: none;" onchange="handleFoodLicenseUpload(event)">
+				        <div id="foodLicensePreview" class="mt-2" style="display: none;">
+				            <img id="foodLicenseImg" src="" style="max-height: 60px; border-radius: 8px;">
+				        </div>
+				    </div>
+				</div>
+				
 				<!-- ========== 操作习惯调查 ========== -->
 				<div class="mb-4">
 				    <label class="form-label fw-bold">📱 您目前主要使用什么工具卖货？</label>
@@ -2711,6 +2754,66 @@
                         <img id="merchantOriginProofImg" src="" style="max-height: 60px; border-radius: 8px;">
                     </div>
                 </div>
+				
+				<!-- ========== 三品一标认证 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🏅 是否拥有"三品一标"认证？</label>
+				    <div class="row">
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="certGreen">
+				                <label class="form-check-label" for="certGreen">绿色食品</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="certOrganic">
+				                <label class="form-check-label" for="certOrganic">有机食品</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="certPollutionFree">
+				                <label class="form-check-label" for="certPollutionFree">无公害农产品</label>
+				            </div>
+				        </div>
+				        <div class="col-md-3 col-6">
+				            <div class="form-check">
+				                <input class="form-check-input" type="checkbox" id="certGeographical">
+				                <label class="form-check-label" for="certGeographical">地理标志产品</label>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- ========== 质检报告上传 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">📄 农产品质量检测报告</label>
+				    <div class="id-card-upload" onclick="document.getElementById('reportInput').click()">
+				        <i class="fas fa-chart-line"></i>
+				        <p class="mb-0">上传检测报告</p>
+				        <small class="text-muted">近期的农产品质量检测报告（图片/PDF）</small>
+				    </div>
+				    <input type="file" id="reportInput" accept="image/*,.pdf" style="display: none;" onchange="handleReportUpload(event)">
+				    <div id="reportPreview" class="mt-2" style="display: none;">
+				        <img id="reportImg" src="" style="max-height: 60px; border-radius: 8px;">
+				    </div>
+				</div>
+				
+				<!-- ========== 溯源体系加入意愿 ========== -->
+				<div class="mb-3">
+				    <label class="form-label fw-bold">🔍 是否愿意加入平台的"溯源体系"？</label>
+				    <div class="d-flex gap-3">
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="joinTrace" id="traceYes" value="yes">
+				            <label class="form-check-label" for="traceYes">愿意（提供种植/养殖过程照片）</label>
+				        </div>
+				        <div class="form-check">
+				            <input class="form-check-input" type="radio" name="joinTrace" id="traceNo" value="no" checked>
+				            <label class="form-check-label" for="traceNo">暂不加入</label>
+				        </div>
+				    </div>
+				</div>
                 
                 <!-- 商家发货地 -->
                 <div class="mb-3">
@@ -6088,10 +6191,9 @@
 		document.getElementById('applyEntityType')?.addEventListener('change', function() {
 		    const licenseField = document.getElementById('licenseField');
 		    const corporateAccountField = document.getElementById('corporateAccountField');
-		    // 移除 legalIdCardField（这个ID不存在）
 		    const foodLicenseField = document.getElementById('foodLicenseField');
 		    
-		    if (this.value === 'company' || this.value === 'cooperative') {
+		    if (this.value === '企业' || this.value === '合作社') {
 		        if (licenseField) licenseField.style.display = 'block';
 		        if (corporateAccountField) corporateAccountField.style.display = 'block';
 		        if (foodLicenseField) foodLicenseField.style.display = 'block';
@@ -6141,6 +6243,18 @@
 		    reader.readAsDataURL(file);
 		}
 		
+		// 营业执照上传处理
+		function handleLicenseUpload(event) {
+		    const file = event.target.files[0];
+		    if (!file) return;
+		    const reader = new FileReader();
+		    reader.onload = function(e) {
+		        document.getElementById('licenseImg').src = e.target.result;
+		        document.getElementById('licensePreview').style.display = 'block';
+		    };
+		    reader.readAsDataURL(file);
+		}
+		
 		// 食品许可证上传
 		function handleFoodLicenseUpload(event) {
 		    const file = event.target.files[0];
@@ -6153,7 +6267,7 @@
 		    };
 		    reader.readAsDataURL(file);
 		}
-		// 质检报告上传
+		// 质检报告上传处理
 		function handleReportUpload(event) {
 		    const file = event.target.files[0];
 		    if (!file) return;
@@ -6166,6 +6280,7 @@
 		    };
 		    reader.readAsDataURL(file);
 		}
+		
         let productCount = 1;
         
         function addProductItem() {
