@@ -4588,22 +4588,53 @@
 		// 模块结束
 
         // ========== 初始化 ==========
+        // 检查是否从微信支付页面返回
+        function checkPaymentResult() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('payment_success')) {
+                // 支付成功，获取之前的订单信息并完成订单
+                const pendingPayment = localStorage.getItem('pending_payment');
+                if (pendingPayment) {
+                    try {
+                        const paymentInfo = JSON.parse(pendingPayment);
+                        localStorage.removeItem('pending_payment');
+                        
+                        // 完成订单
+                        if (paymentInfo.orderData && paymentInfo.orderData.createOrder) {
+                            paymentInfo.orderData.createOrder();
+                        } else if (window.tempDirectBuyOrder) {
+                            confirmPaymentOrder();
+                        } else {
+                            confirmPaymentOrder();
+                        }
+                        closePayment();
+                        showToast('支付成功！');
+                    } catch(e) {
+                        console.error('处理支付结果失败:', e);
+                    }
+                }
+            }
+        }
+        
+        // 在 DOMContentLoaded 中调用
         document.addEventListener('DOMContentLoaded', function() {
             initSpeechRecognition();
             loadProducts();
-			loadCertifiedZone();
+            loadCertifiedZone();
             loadFromStorage();
-			loadAllUsers();
-			loadMerchantApplications();
-	        // 页面加载完成后隐藏加载动画
-	        window.addEventListener('load', function() {
-	            const loader = document.getElementById('pageLoader');
-	            if (loader) {
-	                setTimeout(function() {
-	                    loader.classList.add('hide');
-	                }, 500);
-	            }
-	        });
+            loadAllUsers();
+            loadMerchantApplications();
+            checkPaymentResult();  // 新增：检查支付结果
+            
+            // 页面加载完成后隐藏加载动画
+            window.addEventListener('load', function() {
+                const loader = document.getElementById('pageLoader');
+                if (loader) {
+                    setTimeout(function() {
+                        loader.classList.add('hide');
+                    }, 500);
+                }
+            });
         });
 
         // ========== 本地存储 ==========
@@ -7644,33 +7675,55 @@
 		
 		// 执行支付
 		function executePayment(method, amount, orderData) {
-		    showToast(`正在使用${getMethodName(method)}支付 ¥${amount.toFixed(2)}...`);
-		    
-		    // 模拟支付成功
-		    setTimeout(() => {
-		        showToast(`支付成功！¥${amount.toFixed(2)}已支付`);
+		    if (method === 'wechat') {
+		        // 微信支付：跳转到微信支付模拟页面
+		        showToast('正在跳转到微信支付...');
 		        
-		        // 如果是代付，发送通知（模拟）
-		        if (method === 'proxy') {
-		            const proxyInfo = getBoundPaymentAccount('proxy');
-		            if (proxyInfo) {
-		                showToast(`已通知 ${proxyInfo.name}(${proxyInfo.relation}) 为您付款`);
-		            }
-		        }
+		        // 存储订单信息，供支付页面使用
+		        const paymentInfo = {
+		            amount: amount,
+		            orderData: orderData,
+		            method: method,
+		            timestamp: Date.now()
+		        };
+		        localStorage.setItem('pending_payment', JSON.stringify(paymentInfo));
 		        
-		        // 创建订单并清空购物车
-		        if (orderData && orderData.createOrder) {
-		            orderData.createOrder();
-		        } else if (window.tempDirectBuyOrder) {
-		            // 直接购买订单
-		            confirmPaymentOrder();
-		        } else {
-		            // 购物车结算
-		            confirmPaymentOrder();
-		        }
-		        
-		        closePayment();
-		    }, 1500);
+		        // 跳转到微信支付模拟页面
+		        setTimeout(() => {
+		            window.location.href = 'wechat-pay.html';
+		        }, 500);
+		    } else if (method === 'alipay') {
+		        showToast('正在跳转到支付宝...');
+		        setTimeout(() => {
+		            showToast(`支付宝支付成功！¥${amount.toFixed(2)}已支付`);
+		            handlePaymentSuccess(method, orderData);
+		        }, 1500);
+		    } else if (method === 'bank') {
+		        showToast('正在跳转到网银支付...');
+		        setTimeout(() => {
+		            showToast(`银行卡支付成功！¥${amount.toFixed(2)}已支付`);
+		            handlePaymentSuccess(method, orderData);
+		        }, 1500);
+		    } else if (method === 'proxy') {
+		        showToast(`已通知代付人，请等待对方付款...`);
+		        setTimeout(() => {
+		            showToast(`代付成功！¥${amount.toFixed(2)}已支付`);
+		            handlePaymentSuccess(method, orderData);
+		        }, 2000);
+		    }
+		}
+		
+		// 支付成功后的处理函数
+		function handlePaymentSuccess(method, orderData) {
+		    // 创建订单并清空购物车
+		    if (orderData && orderData.createOrder) {
+		        orderData.createOrder();
+		    } else if (window.tempDirectBuyOrder) {
+		        confirmPaymentOrder();
+		    } else {
+		        confirmPaymentOrder();
+		    }
+		    closePayment();
 		}
 		
 		// 获取支付方式名称
@@ -7819,6 +7872,8 @@
 		    }
 		    return account.slice(0, 3) + '****' + account.slice(-4);
 		}
+		
+		
 		
 		// 订单支付确认（支持购物车和直接购买）
 		function confirmPaymentOrder() {
