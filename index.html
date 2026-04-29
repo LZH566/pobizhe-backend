@@ -1541,9 +1541,31 @@
 		        word-break: break-word;
 		        line-height: 1.3;
 		    }
+		    
+		    /* 价格样式优化 */
 		    .product-price {
-		        font-size: 1.2rem;
+		        font-size: 1.1rem;
+		        font-weight: bold;
+		        display: inline-block;
+		        white-space: nowrap;
 		    }
+		    
+		    /* 单位换行显示 */
+		    .product-body .text-muted.small {
+		        display: block !important;
+		        font-size: 0.6rem !important;
+		        line-height: 1.2 !important;
+		        margin-top: 2px !important;
+		        white-space: nowrap !important;
+		    }
+		    
+		    /* 价格与按钮同行 */
+		    .product-body .d-flex.justify-content-between {
+		        flex-wrap: nowrap !important;
+		        align-items: flex-start !important;
+		        gap: 6px;
+		    }
+		    
 		    .product-badge {
 		        font-size: 0.6rem;
 		        padding: 2px 8px;
@@ -1565,6 +1587,37 @@
 		    }
 		    .product-body .d-flex.gap-1 {
 		        gap: 4px !important;
+		    }
+		    
+		    /* 按钮和溯源同行不换行 */
+		    .product-body .d-flex.gap-1 {
+		        flex-wrap: nowrap !important;
+		        gap: 3px !important;
+		        flex-shrink: 0;
+		    }
+		    .product-body .btn-outline-warning {
+		        font-size: 9px !important;
+		        padding: 2px 5px !important;
+		        white-space: nowrap !important;
+		        min-width: 48px !important;
+		    }
+		    .product-body .btn-warning {
+		        font-size: 9px !important;
+		        padding: 2px 6px !important;
+		        white-space: nowrap !important;
+		        min-width: 48px !important;
+		    }
+		    
+		    /* 认证标签一行 */
+		    .certify-tag {
+		        white-space: nowrap !important;
+		        display: inline-block !important;
+		        font-size: 0.55rem !important;
+		        padding: 2px 6px !important;
+		        background: #FFE0B5;
+		        border-radius: 20px;
+		        color: #A5673F;
+		        max-width: 100%;
 		    }
 		    
 		    /* 认证专区商品 */
@@ -1855,13 +1908,13 @@
 		        padding: 15px;
 		    }
 		    
-		    /* 修复文字换行 */
-		    .product-name, .text-muted, .product-price, .certify-tag {
+		    /* 修复文字换行 - 但认证标签要在一行 */
+		    .product-name, .text-muted {
 		        word-break: break-word;
 		        white-space: normal !important;
 		    }
 		    
-		    /* 修复按钮重叠 */
+		    /* 修复按钮区域换行 */
 		    .d-flex.gap-1, .d-flex.gap-2, .d-flex.gap-3 {
 		        flex-wrap: wrap;
 		        gap: 6px !important;
