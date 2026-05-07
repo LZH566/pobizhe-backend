@@ -5775,7 +5775,7 @@
                 merchantSection.style.display = currentUser.type === 'merchant' ? 'block' : 'none';
             }
             
-            // 设置收货地址内容（只显示当前用户的地址）
+            // 设置收货地址内容
             const defaultReceiveAddress = getDefaultReceiveAddress();
             if (defaultReceiveAddress) {
                 document.getElementById('profileReceiveAddress').innerHTML = 
@@ -7366,11 +7366,9 @@
 		
 		// 更新收货地址显示
 		function updateDirectBuyAddress() {
-		    const defaultAddress = getDefaultReceiveAddress();
-		    
-		    if (defaultAddress) {
-		        document.getElementById('directBuyReceiver').innerHTML = (defaultAddress.name || currentUser?.name || '用户') + ' ' + (defaultAddress.phone || '');
-		        document.getElementById('directBuyAddress').textContent = defaultAddress.address;
+		    if (userAddresses.receiveAddress) {
+		        document.getElementById('directBuyReceiver').innerHTML = (userAddresses.receiveName || currentUser?.name || '用户') + ' ' + (userAddresses.receivePhone || '');
+		        document.getElementById('directBuyAddress').textContent = userAddresses.receiveAddress;
 		    } else {
 		        document.getElementById('directBuyReceiver').innerHTML = '请设置收货地址';
 		        document.getElementById('directBuyAddress').textContent = '点击设置';
