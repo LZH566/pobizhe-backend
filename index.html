@@ -1994,6 +1994,26 @@
 		    white-space: nowrap;
 		}
 		
+		/* 星推官二维码弹窗样式 */
+		#starPromoterModal .auth-content {
+		    max-width: 380px;
+		    border-radius: 25px;
+		}
+		
+		#starQrcode canvas, #starQrcode img {
+		    width: 200px;
+		    height: 200px;
+		    border-radius: 12px;
+		}
+		
+		#starPromoterModal .badge {
+		    background: #FFD700;
+		    color: #8B6914;
+		    padding: 4px 12px;
+		    border-radius: 20px;
+		    font-size: 11px;
+		}
+		
     </style>
 </head>
 <body>
@@ -8179,22 +8199,8 @@
 		// 执行支付
 		function executePayment(method, amount, orderData) {
 		    if (method === 'wechat') {
-		        // 微信支付：跳转到微信支付模拟页面
-		        showToast('正在跳转到微信支付...');
-		        
-		        // 存储订单信息，供支付页面使用
-		        const paymentInfo = {
-		            amount: amount,
-		            orderData: orderData,
-		            method: method,
-		            timestamp: Date.now()
-		        };
-		        localStorage.setItem('pending_payment', JSON.stringify(paymentInfo));
-		        
-		        // 跳转到微信支付模拟页面
-		        setTimeout(() => {
-		            window.location.href = 'wechat-pay.html';
-		        }, 500);
+		        // 微信支付：显示星推官二维码弹窗
+		        showStarPromoterQRCode(amount, orderData);
 		    } else if (method === 'alipay') {
 		        showToast('正在跳转到支付宝...');
 		        setTimeout(() => {
@@ -8213,6 +8219,94 @@
 		            showToast(`代付成功！¥${amount.toFixed(2)}已支付`);
 		            handlePaymentSuccess(method, orderData);
 		        }, 2000);
+		    }
+		}
+		
+		// 显示星推官二维码弹窗
+		function showStarPromoterQRCode(amount, orderData) {
+		    // 存储订单信息
+		    const paymentInfo = {
+		        amount: amount,
+		        orderData: orderData,
+		        method: 'wechat',
+		        timestamp: Date.now()
+		    };
+		    localStorage.setItem('pending_star_payment', JSON.stringify(paymentInfo));
+		    
+		    // 显示二维码弹窗
+		    const modal = document.getElementById('starPromoterModal');
+		    if (modal) {
+		        document.getElementById('starPayAmount').textContent = '¥' + amount.toFixed(2);
+		        modal.classList.add('show');
+		        
+		        // 生成二维码
+		        setTimeout(() => {
+		            generateStarQRCode();
+		        }, 100);
+		    }
+		}
+		
+		// 生成星推官二维码
+		function generateStarQRCode() {
+		    const container = document.getElementById('starQrcode');
+		    if (!container) return;
+		    
+		    // 星推官企业微信二维码（请替换为实际的二维码内容）
+		    // 这里可以是：企业微信活码链接、客服二维码、个人微信二维码等
+		    const qrContent = 'https://work.weixin.qq.com/kfid?from=你的企业微信客服链接';
+		    
+		    container.innerHTML = '';
+		    try {
+		        new QRCode(container, {
+		            text: qrContent,
+		            width: 200,
+		            height: 200,
+		            colorDark: "#2E7D32",
+		            colorLight: "#ffffff",
+		            correctLevel: QRCode.CorrectLevel.H
+		        });
+		    } catch(e) {
+		        container.innerHTML = `
+		            <div style="width:200px;height:200px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;flex-direction:column;border-radius:16px;">
+		                <i class="fas fa-qrcode" style="font-size:60px;color:#2E7D32;"></i>
+		                <span style="font-size:12px;margin-top:10px;">扫码添加星推官</span>
+		            </div>
+		        `;
+		    }
+		}
+		
+		// 确认已添加好友并支付
+		function confirmStarPayment() {
+		    const pendingPayment = localStorage.getItem('pending_star_payment');
+		    if (pendingPayment) {
+		        try {
+		            const paymentInfo = JSON.parse(pendingPayment);
+		            localStorage.removeItem('pending_star_payment');
+		            
+		            // 模拟支付成功
+		            showToast('支付成功！订单已提交');
+		            
+		            // 完成订单
+		            if (paymentInfo.orderData && paymentInfo.orderData.createOrder) {
+		                paymentInfo.orderData.createOrder();
+		            } else if (window.tempDirectBuyOrder) {
+		                confirmPaymentOrder();
+		            } else {
+		                confirmPaymentOrder();
+		            }
+		            closePayment();
+		        } catch(e) {
+		            console.error('处理支付失败:', e);
+		        }
+		    }
+		    closeStarPromoterModal();
+		}
+		
+		// 关闭星推官弹窗
+		function closeStarPromoterModal() {
+		    const modal = document.getElementById('starPromoterModal');
+		    if (modal) {
+		        modal.classList.remove('show');
 		    }
 		}
 		
@@ -8819,5 +8913,70 @@
 	        </div>
 	    </div>
 	</div>
+	
+	<!-- 星推官二维码弹窗 -->
+	<div class="auth-modal" id="starPromoterModal">
+	    <div class="auth-content" style="max-width: 380px; text-align: center;">
+	        <button class="auth-close" onclick="closeStarPromoterModal()">&times;</button>
+	        
+	        <!-- 星推官信息 -->
+	        <div class="text-center mb-3">
+	            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+	                <i class="fas fa-star" style="font-size: 35px; color: white;"></i>
+	            </div>
+	            <h4 style="color: #2E7D32;">乡村星推官 · 王大姐</h4>
+	            <p class="text-muted small">官方认证助农主播</p>
+	            <span class="badge" style="background: #FFD700; color: #8B6914; padding: 4px 12px; border-radius: 20px; font-size: 11px;">
+	                <i class="fas fa-check-circle"></i> 已认证
+	            </span>
+	        </div>
+	        
+	        <!-- 支付金额 -->
+	        <div class="mb-3 p-3" style="background: #E8F5E9; border-radius: 15px;">
+	            <span class="text-muted">支付金额</span>
+	            <div style="font-size: 32px; font-weight: bold; color: #FF8F00;" id="starPayAmount">¥0.00</div>
+	        </div>
+	        
+	        <!-- 二维码 -->
+	        <div class="mb-3">
+	            <p class="mb-2"><i class="fab fa-weixin me-1" style="color: #07C160;"></i> 扫码添加星推官好友</p>
+	            <div id="starQrcode" style="display: flex; justify-content: center; margin: 10px 0;"></div>
+	            <p class="text-muted small mt-2">长按识别二维码，添加好友后支付</p>
+	        </div>
+	        
+	        <!-- 售后保障 -->
+	        <div class="mb-4" style="background: #f8f9fa; border-radius: 12px; padding: 12px;">
+	            <div class="row">
+	                <div class="col-4 text-center">
+	                    <i class="fas fa-headset" style="color: #2E7D32;"></i>
+	                    <div class="small">专属客服</div>
+	                </div>
+	                <div class="col-4 text-center">
+	                    <i class="fas fa-undo-alt" style="color: #2E7D32;"></i>
+	                    <div class="small">坏果包赔</div>
+	                </div>
+	                <div class="col-4 text-center">
+	                    <i class="fas fa-shield-alt" style="color: #2E7D32;"></i>
+	                    <div class="small">品质保障</div>
+	                </div>
+	            </div>
+	        </div>
+	        
+	        <!-- 确认支付按钮 -->
+	        <div class="d-grid gap-2">
+	            <button class="btn btn-custom" onclick="confirmStarPayment()">
+	                <i class="fas fa-check-circle me-2"></i>我已支付
+	            </button>
+	            <button class="btn btn-outline-secondary" onclick="closeStarPromoterModal()">
+	                取消
+	            </button>
+	        </div>
+	        
+	        <p class="text-center text-muted small mt-3">
+	            <i class="fas fa-lock me-1"></i> 支付由星推官担保，平台提供售后
+	        </p>
+	    </div>
+	</div>
+	
 </body>
 </html>
