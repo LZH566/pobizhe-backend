@@ -5113,8 +5113,7 @@
         // ========== 初始化 ==========
         // 检查是否从微信支付页面返回
         function checkPaymentResult() {
-            
-			/*const urlParams = new URLSearchParams(window.location.search);
+            const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('payment_success')) {
                 // 支付成功，获取之前的订单信息并完成订单
                 const pendingPayment = localStorage.getItem('pending_payment');
@@ -5138,7 +5137,7 @@
                     }
                 }
             }
-        }*/
+        }
         
         // 在 DOMContentLoaded 中调用
         document.addEventListener('DOMContentLoaded', function() {
@@ -8023,6 +8022,12 @@
 		
 		// 检查支付方式是否已绑定
 		function checkPaymentBound(method, amount, orderData) {
+		    if (method === 'wechat') {
+		        // 微信支付直接显示星推官二维码，不检查绑定
+		        showStarPromoterQRCode(amount, orderData);
+		        return;
+		    }
+		    
 		    pendingPaymentAmount = amount;
 		    pendingPaymentMethod = method;
 		    pendingOrderData = orderData;
@@ -8284,98 +8289,100 @@
 		            const paymentInfo = JSON.parse(pendingPayment);
 		            localStorage.removeItem('pending_star_payment');
 		            
-		            // 直接创建订单，不经过支付绑定流程
-		            createOrderDirectly(paymentInfo.orderData);
+		            // 直接创建订单，不走支付绑定流程
+		            // 检查是否是直接购买模式
+		            if (window.tempDirectBuyOrder) {
+		                // 直接购买订单
+		                const tempOrder = window.tempDirectBuyOrder;
+		                const order = {
+		                    id: 'ORD' + Date.now(),
+		                    userId: currentUser ? (currentUser.userId || currentUser.phone) : 'guest',
+		                    userName: currentUser ? currentUser.name : '游客',
+		                    items: [{
+		                        id: tempOrder.product.id,
+		                        name: tempOrder.product.name,
+		                        price: tempOrder.product.price,
+		                        unit: tempOrder.product.unit,
+		                        quantity: tempOrder.qty,
+		                        image: tempOrder.product.image
+		                    }],
+		                    subtotal: tempOrder.subtotal,
+		                    shippingFee: tempOrder.shippingFee,
+		                    total: tempOrder.total,
+		                    status: 'pending',
+		                    paymentMethod: 'wechat',
+		                    address: userAddresses.receiveAddress || (getDefaultReceiveAddress()?.address || ''),
+		                    receiver: userAddresses.receiveName || (getDefaultReceiveAddress()?.name || (currentUser ? currentUser.name : '')),
+		                    phone: userAddresses.receivePhone || (getDefaultReceiveAddress()?.phone || (currentUser ? currentUser.phone : '')),
+		                    date: new Date().toLocaleDateString()
+		                };
+		                userOrders.unshift(order);
+		                saveToStorage();
+		                
+		                // 清空临时订单
+		                window.tempDirectBuyOrder = null;
+		                closeProductDetail();
+		                
+		                showToast('支付成功！订单已提交');
+		                updateProfileStats();
+		            } else {
+		                // 购物车订单
+		                if (shoppingCart.length === 0) {
+		                    showToast('购物车为空');
+		                    closeStarPromoterModal();
+		                    return;
+		                }
+		                
+		                const defaultAddress = getDefaultReceiveAddress();
+		                if (!defaultAddress) {
+		                    showToast('请先设置收货地址');
+		                    closeStarPromoterModal();
+		                    openAddressModal();
+		                    return;
+		                }
+		                
+		                const subtotal = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+		                const shippingFee = subtotal >= 19.9 ? 0 : 8;
+		                const total = subtotal + shippingFee;
+		                
+		                const order = {
+		                    id: 'ORD' + Date.now(),
+		                    userId: currentUser ? (currentUser.userId || currentUser.phone) : 'guest',
+		                    userName: currentUser ? currentUser.name : '游客',
+		                    items: [...shoppingCart],
+		                    subtotal: subtotal,
+		                    shippingFee: shippingFee,
+		                    total: total,
+		                    status: 'pending',
+		                    paymentMethod: 'wechat',
+		                    address: defaultAddress.address,
+		                    receiver: defaultAddress.name,
+		                    phone: defaultAddress.phone,
+		                    date: new Date().toLocaleDateString()
+		                };
+		                
+		                userOrders.unshift(order);
+		                shoppingCart = [];
+		                saveToStorage();
+		                updateCartBadge();
+		                
+		                showToast('支付成功！订单已提交');
+		                updateProfileStats();
+		            }
 		            
+		            // 关闭所有弹窗
 		            closeStarPromoterModal();
 		            closePayment();
-		            showToast('支付成功！订单已提交');
-		            updateProfileStats();
+		            
+		            showToast('订单已提交，星推官将尽快为您发货！');
+		            
 		        } catch(e) {
 		            console.error('处理支付失败:', e);
 		            showToast('支付处理失败，请重试');
 		        }
 		    } else {
+		        showToast('未找到待支付订单');
 		        closeStarPromoterModal();
-		    }
-		}
-		
-		// 直接创建订单（不经过支付绑定检查）
-		function createOrderDirectly(orderData) {
-		    // 处理直接购买订单
-		    if (window.tempDirectBuyOrder) {
-		        const tempOrder = window.tempDirectBuyOrder;
-		        
-		        const order = {
-		            id: 'ORD' + Date.now(),
-		            userId: currentUser ? (currentUser.userId || currentUser.phone) : 'guest',
-		            userName: currentUser ? currentUser.name : '游客',
-		            items: [{
-		                id: tempOrder.product.id,
-		                name: tempOrder.product.name,
-		                price: tempOrder.product.price,
-		                unit: tempOrder.product.unit,
-		                quantity: tempOrder.qty,
-		                image: tempOrder.product.image
-		            }],
-		            subtotal: tempOrder.subtotal,
-		            shippingFee: tempOrder.shippingFee,
-		            total: tempOrder.total,
-		            status: 'pending',
-		            paymentMethod: 'wechat',
-		            address: userAddresses.receiveAddress || (getDefaultReceiveAddress()?.address || ''),
-		            receiver: userAddresses.receiveName || (getDefaultReceiveAddress()?.name || (currentUser ? currentUser.name : '')),
-		            phone: userAddresses.receivePhone || (getDefaultReceiveAddress()?.phone || (currentUser ? currentUser.phone : '')),
-		            date: new Date().toLocaleDateString()
-		        };
-		        
-		        userOrders.unshift(order);
-		        saveToStorage();
-		        
-		        // 清空临时订单
-		        window.tempDirectBuyOrder = null;
-		        return;
-		    }
-		    
-		    // 处理购物车订单
-		    if (shoppingCart.length > 0) {
-		        const defaultAddress = getDefaultReceiveAddress();
-		        if (!defaultAddress) {
-		            showToast('请先设置收货地址');
-		            openAddressModal();
-		            return;
-		        }
-		        
-		        const subtotal = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-		        const shippingFee = subtotal >= 19.9 ? 0 : 8;
-		        const total = subtotal + shippingFee;
-		        
-		        const order = {
-		            id: 'ORD' + Date.now(),
-		            userId: currentUser ? (currentUser.userId || currentUser.phone) : 'guest',
-		            userName: currentUser ? currentUser.name : '游客',
-		            items: [...shoppingCart],
-		            subtotal: subtotal,
-		            shippingFee: shippingFee,
-		            total: total,
-		            status: 'pending',
-		            paymentMethod: 'wechat',
-		            address: defaultAddress.address,
-		            receiver: defaultAddress.name,
-		            phone: defaultAddress.phone,
-		            date: new Date().toLocaleDateString()
-		        };
-		        
-		        userOrders.unshift(order);
-		        shoppingCart = [];
-		        saveToStorage();
-		        updateCartBadge();
-		        return;
-		    }
-		    
-		    // 如果有 orderData.createOrder，调用它
-		    if (orderData && orderData.createOrder) {
-		        orderData.createOrder();
 		    }
 		}
 		
@@ -8389,10 +8396,6 @@
 		
 		// 支付成功后的处理函数
 		function handlePaymentSuccess(method, orderData) {
-		    // 避免重复调用
-		    if (window.isProcessingPayment) return;
-		    window.isProcessingPayment = true;
-		    
 		    // 创建订单并清空购物车
 		    if (orderData && orderData.createOrder) {
 		        orderData.createOrder();
@@ -8402,10 +8405,6 @@
 		        confirmPaymentOrder();
 		    }
 		    closePayment();
-		    
-		    setTimeout(() => {
-		        window.isProcessingPayment = false;
-		    }, 500);
 		}
 		
 		// 获取支付方式名称
@@ -8716,14 +8715,8 @@
 		        isDirectBuy: false
 		    };
 		    
-		    // 只有非微信支付才检查绑定，微信支付走星推官流程
-		    if (selectedPaymentMethod === 'wechat') {
-		        // 微信支付：直接显示星推官二维码
-		        showStarPromoterQRCode(finalTotal, orderData);
-		    } else {
-		        // 其他支付方式：检查绑定
-		        checkPaymentBound(selectedPaymentMethod, finalTotal, orderData);
-		    }
+		    // 检查支付方式是否已绑定
+		    checkPaymentBound(selectedPaymentMethod, finalTotal, orderData);
 		}
 		
 		// ==========================================
