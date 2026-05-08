@@ -4017,25 +4017,10 @@
 		    const saved = localStorage.getItem('pobizhe_all_users');
 		    if (saved) {
 		        allUsers = JSON.parse(saved);
+		        console.log('已加载用户数据:', allUsers.length, '个用户');
 		    } else {
-		        // 如果没有数据，初始化为空数组
 		        allUsers = [];
-		        
-		        // 可选：添加一个演示账号方便测试
-		        // const demoUser = {
-		        //     userId: 'demo001',
-		        //     account: 'C123456',
-		        //     name: '演示用户',
-		        //     nickname: '测试账号',
-		        //     phone: '13800138000',
-		        //     password: '123456',
-		        //     type: 'customer',
-		        //     address: '北京市朝阳区',
-		        //     verified: false,
-		        //     registerDate: new Date().toISOString()
-		        // };
-		        // allUsers.push(demoUser);
-		        // saveAllUsers();
+		        console.log('暂无用户数据');
 		    }
 		}
 		
@@ -4145,9 +4130,10 @@
 		        return;
 		    }
 		    
-		    // 调试：打印所有用户
-		    console.log('当前所有用户:', allUsers);
-		    console.log('尝试登录账号:', account);
+		    // 关键修复：确保 allUsers 已经加载
+		    if (!allUsers || allUsers.length === 0) {
+		        loadAllUsers();  // 重新加载
+		    }
 		    
 		    // 查找用户
 		    const user = allUsers.find(u => u.account === account && u.password === password);
