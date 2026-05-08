@@ -6480,6 +6480,38 @@
 		    
 		    document.getElementById('addReceiveAddressModal').classList.remove('show');
 		    showToast('收货地址已添加');
+		    
+		    // ========== 新增：刷新立即购买弹窗的地址显示 ==========
+		    // 如果立即购买弹窗是打开的，刷新地址显示
+		    const directBuyModal = document.getElementById('directBuyModal');
+		    if (directBuyModal && directBuyModal.classList.contains('show')) {
+		        // 重新加载最新地址
+		        const saved = localStorage.getItem('pobizhe_addresses');
+		        if (saved) {
+		            userAddresses = JSON.parse(saved);
+		        }
+		        
+		        // 获取默认收货地址
+		        let defaultAddress = null;
+		        if (userAddresses.receiveAddresses && userAddresses.receiveAddresses.length > 0) {
+		            defaultAddress = userAddresses.receiveAddresses.find(addr => addr.isDefault) || userAddresses.receiveAddresses[0];
+		        }
+		        
+		        if (defaultAddress) {
+		            const receiverEl = document.getElementById('directBuyReceiver');
+		            const addressEl = document.getElementById('directBuyAddress');
+		            
+		            if (receiverEl) {
+		                receiverEl.innerHTML = `${defaultAddress.name} ${defaultAddress.phone}`;
+		            }
+		            if (addressEl) {
+		                addressEl.textContent = defaultAddress.address;
+		                addressEl.style.color = '#333';
+		            }
+		        }
+		        console.log('✅ 立即购买弹窗地址已刷新');
+		    }
+		    // ==================================================
 		}
 		
 		function openAddReceiveAddressModal() {
@@ -7232,8 +7264,8 @@
 		    document.getElementById('directBuyPrice').textContent = '¥' + parseFloat(product.price).toFixed(2);
 		    document.getElementById('directBuyQty').value = 1;
 		    
-		    updateDirectBuyTotal();  // 这会自动计算运费
-		    updateDirectBuyAddress();
+		    updateDirectBuyTotal();
+		    updateDirectBuyAddress();  // 确保调用地址更新
 		    
 		    document.getElementById('directBuyModal').classList.add('show');
 		}
@@ -7274,12 +7306,30 @@
 		
 		// 更新收货地址显示
 		function updateDirectBuyAddress() {
-		    if (userAddresses.receiveAddress) {
+		    // 重新加载最新地址
+		    const saved = localStorage.getItem('pobizhe_addresses');
+		    if (saved) {
+		        userAddresses = JSON.parse(saved);
+		    }
+		    
+		    // 获取默认收货地址
+		    let defaultAddress = null;
+		    if (userAddresses.receiveAddresses && userAddresses.receiveAddresses.length > 0) {
+		        defaultAddress = userAddresses.receiveAddresses.find(addr => addr.isDefault) || userAddresses.receiveAddresses[0];
+		    }
+		    
+		    if (defaultAddress) {
+		        document.getElementById('directBuyReceiver').innerHTML = `${defaultAddress.name} ${defaultAddress.phone}`;
+		        document.getElementById('directBuyAddress').textContent = defaultAddress.address;
+		        document.getElementById('directBuyAddress').style.color = '#333';
+		    } else if (userAddresses.receiveAddress) {
+		        // 兼容旧格式
 		        document.getElementById('directBuyReceiver').innerHTML = (userAddresses.receiveName || currentUser?.name || '用户') + ' ' + (userAddresses.receivePhone || '');
 		        document.getElementById('directBuyAddress').textContent = userAddresses.receiveAddress;
 		    } else {
 		        document.getElementById('directBuyReceiver').innerHTML = '请设置收货地址';
 		        document.getElementById('directBuyAddress').textContent = '点击设置';
+		        document.getElementById('directBuyAddress').style.color = '#dc3545';
 		    }
 		}
 		
