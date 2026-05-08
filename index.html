@@ -5443,63 +5443,50 @@
                 showToast('购物车为空');
                 return;
             }
-        
-            // --- 【新增关键代码】强制从 localStorage 重新加载最新地址 ---
-            const savedAddressesStr = localStorage.getItem('pobizhe_addresses');
-            if (savedAddressesStr) {
-                try {
-                    const savedAddresses = JSON.parse(savedAddressesStr);
-                    // 将最新数据同步到全局变量 userAddresses
-                    if (savedAddresses.receiveName) userAddresses.receiveName = savedAddresses.receiveName;
-                    if (savedAddresses.receivePhone) userAddresses.receivePhone = savedAddresses.receivePhone;
-                    if (savedAddresses.receiveAddress) userAddresses.receiveAddress = savedAddresses.receiveAddress;
-                    
-                    // 如果有发货地址也同步一下（以防万一）
-                    if (savedAddresses.shipAddress) userAddresses.shipAddress = savedAddresses.shipAddress;
-                } catch (e) {
-                    console.error('地址数据解析失败', e);
-                }
-            }
-            // -------------------------------------------------------
-        
-            const total = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             
-            // 计算运费：满19.9元包邮，否则运费8元
+            // 重新加载最新地址
+            const saved = localStorage.getItem('pobizhe_addresses');
+            if (saved) {
+                userAddresses = JSON.parse(saved);
+            }
+            
+            const total = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
             const shippingFee = total >= 19.9 ? 0 : 8;
             const finalTotal = total + shippingFee;
             
-            // 更新金额
             document.getElementById('paymentAmount').textContent = '¥' + total.toFixed(2);
             document.getElementById('paymentTotal').textContent = '¥' + finalTotal.toFixed(2);
             
-            // 更新运费显示
-            const shippingText = document.querySelector('#paymentModal .text-success');
-            if (shippingText) {
-                if (total >= 19.9) {
-                    shippingText.textContent = '¥0.00';
-                } else {
-                    shippingText.textContent = '¥8.00';
-                }
+            // ========== 智能获取收货地址 ==========
+            let receiverName = '', receiverPhone = '', receiverAddress = '';
+            
+            // 优先从 receiveAddresses 获取默认地址
+            if (userAddresses.receiveAddresses && userAddresses.receiveAddresses.length > 0) {
+                const defaultAddr = userAddresses.receiveAddresses.find(addr => addr.isDefault) || userAddresses.receiveAddresses[0];
+                receiverName = defaultAddr.name;
+                receiverPhone = defaultAddr.phone;
+                receiverAddress = defaultAddr.address;
+            } 
+            // 兼容旧格式
+            else if (userAddresses.receiveAddress) {
+                receiverName = userAddresses.receiveName || (currentUser ? currentUser.name : '');
+                receiverPhone = userAddresses.receivePhone || (currentUser ? currentUser.phone : '');
+                receiverAddress = userAddresses.receiveAddress;
             }
             
-            // 更新收货人信息 (现在使用的是刚刚刷新过的 userAddresses)
-            document.getElementById('paymentReceiver').textContent = userAddresses.receiveName || (currentUser ? currentUser.name : '未设置');
-            document.getElementById('paymentPhone').textContent = (currentUser && currentUser.phone) ? currentUser.phone : (userAddresses.receivePhone || '未设置');
-            
-            // 更新地址显示
-            const addrText = userAddresses.receiveAddress || '未设置收货地址';
-            const addressEl = document.getElementById('paymentAddress');
-            addressEl.textContent = addrText;
-            
-            // 如果地址是空的，给个视觉提示
-            if (addrText === '未设置收货地址') {
-                addressEl.classList.add('text-danger');
-                addressEl.classList.remove('text-muted');
+            if (receiverAddress) {
+                document.getElementById('paymentReceiver').textContent = receiverName;
+                document.getElementById('paymentPhone').textContent = receiverPhone;
+                document.getElementById('paymentAddress').textContent = receiverAddress;
+                document.getElementById('paymentAddress').classList.remove('text-danger');
             } else {
-                addressEl.classList.remove('text-danger');
-                addressEl.classList.add('text-muted');
+                document.getElementById('paymentReceiver').textContent = '请设置收货地址';
+                document.getElementById('paymentPhone').textContent = '';
+                document.getElementById('paymentAddress').textContent = '点击设置';
+                document.getElementById('paymentAddress').classList.add('text-danger');
             }
-        
+            // ====================================
+            
             closeCart();
             document.getElementById('paymentModal').classList.add('show');
         }
@@ -6454,15 +6441,12 @@
 		        return;
 		    }
 		    
-		    // 验证手机号格式
 		    if (!/^1[3-9]\d{9}$/.test(phone)) {
 		        showToast('请输入正确的手机号码');
 		        return;
 		    }
 		    
 		    const fullAddress = province + city + district + detail;
-		    
-		    // 判断是否是第一个地址，如果是则设为默认
 		    const isFirst = userAddresses.receiveAddresses.length === 0;
 		    
 		    const newAddress = {
@@ -6474,6 +6458,15 @@
 		    };
 		    
 		    userAddresses.receiveAddresses.push(newAddress);
+		    
+		    // ========== 关键修复：同步到兼容字段 ==========
+		    if (isFirst || newAddress.isDefault) {
+		        userAddresses.receiveName = name;
+		        userAddresses.receivePhone = phone;
+		        userAddresses.receiveAddress = fullAddress;
+		    }
+		    // ============================================
+		    
 		    saveToStorage();
 		    renderReceiveAddresses();
 		    
