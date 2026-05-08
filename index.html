@@ -5507,9 +5507,83 @@
         }
 
         function confirmPayment() {
-            // 获取默认收货地址
-            const defaultAddress = getDefaultReceiveAddress();
+            // ========== 优先处理立即购买模式 ==========
+            if (window.tempDirectBuyOrder) {
+                const tempOrder = window.tempDirectBuyOrder;
+                
+                // 获取地址信息
+                let receiverName = '', receiverPhone = '', receiverAddress = '';
+                
+                // 从临时订单中获取地址，或从保存的地址获取
+                if (tempOrder.address) {
+                    receiverName = tempOrder.address.name;
+                    receiverPhone = tempOrder.address.phone;
+                    receiverAddress = tempOrder.address.address;
+                } else {
+                    const saved = localStorage.getItem('pobizhe_addresses');
+                    if (saved) {
+                        const addresses = JSON.parse(saved);
+                        const defaultAddr = addresses.receiveAddresses?.find(a => a.isDefault) || addresses.receiveAddresses?.[0];
+                        if (defaultAddr) {
+                            receiverName = defaultAddr.name;
+                            receiverPhone = defaultAddr.phone;
+                            receiverAddress = defaultAddr.address;
+                        }
+                    }
+                }
+                
+                // 验证地址
+                if (!receiverAddress) {
+                    showToast('请先设置收货地址');
+                    closePayment();
+                    openAddressModal();
+                    return;
+                }
+                
+                // 创建立即购买订单
+                const order = {
+                    id: 'ORD' + Date.now(),
+                    userId: currentUser ? (currentUser.userId || currentUser.phone) : 'guest',
+                    userName: currentUser ? currentUser.name : '游客',
+                    items: [{
+                        id: tempOrder.product.id,
+                        name: tempOrder.product.name,
+                        price: tempOrder.product.price,
+                        unit: tempOrder.product.unit,
+                        quantity: tempOrder.qty,
+                        image: tempOrder.product.image,
+                        seller: tempOrder.product.seller || '商家'
+                    }],
+                    subtotal: tempOrder.subtotal,
+                    shippingFee: tempOrder.shippingFee,
+                    total: tempOrder.total,
+                    status: 'pending',
+                    paymentMethod: selectedPaymentMethod,
+                    address: receiverAddress,
+                    receiver: receiverName,
+                    phone: receiverPhone,
+                    date: new Date().toLocaleDateString()
+                };
+                
+                userOrders.unshift(order);
+                saveToStorage();
+                
+                // 清空临时订单
+                window.tempDirectBuyOrder = null;
+                
+                closePayment();
+                showToast('支付成功！订单已提交');
+                updateProfileStats();
+                return;
+            }
             
+            // ========== 购物车结算逻辑 ==========
+            if (shoppingCart.length === 0) {
+                showToast('购物车为空');
+                return;
+            }
+            
+            const defaultAddress = getDefaultReceiveAddress();
             if (!defaultAddress) {
                 showToast('请先设置收货地址');
                 closePayment();
@@ -5546,11 +5620,10 @@
             
             userOrders.unshift(order);
             
-            // ========== 新增：保存订单到 Supabase ==========
+            // ========== 保存订单到 Supabase ==========
             const SUPABASE_URL = 'https://snqlzwwtlkmeflvhezfk.supabase.co';
             const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlenZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ';
             
-            // 订单主表数据
             const supabaseOrder = {
                 order_no: order.id,
                 user_id: currentUser.userId || currentUser.phone,
@@ -5568,7 +5641,6 @@
                 created_at: new Date().toISOString()
             };
             
-            // 订单明细数据
             const supabaseOrderItems = shoppingCart.map(item => ({
                 order_no: order.id,
                 product_id: item.id,
@@ -5581,10 +5653,8 @@
                 seller_name: item.seller || '商家'
             }));
             
-            // 保存到 Supabase
             async function saveToSupabase() {
                 try {
-                    // 保存订单主表
                     await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
                         method: 'POST',
                         headers: {
@@ -5596,7 +5666,6 @@
                         body: JSON.stringify(supabaseOrder)
                     });
                     
-                    // 保存订单明细
                     for (const item of supabaseOrderItems) {
                         await fetch(`${SUPABASE_URL}/rest/v1/order_items`, {
                             method: 'POST',
@@ -5612,12 +5681,10 @@
                     console.log('订单已同步到 Supabase');
                 } catch (error) {
                     console.error('保存订单到Supabase失败:', error);
-                    // 不影响用户体验，只记录错误
                 }
             }
             
             saveToSupabase();
-            // ========== Supabase 保存结束 ==========
             
             shoppingCart = [];
             saveToStorage();
@@ -7335,22 +7402,19 @@
 		
 		// 确认直接购买 - 修改为跳转到支付选择页面
 		function confirmDirectBuy() {
-		    // ========== 重新加载最新地址 ==========
+		    // 重新加载最新地址
 		    const saved = localStorage.getItem('pobizhe_addresses');
 		    if (saved) {
 		        userAddresses = JSON.parse(saved);
 		    }
 		    
-		    // 获取默认收货地址（新格式）
+		    // 获取默认收货地址
 		    let defaultAddress = null;
 		    if (userAddresses.receiveAddresses && userAddresses.receiveAddresses.length > 0) {
 		        defaultAddress = userAddresses.receiveAddresses.find(addr => addr.isDefault) || userAddresses.receiveAddresses[0];
 		    }
 		    
-		    // 验证地址是否存在（兼容新旧格式）
-		    const hasAddress = defaultAddress || userAddresses.receiveAddress;
-		    
-		    if (!hasAddress) {
+		    if (!defaultAddress && !userAddresses.receiveAddress) {
 		        showToast('请先设置收货地址');
 		        closeDirectBuyModal();
 		        openAddressModal();
@@ -7368,7 +7432,7 @@
 		    const shippingFee = subtotal >= 19.9 ? 0 : 8;
 		    const total = subtotal + shippingFee;
 		    
-		    // 使用获取到的地址信息
+		    // 获取地址信息
 		    const receiverName = defaultAddress ? defaultAddress.name : userAddresses.receiveName;
 		    const receiverPhone = defaultAddress ? defaultAddress.phone : userAddresses.receivePhone;
 		    const receiverAddress = defaultAddress ? defaultAddress.address : userAddresses.receiveAddress;
@@ -7391,7 +7455,12 @@
 		    closeDirectBuyModal();
 		    closeProductDetail();
 		    
-		    // 打开支付选择页面
+		    // 清除之前的支付方式选择
+		    selectedPaymentMethod = 'wechat';
+		    document.querySelectorAll('.payment-method').forEach(el => el.classList.remove('selected'));
+		    document.querySelector('.payment-method.wechat').classList.add('selected');
+		    
+		    // 打开支付页面
 		    openPaymentForDirectBuy(subtotal, shippingFee, total);
 		}
 		
@@ -8782,36 +8851,6 @@
 		
 		// 保存原始 confirmPayment 函数
 		window.originalConfirmPayment = confirmPayment;
-		
-		// 重写 confirmPayment
-		function confirmPayment() {
-		    if (shoppingCart.length === 0) {
-		        showToast('购物车为空');
-		        return;
-		    }
-		    
-		    const defaultAddress = getDefaultReceiveAddress();
-		    if (!defaultAddress) {
-		        showToast('请先设置收货地址');
-		        closePayment();
-		        openAddressModal();
-		        return;
-		    }
-		    
-		    const total = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-		    const shippingFee = total >= 19.9 ? 0 : 8;
-		    const finalTotal = total + shippingFee;
-		    
-		    // 订单数据
-		    const orderData = {
-		        total: finalTotal,
-		        createOrder: window.originalConfirmPayment,
-		        isDirectBuy: false
-		    };
-		    
-		    // 检查支付方式是否已绑定
-		    checkPaymentBound(selectedPaymentMethod, finalTotal, orderData);
-		}
 		
 		// ==========================================
 		// 模块 2：商品详情与离线模式逻辑 (JS功能)
