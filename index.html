@@ -5144,10 +5144,10 @@
             initSpeechRecognition();
             loadProducts();
             loadCertifiedZone();
-            loadFromStorage();      // 这里先执行
-            loadAllUsers();         // 这里后执行
+            loadFromStorage();
+            loadAllUsers();
             loadMerchantApplications();
-            checkPaymentResult();
+            checkPaymentResult();  // 新增：检查支付结果
             
             // 页面加载完成后隐藏加载动画
             window.addEventListener('load', function() {
@@ -5162,54 +5162,45 @@
 
         // ========== 本地存储 ==========
         function loadFromStorage() {
-            // 获取当前登录用户ID
-            const currentUserId = localStorage.getItem('pobizhe_current_user_id');
+            const savedUser = localStorage.getItem('pobizhe_user');
+            const savedCart = localStorage.getItem('pobizhe_cart');
+            const savedOrders = localStorage.getItem('pobizhe_orders');
+            const savedAddresses = localStorage.getItem('pobizhe_addresses');
             
-            if (currentUserId) {
-                // 加载该用户的数据
-                const savedUser = localStorage.getItem(`pobizhe_user_${currentUserId}`);
-                const savedCart = localStorage.getItem(`pobizhe_cart_${currentUserId}`);
-                const savedOrders = localStorage.getItem(`pobizhe_orders_${currentUserId}`);
-                const savedAddresses = localStorage.getItem(`pobizhe_addresses_${currentUserId}`);
-                
-                if (savedUser) {
-                    currentUser = JSON.parse(savedUser);
-                    updateUserInfo();
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                updateUserInfo();
+            }
+            if (savedCart) {
+                shoppingCart = JSON.parse(savedCart);
+                updateCartBadge();
+            }
+            if (savedOrders) {
+                userOrders = JSON.parse(savedOrders);
+            }
+            
+            // ========== 修改这里 ==========
+            if (savedAddresses) {
+                userAddresses = JSON.parse(savedAddresses);
+                // 兼容旧数据：确保有 receiveAddresses 和 shipAddresses 数组
+                if (!userAddresses.receiveAddresses) {
+                    userAddresses.receiveAddresses = [];
                 }
-                if (savedCart) {
-                    shoppingCart = JSON.parse(savedCart);
-                    updateCartBadge();
+                if (!userAddresses.shipAddresses) {
+                    userAddresses.shipAddresses = [];
                 }
-                if (savedOrders) {
-                    userOrders = JSON.parse(savedOrders);
-                }
-                if (savedAddresses) {
-                    userAddresses = JSON.parse(savedAddresses);
-                    if (!userAddresses.receiveAddresses) {
-                        userAddresses.receiveAddresses = [];
-                    }
-                    if (!userAddresses.shipAddresses) {
-                        userAddresses.shipAddresses = [];
-                    }
-                } else {
-                    userAddresses = {
-                        receiveAddresses: [],
-                        shipAddresses: []
-                    };
-                }
+                console.log('地址已加载:', userAddresses);
             } else {
-                // 没有登录用户，初始化空数据
-                currentUser = null;
-                shoppingCart = [];
-                userOrders = [];
+                // 没有地址数据时，初始化空数组
                 userAddresses = {
                     receiveAddresses: [],
                     shipAddresses: []
                 };
+                console.log('地址已初始化');
             }
-            
+            // ============================
             if (currentUser) {
-                renderOrders();
+                    renderOrders();
             }
             updateUserInfo();
         }
@@ -8029,6 +8020,7 @@
 		    localStorage.setItem(`pobizhe_bound_${method}`, JSON.stringify(accountInfo));
 		}
 		
+		// 检查支付方式是否已绑定
 		// 检查支付方式是否已绑定
 		function checkPaymentBound(method, amount, orderData) {
 		    if (method === 'wechat') {
