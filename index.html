@@ -8927,39 +8927,6 @@
 		    }
 		}
 		
-		// 保存原始 confirmPayment 函数
-		window.originalConfirmPayment = confirmPayment;
-		
-		// 重写 confirmPayment
-		function confirmPayment() {
-		    if (shoppingCart.length === 0) {
-		        showToast('购物车为空');
-		        return;
-		    }
-		    
-		    const defaultAddress = getDefaultReceiveAddress();
-		    if (!defaultAddress) {
-		        showToast('请先设置收货地址');
-		        closePayment();
-		        openAddressModal();
-		        return;
-		    }
-		    
-		    const total = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-		    const shippingFee = total >= 19.9 ? 0 : 8;
-		    const finalTotal = total + shippingFee;
-		    
-		    // 订单数据
-		    const orderData = {
-		        total: finalTotal,
-		        createOrder: window.originalConfirmPayment,
-		        isDirectBuy: false
-		    };
-		    
-		    // 检查支付方式是否已绑定
-		    checkPaymentBound(selectedPaymentMethod, finalTotal, orderData);
-		}
-		
 		// ==========================================
 		// 模块 2：商品详情与离线模式逻辑 (JS功能)
 		// ==========================================
