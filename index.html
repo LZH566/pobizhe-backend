@@ -4162,6 +4162,17 @@
 		        merchantInfo: user.merchantInfo,
 		        registerDate: user.registerDate
 		    };
+			
+			// 登录成功后，重新加载该用户的地址
+			const savedAddresses = localStorage.getItem(`pobizhe_addresses_${user.userId}`);
+			if (savedAddresses) {
+			    userAddresses = JSON.parse(savedAddresses);
+			} else {
+			    userAddresses = {
+			        receiveAddresses: [],
+			        shipAddresses: []
+			    };
+			}
 		    
 		    // 记住密码
 		    if (rememberMe) {
@@ -5177,11 +5188,9 @@
 
         // ========== 本地存储 ==========
         function loadFromStorage() {
-            // 先加载用户数据
             const savedUser = localStorage.getItem('pobizhe_user');
             const savedCart = localStorage.getItem('pobizhe_cart');
             const savedOrders = localStorage.getItem('pobizhe_orders');
-            const savedAddresses = localStorage.getItem('pobizhe_addresses');
             
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
@@ -5195,13 +5204,22 @@
                 userOrders = JSON.parse(savedOrders);
             }
             
-            if (savedAddresses) {
-                userAddresses = JSON.parse(savedAddresses);
-                if (!userAddresses.receiveAddresses) {
-                    userAddresses.receiveAddresses = [];
-                }
-                if (!userAddresses.shipAddresses) {
-                    userAddresses.shipAddresses = [];
+            // ========== 关键修改：按用户ID加载地址 ==========
+            if (currentUser && currentUser.userId) {
+                const savedAddresses = localStorage.getItem(`pobizhe_addresses_${currentUser.userId}`);
+                if (savedAddresses) {
+                    userAddresses = JSON.parse(savedAddresses);
+                    if (!userAddresses.receiveAddresses) {
+                        userAddresses.receiveAddresses = [];
+                    }
+                    if (!userAddresses.shipAddresses) {
+                        userAddresses.shipAddresses = [];
+                    }
+                } else {
+                    userAddresses = {
+                        receiveAddresses: [],
+                        shipAddresses: []
+                    };
                 }
             } else {
                 userAddresses = {
@@ -5209,6 +5227,7 @@
                     shipAddresses: []
                 };
             }
+            // ============================================
             
             if (currentUser) {
                 renderOrders();
@@ -5217,12 +5236,18 @@
         }
 
         function saveToStorage() {
-            if (currentUser) localStorage.setItem('pobizhe_user', JSON.stringify(currentUser));
+            if (currentUser) {
+                localStorage.setItem('pobizhe_user', JSON.stringify(currentUser));
+                // ========== 按用户ID保存地址 ==========
+                if (currentUser.userId) {
+                    localStorage.setItem(`pobizhe_addresses_${currentUser.userId}`, JSON.stringify(userAddresses));
+                }
+                // ====================================
+            }
             localStorage.setItem('pobizhe_cart', JSON.stringify(shoppingCart));
             localStorage.setItem('pobizhe_orders', JSON.stringify(userOrders));
-            localStorage.setItem('pobizhe_addresses', JSON.stringify(userAddresses));
-			
-			console.log('数据已保存到本地存储');
+            
+            console.log('数据已保存到本地存储');
         }
 
         // ========== 登录验证 ==========
@@ -5444,10 +5469,12 @@
                 return;
             }
             
-            // 重新加载最新地址
-            const saved = localStorage.getItem('pobizhe_addresses');
-            if (saved) {
-                userAddresses = JSON.parse(saved);
+            // ========== 按用户ID重新加载最新地址 ==========
+            if (currentUser && currentUser.userId) {
+                const saved = localStorage.getItem(`pobizhe_addresses_${currentUser.userId}`);
+                if (saved) {
+                    userAddresses = JSON.parse(saved);
+                }
             }
             
             const total = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -6614,7 +6641,7 @@
 		    }
 		    // ============================================
 		    
-		    saveToStorage();
+		    saveToStorage();  // 这个函数已经会按用户ID保存
 		    renderReceiveAddresses();
 		    
 		    // 清空表单
@@ -7800,11 +7827,21 @@
         }
 
         function logout() {
+            // 不需要清理地址，只是切换用户
             currentUser = null;
             localStorage.removeItem('pobizhe_user');
+            
+            // 清空当前内存中的地址和购物车
+            userAddresses = {
+                receiveAddresses: [],
+                shipAddresses: []
+            };
+            shoppingCart = [];
+            
             document.getElementById('authButtons').style.display = 'block';
             document.getElementById('userInfo').style.display = 'none';
             document.getElementById('userVerified').style.display = 'none';
+            updateCartBadge();
             showToast('已退出登录');
         }
 
