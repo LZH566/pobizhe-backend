@@ -7335,7 +7335,22 @@
 		
 		// 确认直接购买 - 修改为跳转到支付选择页面
 		function confirmDirectBuy() {
-		    if (!userAddresses.receiveAddress) {
+		    // ========== 重新加载最新地址 ==========
+		    const saved = localStorage.getItem('pobizhe_addresses');
+		    if (saved) {
+		        userAddresses = JSON.parse(saved);
+		    }
+		    
+		    // 获取默认收货地址（新格式）
+		    let defaultAddress = null;
+		    if (userAddresses.receiveAddresses && userAddresses.receiveAddresses.length > 0) {
+		        defaultAddress = userAddresses.receiveAddresses.find(addr => addr.isDefault) || userAddresses.receiveAddresses[0];
+		    }
+		    
+		    // 验证地址是否存在（兼容新旧格式）
+		    const hasAddress = defaultAddress || userAddresses.receiveAddress;
+		    
+		    if (!hasAddress) {
 		        showToast('请先设置收货地址');
 		        closeDirectBuyModal();
 		        openAddressModal();
@@ -7353,8 +7368,10 @@
 		    const shippingFee = subtotal >= 19.9 ? 0 : 8;
 		    const total = subtotal + shippingFee;
 		    
-		    // ========== 修改开始 ==========
-		    // 不直接创建订单，而是存储临时订单信息，跳转到支付选择页面
+		    // 使用获取到的地址信息
+		    const receiverName = defaultAddress ? defaultAddress.name : userAddresses.receiveName;
+		    const receiverPhone = defaultAddress ? defaultAddress.phone : userAddresses.receivePhone;
+		    const receiverAddress = defaultAddress ? defaultAddress.address : userAddresses.receiveAddress;
 		    
 		    // 存储临时订单信息
 		    window.tempDirectBuyOrder = {
@@ -7362,20 +7379,36 @@
 		        qty: qty,
 		        subtotal: subtotal,
 		        shippingFee: shippingFee,
-		        total: total
+		        total: total,
+		        address: {
+		            name: receiverName,
+		            phone: receiverPhone,
+		            address: receiverAddress
+		        }
 		    };
 		    
 		    // 关闭直接购买弹窗
 		    closeDirectBuyModal();
 		    closeProductDetail();
 		    
-		    // 打开支付选择页面（复用购物车支付模态框）
+		    // 打开支付选择页面
 		    openPaymentForDirectBuy(subtotal, shippingFee, total);
-		    // ========== 修改结束 ==========
 		}
 		
 		// 新增：为直接购买打开支付页面
 		function openPaymentForDirectBuy(subtotal, shippingFee, total) {
+		    // 重新加载最新地址
+		    const saved = localStorage.getItem('pobizhe_addresses');
+		    if (saved) {
+		        userAddresses = JSON.parse(saved);
+		    }
+		    
+		    // 获取默认收货地址
+		    let defaultAddress = null;
+		    if (userAddresses.receiveAddresses && userAddresses.receiveAddresses.length > 0) {
+		        defaultAddress = userAddresses.receiveAddresses.find(addr => addr.isDefault) || userAddresses.receiveAddresses[0];
+		    }
+		    
 		    // 更新支付模态框的金额显示
 		    document.getElementById('paymentAmount').textContent = '¥' + subtotal.toFixed(2);
 		    document.getElementById('paymentTotal').textContent = '¥' + total.toFixed(2);
@@ -7391,15 +7424,21 @@
 		    }
 		    
 		    // 更新收货地址显示
-		    const defaultAddress = getDefaultReceiveAddress();
 		    if (defaultAddress) {
-		        document.getElementById('paymentReceiver').textContent = defaultAddress.name || (currentUser ? currentUser.name : '未设置');
-		        document.getElementById('paymentPhone').textContent = defaultAddress.phone || (currentUser ? currentUser.phone : '未设置');
+		        document.getElementById('paymentReceiver').textContent = defaultAddress.name;
+		        document.getElementById('paymentPhone').textContent = defaultAddress.phone;
 		        document.getElementById('paymentAddress').textContent = defaultAddress.address;
+		        document.getElementById('paymentAddress').classList.remove('text-danger');
+		    } else if (userAddresses.receiveAddress) {
+		        // 兼容旧格式
+		        document.getElementById('paymentReceiver').textContent = userAddresses.receiveName || (currentUser ? currentUser.name : '未设置');
+		        document.getElementById('paymentPhone').textContent = userAddresses.receivePhone || (currentUser ? currentUser.phone : '未设置');
+		        document.getElementById('paymentAddress').textContent = userAddresses.receiveAddress;
 		    } else {
-		        document.getElementById('paymentReceiver').textContent = currentUser ? currentUser.name : '未设置';
-		        document.getElementById('paymentPhone').textContent = currentUser ? currentUser.phone : '未设置';
+		        document.getElementById('paymentReceiver').textContent = '请设置收货地址';
+		        document.getElementById('paymentPhone').textContent = '';
 		        document.getElementById('paymentAddress').textContent = '未设置收货地址';
+		        document.getElementById('paymentAddress').classList.add('text-danger');
 		    }
 		    
 		    // 显示支付模态框
