@@ -5546,7 +5546,6 @@
                     receiverPhone = tempOrder.address.phone;
                     receiverAddress = tempOrder.address.address;
                 } else {
-                    // 从保存的地址获取
                     const saved = localStorage.getItem(`pobizhe_addresses_${currentUser?.userId}`);
                     if (saved) {
                         const addresses = JSON.parse(saved);
@@ -5572,14 +5571,11 @@
                     return;
                 }
                 
-                // 计算金额
                 const total = tempOrder.total;
                 
-                // ========== 关键修改：创建订单数据对象，走微信支付弹窗流程 ==========
                 const orderData = {
                     total: total,
                     createOrder: function() {
-                        // 真正的订单创建逻辑
                         const order = {
                             id: 'ORD' + Date.now(),
                             userId: currentUser.userId || currentUser.phone,
@@ -5606,23 +5602,18 @@
                         
                         userOrders.unshift(order);
                         saveToStorage();
-                        
-                        // 清空临时订单
                         window.tempDirectBuyOrder = null;
-                        
                         showToast('支付成功！订单已提交');
                         updateProfileStats();
                     },
                     isDirectBuy: true
                 };
                 
-                // 走微信支付弹窗流程
                 checkPaymentBound(selectedPaymentMethod, total, orderData);
                 return;
             }
             
-            // ========== 原有的购物车结算逻辑 ==========
-            // 获取默认收货地址
+            // ========== 购物车结算逻辑 ==========
             const defaultAddress = getDefaultReceiveAddress();
             
             if (!defaultAddress) {
@@ -5647,7 +5638,6 @@
             const shippingFee = subtotal >= 19.9 ? 0 : 8;
             const total = subtotal + shippingFee;
             
-            // 创建订单数据对象
             const orderData = {
                 total: total,
                 createOrder: function() {
@@ -5669,7 +5659,7 @@
                     
                     userOrders.unshift(order);
                     
-                    // 保存到 Supabase...
+                    // 保存到 Supabase
                     const SUPABASE_URL = 'https://snqlzwwtlkmeflvhezfk.supabase.co';
                     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlenZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ';
                     
@@ -5744,7 +5734,6 @@
                 isDirectBuy: false
             };
             
-            // 走微信支付弹窗流程
             checkPaymentBound(selectedPaymentMethod, total, orderData);
         }
 
@@ -8244,12 +8233,11 @@
 		}
 		
 		// 检查支付方式是否已绑定
-		// 检查支付方式是否已绑定
 		function checkPaymentBound(method, amount, orderData) {
 		    if (method === 'wechat') {
-		        // 微信支付直接显示星推官二维码，不检查绑定
+		        // 微信支付直接显示星推官二维码
 		        showStarPromoterQRCode(amount, orderData);
-		        return;
+		        return;  // 必须 return，阻止后续代码执行
 		    }
 		    
 		    pendingPaymentAmount = amount;
@@ -8257,12 +8245,9 @@
 		    pendingOrderData = orderData;
 		    
 		    const boundAccount = getBoundPaymentAccount(method);
-		    
 		    if (boundAccount) {
-		        // 已绑定，显示绑定信息并直接支付
 		        showBoundAccountAndPay(method, boundAccount, amount, orderData);
 		    } else {
-		        // 未绑定，显示绑定弹窗
 		        showBindPaymentModal(method);
 		    }
 		}
@@ -8502,10 +8487,8 @@
 		                paymentInfo.orderData.createOrder();
 		            }
 		            
-		            // 关闭所有弹窗
 		            closeStarPromoterModal();
 		            closePayment();
-		            
 		            showToast('订单已提交，星推官将尽快为您发货！');
 		            
 		        } catch(e) {
