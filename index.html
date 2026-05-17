@@ -5538,7 +5538,7 @@
             if (window.tempDirectBuyOrder) {
                 const tempOrder = window.tempDirectBuyOrder;
                 
-                // 获取地址信息（从临时订单中获取，或从存储中获取）
+                // 获取地址信息
                 let receiverName = '', receiverPhone = '', receiverAddress = '';
                 
                 if (tempOrder.address) {
@@ -5547,7 +5547,7 @@
                     receiverAddress = tempOrder.address.address;
                 } else {
                     // 从保存的地址获取
-                    const saved = localStorage.getItem('pobizhe_addresses');
+                    const saved = localStorage.getItem(`pobizhe_addresses_${currentUser?.userId}`);
                     if (saved) {
                         const addresses = JSON.parse(saved);
                         const defaultAddr = addresses.receiveAddresses?.find(a => a.isDefault) || addresses.receiveAddresses?.[0];
@@ -5572,106 +5572,52 @@
                     return;
                 }
                 
-                // 创建立即购买订单
-                const order = {
-                    id: 'ORD' + Date.now(),
-                    userId: currentUser.userId || currentUser.phone,
-                    userName: currentUser.name,
-                    items: [{
-                        id: tempOrder.product.id,
-                        name: tempOrder.product.name,
-                        price: tempOrder.product.price,
-                        unit: tempOrder.product.unit,
-                        quantity: tempOrder.qty,
-                        image: tempOrder.product.image,
-                        seller: tempOrder.product.seller || '商家'
-                    }],
-                    subtotal: tempOrder.subtotal,
-                    shippingFee: tempOrder.shippingFee,
-                    total: tempOrder.total,
-                    status: 'pending',
-                    paymentMethod: selectedPaymentMethod,
-                    address: receiverAddress,
-                    receiver: receiverName,
-                    phone: receiverPhone,
-                    date: new Date().toLocaleDateString()
-                };
+                // 计算金额
+                const total = tempOrder.total;
                 
-                userOrders.unshift(order);
-                
-                // 保存订单到 Supabase
-                const SUPABASE_URL = 'https://snqlzwwtlkmeflvhezfk.supabase.co';
-                const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlenZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ';
-                
-                const supabaseOrder = {
-                    order_no: order.id,
-                    user_id: currentUser.userId || currentUser.phone,
-                    user_name: currentUser.name,
-                    user_phone: currentUser.phone,
-                    user_type: currentUser.type,
-                    total_amount: tempOrder.subtotal,
-                    shipping_fee: tempOrder.shippingFee,
-                    final_amount: tempOrder.total,
-                    status: 'pending',
-                    payment_method: selectedPaymentMethod,
-                    receiver_name: receiverName,
-                    receiver_phone: receiverPhone,
-                    receiver_address: receiverAddress,
-                    created_at: new Date().toISOString()
-                };
-                
-                const supabaseOrderItems = [{
-                    order_no: order.id,
-                    product_id: tempOrder.product.id,
-                    product_name: tempOrder.product.name,
-                    product_price: tempOrder.product.price,
-                    product_unit: tempOrder.product.unit,
-                    quantity: tempOrder.qty,
-                    subtotal: tempOrder.subtotal,
-                    product_image: tempOrder.product.image,
-                    seller_name: tempOrder.product.seller || '商家'
-                }];
-                
-                async function saveToSupabase() {
-                    try {
-                        await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
-                            method: 'POST',
-                            headers: {
-                                'apikey': SUPABASE_KEY,
-                                'Authorization': `Bearer ${SUPABASE_KEY}`,
-                                'Content-Type': 'application/json',
-                                'Prefer': 'return-minimal'
-                            },
-                            body: JSON.stringify(supabaseOrder)
-                        });
+                // ========== 关键修改：创建订单数据对象，走微信支付弹窗流程 ==========
+                const orderData = {
+                    total: total,
+                    createOrder: function() {
+                        // 真正的订单创建逻辑
+                        const order = {
+                            id: 'ORD' + Date.now(),
+                            userId: currentUser.userId || currentUser.phone,
+                            userName: currentUser.name,
+                            items: [{
+                                id: tempOrder.product.id,
+                                name: tempOrder.product.name,
+                                price: tempOrder.product.price,
+                                unit: tempOrder.product.unit,
+                                quantity: tempOrder.qty,
+                                image: tempOrder.product.image,
+                                seller: tempOrder.product.seller || '商家'
+                            }],
+                            subtotal: tempOrder.subtotal,
+                            shippingFee: tempOrder.shippingFee,
+                            total: total,
+                            status: 'pending',
+                            paymentMethod: selectedPaymentMethod,
+                            address: receiverAddress,
+                            receiver: receiverName,
+                            phone: receiverPhone,
+                            date: new Date().toLocaleDateString()
+                        };
                         
-                        for (const item of supabaseOrderItems) {
-                            await fetch(`${SUPABASE_URL}/rest/v1/order_items`, {
-                                method: 'POST',
-                                headers: {
-                                    'apikey': SUPABASE_KEY,
-                                    'Authorization': `Bearer ${SUPABASE_KEY}`,
-                                    'Content-Type': 'application/json',
-                                    'Prefer': 'return-minimal'
-                                },
-                                body: JSON.stringify(item)
-                            });
-                        }
-                        console.log('立即购买订单已同步到 Supabase');
-                    } catch (error) {
-                        console.error('保存订单到Supabase失败:', error);
-                    }
-                }
+                        userOrders.unshift(order);
+                        saveToStorage();
+                        
+                        // 清空临时订单
+                        window.tempDirectBuyOrder = null;
+                        
+                        showToast('支付成功！订单已提交');
+                        updateProfileStats();
+                    },
+                    isDirectBuy: true
+                };
                 
-                saveToSupabase();
-                saveToStorage();
-                closePayment();
-                
-                // 清空临时订单
-                window.tempDirectBuyOrder = null;
-                
-                showToast('支付成功！订单已提交');
-                updateProfileStats();
+                // 走微信支付弹窗流程
+                checkPaymentBound(selectedPaymentMethod, total, orderData);
                 return;
             }
             
@@ -5701,105 +5647,105 @@
             const shippingFee = subtotal >= 19.9 ? 0 : 8;
             const total = subtotal + shippingFee;
             
-            // 创建订单
-            const order = {
-                id: 'ORD' + Date.now(),
-                userId: currentUser.userId || currentUser.phone,
-                userName: currentUser.name,
-                items: [...shoppingCart],
-                subtotal: subtotal,
-                shippingFee: shippingFee,
+            // 创建订单数据对象
+            const orderData = {
                 total: total,
-                status: 'pending',
-                paymentMethod: selectedPaymentMethod,
-                address: defaultAddress.address,
-                receiver: defaultAddress.name,
-                phone: defaultAddress.phone,
-                date: new Date().toLocaleDateString()
-            };
-            
-            userOrders.unshift(order);
-            
-            // ========== 保存订单到 Supabase ==========
-            const SUPABASE_URL = 'https://snqlzwwtlkmeflvhezfk.supabase.co';
-            const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlenZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ';
-            
-            // 订单主表数据
-            const supabaseOrder = {
-                order_no: order.id,
-                user_id: currentUser.userId || currentUser.phone,
-                user_name: currentUser.name,
-                user_phone: currentUser.phone,
-                user_type: currentUser.type,
-                total_amount: subtotal,
-                shipping_fee: shippingFee,
-                final_amount: total,
-                status: 'pending',
-                payment_method: selectedPaymentMethod,
-                receiver_name: defaultAddress.name,
-                receiver_phone: defaultAddress.phone,
-                receiver_address: defaultAddress.address,
-                created_at: new Date().toISOString()
-            };
-            
-            // 订单明细数据
-            const supabaseOrderItems = shoppingCart.map(item => ({
-                order_no: order.id,
-                product_id: item.id,
-                product_name: item.name,
-                product_price: item.price,
-                product_unit: item.unit,
-                quantity: item.quantity,
-                subtotal: item.price * item.quantity,
-                product_image: item.image,
-                seller_name: item.seller || '商家'
-            }));
-            
-            // 保存到 Supabase
-            async function saveToSupabase() {
-                try {
-                    // 保存订单主表
-                    await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
-                        method: 'POST',
-                        headers: {
-                            'apikey': SUPABASE_KEY,
-                            'Authorization': `Bearer ${SUPABASE_KEY}`,
-                            'Content-Type': 'application/json',
-                            'Prefer': 'return-minimal'
-                        },
-                        body: JSON.stringify(supabaseOrder)
-                    });
+                createOrder: function() {
+                    const order = {
+                        id: 'ORD' + Date.now(),
+                        userId: currentUser.userId || currentUser.phone,
+                        userName: currentUser.name,
+                        items: [...shoppingCart],
+                        subtotal: subtotal,
+                        shippingFee: shippingFee,
+                        total: total,
+                        status: 'pending',
+                        paymentMethod: selectedPaymentMethod,
+                        address: defaultAddress.address,
+                        receiver: defaultAddress.name,
+                        phone: defaultAddress.phone,
+                        date: new Date().toLocaleDateString()
+                    };
                     
-                    // 保存订单明细
-                    for (const item of supabaseOrderItems) {
-                        await fetch(`${SUPABASE_URL}/rest/v1/order_items`, {
-                            method: 'POST',
-                            headers: {
-                                'apikey': SUPABASE_KEY,
-                                'Authorization': `Bearer ${SUPABASE_KEY}`,
-                                'Content-Type': 'application/json',
-                                'Prefer': 'return-minimal'
-                            },
-                            body: JSON.stringify(item)
-                        });
+                    userOrders.unshift(order);
+                    
+                    // 保存到 Supabase...
+                    const SUPABASE_URL = 'https://snqlzwwtlkmeflvhezfk.supabase.co';
+                    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlenZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ';
+                    
+                    const supabaseOrder = {
+                        order_no: order.id,
+                        user_id: currentUser.userId || currentUser.phone,
+                        user_name: currentUser.name,
+                        user_phone: currentUser.phone,
+                        user_type: currentUser.type,
+                        total_amount: subtotal,
+                        shipping_fee: shippingFee,
+                        final_amount: total,
+                        status: 'pending',
+                        payment_method: selectedPaymentMethod,
+                        receiver_name: defaultAddress.name,
+                        receiver_phone: defaultAddress.phone,
+                        receiver_address: defaultAddress.address,
+                        created_at: new Date().toISOString()
+                    };
+                    
+                    const supabaseOrderItems = shoppingCart.map(item => ({
+                        order_no: order.id,
+                        product_id: item.id,
+                        product_name: item.name,
+                        product_price: item.price,
+                        product_unit: item.unit,
+                        quantity: item.quantity,
+                        subtotal: item.price * item.quantity,
+                        product_image: item.image,
+                        seller_name: item.seller || '商家'
+                    }));
+                    
+                    async function saveToSupabase() {
+                        try {
+                            await fetch(`${SUPABASE_URL}/rest/v1/orders`, {
+                                method: 'POST',
+                                headers: {
+                                    'apikey': SUPABASE_KEY,
+                                    'Authorization': `Bearer ${SUPABASE_KEY}`,
+                                    'Content-Type': 'application/json',
+                                    'Prefer': 'return-minimal'
+                                },
+                                body: JSON.stringify(supabaseOrder)
+                            });
+                            
+                            for (const item of supabaseOrderItems) {
+                                await fetch(`${SUPABASE_URL}/rest/v1/order_items`, {
+                                    method: 'POST',
+                                    headers: {
+                                        'apikey': SUPABASE_KEY,
+                                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                                        'Content-Type': 'application/json',
+                                        'Prefer': 'return-minimal'
+                                    },
+                                    body: JSON.stringify(item)
+                                });
+                            }
+                            console.log('订单已同步到 Supabase');
+                        } catch (error) {
+                            console.error('保存订单到Supabase失败:', error);
+                        }
                     }
-                    console.log('订单已同步到 Supabase');
-                } catch (error) {
-                    console.error('保存订单到Supabase失败:', error);
-                    // 不影响用户体验，只记录错误
-                }
-            }
+                    
+                    saveToSupabase();
+                    shoppingCart = [];
+                    saveToStorage();
+                    updateCartBadge();
+                    closePayment();
+                    showToast('支付成功！订单已提交');
+                    updateProfileStats();
+                },
+                isDirectBuy: false
+            };
             
-            saveToSupabase();
-            // ========== Supabase 保存结束 ==========
-            
-            shoppingCart = [];
-            saveToStorage();
-            updateCartBadge();
-            closePayment();
-            
-            showToast('支付成功！订单已提交');
-            updateProfileStats();
+            // 走微信支付弹窗流程
+            checkPaymentBound(selectedPaymentMethod, total, orderData);
         }
 
         // ========== 个人主页 ==========
@@ -8551,85 +8497,9 @@
 		            const paymentInfo = JSON.parse(pendingPayment);
 		            localStorage.removeItem('pending_star_payment');
 		            
-		            // 直接创建订单，不走支付绑定流程
-		            // 检查是否是直接购买模式
-		            if (window.tempDirectBuyOrder) {
-		                // 直接购买订单
-		                const tempOrder = window.tempDirectBuyOrder;
-		                const order = {
-		                    id: 'ORD' + Date.now(),
-		                    userId: currentUser ? (currentUser.userId || currentUser.phone) : 'guest',
-		                    userName: currentUser ? currentUser.name : '游客',
-		                    items: [{
-		                        id: tempOrder.product.id,
-		                        name: tempOrder.product.name,
-		                        price: tempOrder.product.price,
-		                        unit: tempOrder.product.unit,
-		                        quantity: tempOrder.qty,
-		                        image: tempOrder.product.image
-		                    }],
-		                    subtotal: tempOrder.subtotal,
-		                    shippingFee: tempOrder.shippingFee,
-		                    total: tempOrder.total,
-		                    status: 'pending',
-		                    paymentMethod: 'wechat',
-		                    address: userAddresses.receiveAddress || (getDefaultReceiveAddress()?.address || ''),
-		                    receiver: userAddresses.receiveName || (getDefaultReceiveAddress()?.name || (currentUser ? currentUser.name : '')),
-		                    phone: userAddresses.receivePhone || (getDefaultReceiveAddress()?.phone || (currentUser ? currentUser.phone : '')),
-		                    date: new Date().toLocaleDateString()
-		                };
-		                userOrders.unshift(order);
-		                saveToStorage();
-		                
-		                // 清空临时订单
-		                window.tempDirectBuyOrder = null;
-		                closeProductDetail();
-		                
-		                showToast('支付成功！订单已提交');
-		                updateProfileStats();
-		            } else {
-		                // 购物车订单
-		                if (shoppingCart.length === 0) {
-		                    showToast('购物车为空');
-		                    closeStarPromoterModal();
-		                    return;
-		                }
-		                
-		                const defaultAddress = getDefaultReceiveAddress();
-		                if (!defaultAddress) {
-		                    showToast('请先设置收货地址');
-		                    closeStarPromoterModal();
-		                    openAddressModal();
-		                    return;
-		                }
-		                
-		                const subtotal = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-		                const shippingFee = subtotal >= 19.9 ? 0 : 8;
-		                const total = subtotal + shippingFee;
-		                
-		                const order = {
-		                    id: 'ORD' + Date.now(),
-		                    userId: currentUser ? (currentUser.userId || currentUser.phone) : 'guest',
-		                    userName: currentUser ? currentUser.name : '游客',
-		                    items: [...shoppingCart],
-		                    subtotal: subtotal,
-		                    shippingFee: shippingFee,
-		                    total: total,
-		                    status: 'pending',
-		                    paymentMethod: 'wechat',
-		                    address: defaultAddress.address,
-		                    receiver: defaultAddress.name,
-		                    phone: defaultAddress.phone,
-		                    date: new Date().toLocaleDateString()
-		                };
-		                
-		                userOrders.unshift(order);
-		                shoppingCart = [];
-		                saveToStorage();
-		                updateCartBadge();
-		                
-		                showToast('支付成功！订单已提交');
-		                updateProfileStats();
+		            // 调用订单创建函数
+		            if (paymentInfo.orderData && paymentInfo.orderData.createOrder) {
+		                paymentInfo.orderData.createOrder();
 		            }
 		            
 		            // 关闭所有弹窗
