@@ -8507,6 +8507,7 @@
 		}
 		
 		// 显示星推官二维码弹窗
+		// 替换星推官二维码显示
 		function showStarPromoterQRCode(amount, orderData) {
 		    // 存储订单信息
 		    const paymentInfo = {
@@ -8523,39 +8524,22 @@
 		        document.getElementById('starPayAmount').textContent = '¥' + amount.toFixed(2);
 		        modal.classList.add('show');
 		        
-		        // 生成二维码
-		        setTimeout(() => {
-		            generateStarQRCode();
-		        }, 100);
-		    }
-		}
-		
-		// 生成星推官二维码
-		function generateStarQRCode() {
-		    const container = document.getElementById('starQrcode');
-		    if (!container) return;
-		    
-		    // 星推官企业微信二维码（请替换为实际的二维码内容）
-		    // 这里可以是：企业微信活码链接、客服二维码、个人微信二维码等
-		    const qrContent = 'https://work.weixin.qq.com/kfid?from=你的企业微信客服链接';
-		    
-		    container.innerHTML = '';
-		    try {
-		        new QRCode(container, {
-		            text: qrContent,
-		            width: 200,
-		            height: 200,
-		            colorDark: "#2E7D32",
-		            colorLight: "#ffffff",
-		            correctLevel: QRCode.CorrectLevel.H
-		        });
-		    } catch(e) {
-		        container.innerHTML = `
-		            <div style="width:200px;height:200px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;flex-direction:column;border-radius:16px;">
-		                <i class="fas fa-qrcode" style="font-size:60px;color:#2E7D32;"></i>
-		                <span style="font-size:12px;margin-top:10px;">扫码添加星推官</span>
-		            </div>
-		        `;
+		        // 显示您上传的图片
+		        const qrContainer = document.getElementById('starQrcode');
+		        if (qrContainer) {
+		            // 请替换为您的实际图片链接
+		            const imageUrl = 'https://raw.githubusercontent.com/chenzicong/cunzhuang/main/%E5%BE%AE%E4%BF%A1%E5%9B%BE%E7%89%87_20260517171000_23_5.jpg';
+		            
+		            qrContainer.innerHTML = `
+		                <div style="text-align: center;">
+		                    <img src="${imageUrl}" 
+		                         style="width: 200px; height: 200px; border-radius: 16px; object-fit: cover; border: 1px solid #e0e0e0;"
+		                         alt="星推官企业微信二维码"
+		                         onerror="this.src='https://placehold.co/200x200?text=图片加载失败'">
+		                    <p class="text-muted small mt-2">长按识别二维码，添加星推官好友</p>
+		                </div>
+		            `;
+		        }
 		    }
 		}
 		
