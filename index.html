@@ -3031,52 +3031,56 @@
 				    </select>
 				</div>
 				
-				<!-- ========== 新增：商品类目（多选） ========== -->
+				<!-- 主营商品类目（可多选）-->
 				<div class="mb-3">
-				    <label class="form-label fw-bold">📦 主营商品类目（可多选）</label>
+				    <label class="form-label fw-bold">主营商品类目（可多选）</label>
 				    <div class="row">
-				        <div class="col-md-3 col-4">
+				        <div class="col-md-3 col-6">
 				            <div class="form-check">
-				                <input class="form-check-input" type="checkbox" id="categoryFruit">
-				                <label class="form-check-label" for="categoryFruit">水果</label>
+				                <input class="form-check-input" type="checkbox" value="水果" id="catFruit">
+				                <label class="form-check-label" for="catFruit">水果</label>
 				            </div>
 				        </div>
-				        <div class="col-md-3 col-4">
+				        <div class="col-md-3 col-6">
 				            <div class="form-check">
-				                <input class="form-check-input" type="checkbox" id="categoryVegetable">
-				                <label class="form-check-label" for="categoryVegetable">蔬菜</label>
+				                <input class="form-check-input" type="checkbox" value="蔬菜" id="catVeg">
+				                <label class="form-check-label" for="catVeg">蔬菜</label>
 				            </div>
 				        </div>
-				        <div class="col-md-3 col-4">
+				        <div class="col-md-3 col-6">
 				            <div class="form-check">
-				                <input class="form-check-input" type="checkbox" id="categoryDry">
-				                <label class="form-check-label" for="categoryDry">干货</label>
+				                <input class="form-check-input" type="checkbox" value="干货" id="catDry">
+				                <label class="form-check-label" for="catDry">干货</label>
 				            </div>
 				        </div>
-				        <div class="col-md-3 col-4">
+				        <div class="col-md-3 col-6">
 				            <div class="form-check">
-				                <input class="form-check-input" type="checkbox" id="categoryEgg">
-				                <label class="form-check-label" for="categoryEgg">禽蛋</label>
+				                <input class="form-check-input" type="checkbox" value="禽蛋" id="catEgg">
+				                <label class="form-check-label" for="catEgg">禽蛋</label>
 				            </div>
 				        </div>
-				        <div class="col-md-3 col-4">
+				        <div class="col-md-3 col-6">
 				            <div class="form-check">
-				                <input class="form-check-input" type="checkbox" id="categoryGrain">
-				                <label class="form-check-label" for="categoryGrain">粮油米面</label>
+				                <input class="form-check-input" type="checkbox" value="粮油米面" id="catGrain">
+				                <label class="form-check-label" for="catGrain">粮油米面</label>
 				            </div>
 				        </div>
-				        <div class="col-md-3 col-4">
+				        <div class="col-md-3 col-6">
 				            <div class="form-check">
-				                <input class="form-check-input" type="checkbox" id="categorySeafood">
-				                <label class="form-check-label" for="categorySeafood">水产海鲜</label>
+				                <input class="form-check-input" type="checkbox" value="水产海鲜" id="catSeafood">
+				                <label class="form-check-label" for="catSeafood">水产海鲜</label>
 				            </div>
 				        </div>
-				        <div class="col-md-3 col-4">
+				        <div class="col-md-3 col-6">
 				            <div class="form-check">
-				                <input class="form-check-input" type="checkbox" id="categoryOther">
-				                <label class="form-check-label" for="categoryOther">其他</label>
+				                <input class="form-check-input" type="checkbox" id="catOther" onclick="toggleCategoryOtherInput()">
+				                <label class="form-check-label" for="catOther">其他</label>
 				            </div>
 				        </div>
+				    </div>
+				    <!-- 文本框区域：勾选“其他”后显示 -->
+				    <div id="categoryOtherDiv" style="display: none; margin-top: 12px; margin-left: 12px;">
+				        <input type="text" class="form-control" id="categoryOtherText" placeholder="请填写主营商品类目" style="max-width: 300px;">
 				    </div>
 				</div>
 				
@@ -7054,6 +7058,12 @@
 		    reader.readAsDataURL(file);
 		}
 		
+		function toggleCategoryOtherInput() {
+		    var chk = document.getElementById('catOther');
+		    var div = document.getElementById('categoryOtherDiv');
+		    div.style.display = chk.checked ? 'block' : 'none';
+		}
+		
 		function toggleOtherInput() {
 		    var chk = document.getElementById('painOther');
 		    var div = document.getElementById('otherTextDiv');
@@ -7065,7 +7075,7 @@
         function addProductItem() {
             productCount++;
             const container = document.getElementById('merchantApplyForm');
-            const newProductHtml = `
+            const newProductHtml = 
                 <div class="card p-3 mb-3" id="productItem${productCount}">
                     <div class="d-flex justify-content-between mb-2">
                         <strong>商品 ${productCount}</strong>
