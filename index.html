@@ -3243,9 +3243,13 @@
 				        </div>
 				        <div class="col-md-3 col-6">
 				            <div class="form-check">
-				                <input class="form-check-input" type="checkbox" id="painOther">
+				                <input class="form-check-input" type="checkbox" id="painOther" onclick="toggleOtherInput()">
 				                <label class="form-check-label" for="painOther">其他</label>
 				            </div>
+				        </div>
+				        <!-- 文本框区域，初始隐藏 -->
+				        <div id="otherTextDiv" style="display: none; margin-top: 10px; margin-left: 20px;" class="col-12">
+				            <input type="text" class="form-control" id="otherPainText" placeholder="请填写具体困难...">
 				        </div>
 				    </div>
 				</div>
@@ -7048,6 +7052,12 @@
 		        showToast('质检报告上传成功');
 		    };
 		    reader.readAsDataURL(file);
+		}
+		
+		function toggleOtherInput() {
+		    var chk = document.getElementById('painOther');
+		    var div = document.getElementById('otherTextDiv');
+		    div.style.display = chk.checked ? 'block' : 'none';
 		}
 		
         let productCount = 1;
