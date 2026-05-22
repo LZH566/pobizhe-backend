@@ -3395,6 +3395,182 @@
                     </div>
                     <small class="text-muted">商家填写发货地，精确到镇或村</small>
                 </div>
+				
+				<!-- ========== 商品资料（支持多商品，至少3张实拍图，AI代写描述）========== -->
+				<div class="mb-4">
+				    <div class="d-flex justify-content-between align-items-center mb-3">
+				        <label class="form-label fw-bold mb-0">
+				            <i class="fas fa-box me-2"></i>商品资料 
+				            <span class="text-danger">*</span>
+				            <small class="text-muted">（至少添加1个商品，支持多个）</small>
+				        </label>
+				        <button type="button" class="btn btn-sm btn-outline-success" onclick="addMerchantProductItem()">
+				            <i class="fas fa-plus me-1"></i>添加商品
+				        </button>
+				    </div>
+				    
+				    <!-- 商品列表容器 -->
+				    <div id="merchantProductsContainer">
+				        <!-- 默认商品1 -->
+				        <div class="card p-3 mb-3" id="merchantProductItem1">
+				            <div class="d-flex justify-content-between mb-2">
+				                <strong><i class="fas fa-apple-alt me-1"></i>商品 1</strong>
+				                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeMerchantProductItem(1)">删除</button>
+				            </div>
+				            
+				            <!-- 商品名称 -->
+				            <div class="row mb-2">
+				                <div class="col-md-12">
+				                    <label class="form-label">商品名称 <span class="text-danger">*</span></label>
+				                    <div class="input-group">
+				                        <input type="text" class="form-control" id="merchantProdName1" placeholder="例如：红富士苹果">
+				                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantProdName1')">
+				                            <i class="fas fa-microphone"></i>
+				                        </button>
+				                    </div>
+				                </div>
+				            </div>
+				            
+				            <!-- 价格 + 规格 + 产地 -->
+				            <div class="row mb-2">
+				                <div class="col-md-3">
+				                    <label class="form-label">价格（元）<span class="text-danger">*</span></label>
+				                    <div class="input-group">
+				                        <input type="number" step="0.1" class="form-control" id="merchantProdPrice1" placeholder="例如：5.5">
+				                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantProdPrice1')">
+				                            <i class="fas fa-microphone"></i>
+				                        </button>
+				                    </div>
+				                </div>
+				                <div class="col-md-3">
+				                    <label class="form-label">规格</label>
+				                    <select class="form-select" id="merchantProdUnit1">
+				                        <option value="斤">斤</option><option value="箱">箱</option><option value="份">份</option>
+				                        <option value="个">个</option><option value="只">只</option><option value="两">两</option>
+				                    </select>
+				                </div>
+				                <div class="col-md-3">
+				                    <label class="form-label">产地 <span class="text-danger">*</span></label>
+				                    <div class="input-group">
+				                        <input type="text" class="form-control" id="merchantProdOrigin1" placeholder="产地">
+				                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantProdOrigin1')">
+				                            <i class="fas fa-microphone"></i>
+				                        </button>
+				                    </div>
+				                </div>
+				                <div class="col-md-3">
+				                    <label class="form-label">库存数量</label>
+				                    <div class="input-group">
+				                        <input type="number" class="form-control" id="merchantProdStock1" placeholder="例如：1000">
+				                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantProdStock1')">
+				                            <i class="fas fa-microphone"></i>
+				                        </button>
+				                    </div>
+				                </div>
+				            </div>
+				            
+				            <!-- 商品实拍图（至少3张） -->
+				            <div class="mb-2">
+				                <label class="form-label">商品实拍图 <span class="text-danger">*</span> <small class="text-muted">（至少3张）</small></label>
+				                <div class="d-flex gap-2 flex-wrap" id="merchantProductImages1">
+				                    <!-- 图片1 -->
+				                    <div class="product-img-upload" data-product="1" data-img="1" 
+				                         style="width: 80px; height: 80px; border: 2px dashed #ccc; border-radius: 10px; 
+				                                display: flex; align-items: center; justify-content: center; flex-direction: column;
+				                                cursor: pointer; background: #f8f9fa;" 
+				                         onclick="openProductImageUpload(1, 1)">
+				                        <i class="fas fa-plus text-secondary"></i>
+				                        <small>图片1</small>
+				                    </div>
+				                    <input type="file" id="merchantProductImg1_1" accept="image/*" style="display: none;" 
+				                           onchange="handleMerchantProductImageUpload(event, 1, 1)">
+				                    
+				                    <!-- 图片2 -->
+				                    <div class="product-img-upload" data-product="1" data-img="2" 
+				                         style="width: 80px; height: 80px; border: 2px dashed #ccc; border-radius: 10px; 
+				                                display: flex; align-items: center; justify-content: center; flex-direction: column;
+				                                cursor: pointer; background: #f8f9fa;" 
+				                         onclick="openProductImageUpload(1, 2)">
+				                        <i class="fas fa-plus text-secondary"></i>
+				                        <small>图片2</small>
+				                    </div>
+				                    <input type="file" id="merchantProductImg1_2" accept="image/*" style="display: none;" 
+				                           onchange="handleMerchantProductImageUpload(event, 1, 2)">
+				                    
+				                    <!-- 图片3 -->
+				                    <div class="product-img-upload" data-product="1" data-img="3" 
+				                         style="width: 80px; height: 80px; border: 2px dashed #ccc; border-radius: 10px; 
+				                                display: flex; align-items: center; justify-content: center; flex-direction: column;
+				                                cursor: pointer; background: #f8f9fa;" 
+				                         onclick="openProductImageUpload(1, 3)">
+				                        <i class="fas fa-plus text-secondary"></i>
+				                        <small>图片3</small>
+				                    </div>
+				                    <input type="file" id="merchantProductImg1_3" accept="image/*" style="display: none;" 
+				                           onchange="handleMerchantProductImageUpload(event, 1, 3)">
+				                    
+				                    <!-- 图片4（可选） -->
+				                    <div class="product-img-upload" data-product="1" data-img="4" 
+				                         style="width: 80px; height: 80px; border: 2px dashed #ccc; border-radius: 10px; 
+				                                display: flex; align-items: center; justify-content: center; flex-direction: column;
+				                                cursor: pointer; background: #f8f9fa;" 
+				                         onclick="openProductImageUpload(1, 4)">
+				                        <i class="fas fa-plus text-secondary"></i>
+				                        <small>图片4</small>
+				                    </div>
+				                    <input type="file" id="merchantProductImg1_4" accept="image/*" style="display: none;" 
+				                           onchange="handleMerchantProductImageUpload(event, 1, 4)">
+				                    
+				                    <!-- 图片5（可选） -->
+				                    <div class="product-img-upload" data-product="1" data-img="5" 
+				                         style="width: 80px; height: 80px; border: 2px dashed #ccc; border-radius: 10px; 
+				                                display: flex; align-items: center; justify-content: center; flex-direction: column;
+				                                cursor: pointer; background: #f8f9fa;" 
+				                         onclick="openProductImageUpload(1, 5)">
+				                        <i class="fas fa-plus text-secondary"></i>
+				                        <small>图片5</small>
+				                    </div>
+				                    <input type="file" id="merchantProductImg1_5" accept="image/*" style="display: none;" 
+				                           onchange="handleMerchantProductImageUpload(event, 1, 5)">
+				                </div>
+				                <div id="merchantProductImgWarning1" class="text-danger small mt-1" style="display: none;">
+				                    ⚠️ 请至少上传3张商品实拍图
+				                </div>
+				            </div>
+				            
+				            <!-- 商品描述 + AI代写开关 -->
+				            <div class="row">
+				                <div class="col-md-12">
+				                    <div class="d-flex justify-content-between align-items-center mb-1">
+				                        <label class="form-label mb-0">商品描述</label>
+				                        <div class="form-check form-switch">
+				                            <input class="form-check-input" type="checkbox" id="merchantProdAi1" onchange="toggleAiDescription(1)">
+				                            <label class="form-check-label small" for="merchantProdAi1">
+				                                <i class="fas fa-robot text-success"></i> AI代写
+				                            </label>
+				                        </div>
+				                    </div>
+				                    <div class="input-group">
+				                        <textarea class="form-control" id="merchantProdDesc1" rows="2" placeholder="例如：自家种植，新鲜采摘..."></textarea>
+				                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantProdDesc1')">
+				                            <i class="fas fa-microphone"></i>
+				                        </button>
+				                    </div>
+				                </div>
+				            </div>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- 商品图片预览模板（动态生成用）-->
+				<template id="productImageUploadTemplate">
+				    <div class="product-img-upload" style="width: 80px; height: 80px; border: 2px dashed #ccc; border-radius: 10px; 
+				                display: flex; align-items: center; justify-content: center; flex-direction: column;
+				                cursor: pointer; background: #f8f9fa;">
+				        <i class="fas fa-plus text-secondary"></i>
+				        <small>图片X</small>
+				    </div>
+				</template>
                 
                 <!-- 同意协议 -->
                 <div class="mb-4 form-check">
@@ -4073,8 +4249,7 @@
 		    }
 		}
 		
-		// 切换注册/登录选项卡
-		// 切换注册/登录选项卡（三选项卡版本）- 保留这个
+		// 切换注册/登录选项卡（三选项卡版本）
 		function switchAuthTab(type) {
 		    const loginPanel = document.getElementById('loginPanel');
 		    const customerPanel = document.getElementById('customerRegisterPanel');
@@ -4756,6 +4931,12 @@
 		    if (document.getElementById('serviceTraining')?.checked) services.push('培训指导');
 		    if (document.getElementById('serviceTraffic')?.checked) services.push('流量扶持');
 		    
+			// ========== 收集商品数据 ==========
+			const merchantProductsData = collectMerchantProducts();
+			if (!merchantProductsData) {
+			    return;  // 商品验证失败，停止提交
+			}
+			
 		    // ========== 保存头像 ==========
 		    const avatarImg = document.querySelector('#merchantAvatarPreview img');
 		    if (avatarImg) {
@@ -4776,6 +4957,7 @@
 		        address: shipAddress,
 		        verified: false,
 		        isApplying: true,
+				products: merchantProductsData, 
 		        merchantInfo: {
 		            entityType: entityType,
 		            idNumber: idNumber,
@@ -4818,6 +5000,29 @@
 		        merchantInfo: newUser.merchantInfo,
 		        registerDate: newUser.registerDate
 		    };
+			
+			// ========== 自动上架商品到首页 ==========
+			if (merchantProductsData && merchantProductsData.length > 0) {
+			    for (const prod of merchantProductsData) {
+			        const newProduct = {
+			            id: prod.id,
+			            name: prod.name,
+			            price: prod.price,
+			            unit: prod.unit,
+			            image: prod.mainImage,
+			            seller: shopName || legalName,
+			            badge: '新店推荐',
+			            address: prod.origin || origin,
+			            description: prod.description,
+			            stock: prod.stock,
+			            isCertified: false,
+			            images: prod.images
+			        };
+			        products.unshift(newProduct);
+			    }
+			    loadProducts();  // 刷新商品列表
+			    showToast(`已自动上架 ${merchantProductsData.length} 个商品到首页！`);
+			}
 		    
 		    saveToStorage();
 		    updateUserInfo();
@@ -7068,6 +7273,239 @@
 		    var chk = document.getElementById('painOther');
 		    var div = document.getElementById('otherTextDiv');
 		    div.style.display = chk.checked ? 'block' : 'none';
+		}
+		
+		// ========== 商家入驻商品管理 ==========
+		let merchantProductCount = 1;
+		let merchantProductImages = {};  // 存储商品图片 { productId: { imgIndex: dataURL } }
+		
+		// 添加商品
+		function addMerchantProductItem() {
+		    merchantProductCount++;
+		    const container = document.getElementById('merchantProductsContainer');
+		    const newProductHtml = `
+		        <div class="card p-3 mb-3" id="merchantProductItem${merchantProductCount}">
+		            <div class="d-flex justify-content-between mb-2">
+		                <strong><i class="fas fa-apple-alt me-1"></i>商品 ${merchantProductCount}</strong>
+		                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeMerchantProductItem(${merchantProductCount})">删除</button>
+		            </div>
+		            <div class="row mb-2">
+		                <div class="col-md-12">
+		                    <label class="form-label">商品名称 <span class="text-danger">*</span></label>
+		                    <div class="input-group">
+		                        <input type="text" class="form-control" id="merchantProdName${merchantProductCount}" placeholder="例如：红富士苹果">
+		                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantProdName${merchantProductCount}')">
+		                            <i class="fas fa-microphone"></i>
+		                        </button>
+		                    </div>
+		                </div>
+		            </div>
+		            <div class="row mb-2">
+		                <div class="col-md-3">
+		                    <label class="form-label">价格（元）<span class="text-danger">*</span></label>
+		                    <div class="input-group">
+		                        <input type="number" step="0.1" class="form-control" id="merchantProdPrice${merchantProductCount}" placeholder="例如：5.5">
+		                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantProdPrice${merchantProductCount}')">
+		                            <i class="fas fa-microphone"></i>
+		                        </button>
+		                    </div>
+		                </div>
+		                <div class="col-md-3">
+		                    <label class="form-label">规格</label>
+		                    <select class="form-select" id="merchantProdUnit${merchantProductCount}">
+		                        <option value="斤">斤</option><option value="箱">箱</option><option value="份">份</option>
+		                        <option value="个">个</option><option value="只">只</option><option value="两">两</option>
+		                    </select>
+		                </div>
+		                <div class="col-md-3">
+		                    <label class="form-label">产地 <span class="text-danger">*</span></label>
+		                    <div class="input-group">
+		                        <input type="text" class="form-control" id="merchantProdOrigin${merchantProductCount}" placeholder="产地">
+		                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantProdOrigin${merchantProductCount}')">
+		                            <i class="fas fa-microphone"></i>
+		                        </button>
+		                    </div>
+		                </div>
+		                <div class="col-md-3">
+		                    <label class="form-label">库存数量</label>
+		                    <div class="input-group">
+		                        <input type="number" class="form-control" id="merchantProdStock${merchantProductCount}" placeholder="例如：1000">
+		                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantProdStock${merchantProductCount}')">
+		                            <i class="fas fa-microphone"></i>
+		                        </button>
+		                    </div>
+		                </div>
+		            </div>
+		            <div class="mb-2">
+		                <label class="form-label">商品实拍图 <span class="text-danger">*</span> <small class="text-muted">（至少3张）</small></label>
+		                <div class="d-flex gap-2 flex-wrap" id="merchantProductImages${merchantProductCount}">
+		                    ${generateImageUploadDivs(merchantProductCount)}
+		                </div>
+		                <div id="merchantProductImgWarning${merchantProductCount}" class="text-danger small mt-1" style="display: none;">
+		                    ⚠️ 请至少上传3张商品实拍图
+		                </div>
+		            </div>
+		            <div class="row">
+		                <div class="col-md-12">
+		                    <div class="d-flex justify-content-between align-items-center mb-1">
+		                        <label class="form-label mb-0">商品描述</label>
+		                        <div class="form-check form-switch">
+		                            <input class="form-check-input" type="checkbox" id="merchantProdAi${merchantProductCount}" onchange="toggleAiDescription(${merchantProductCount})">
+		                            <label class="form-check-label small" for="merchantProdAi${merchantProductCount}">
+		                                <i class="fas fa-robot text-success"></i> AI代写
+		                            </label>
+		                        </div>
+		                    </div>
+		                    <div class="input-group">
+		                        <textarea class="form-control" id="merchantProdDesc${merchantProductCount}" rows="2" placeholder="例如：自家种植，新鲜采摘..."></textarea>
+		                        <button class="btn btn-success" type="button" onclick="startFieldVoiceInput('merchantProdDesc${merchantProductCount}')">
+		                            <i class="fas fa-microphone"></i>
+		                        </button>
+		                    </div>
+		                </div>
+		            </div>
+		        </div>
+		    `;
+		    container.insertAdjacentHTML('beforeend', newProductHtml);
+		}
+		
+		// 生成图片上传div
+		function generateImageUploadDivs(productId) {
+		    let html = '';
+		    for (let i = 1; i <= 5; i++) {
+		        html += `
+		            <div class="product-img-upload" data-product="${productId}" data-img="${i}" 
+		                 style="width: 80px; height: 80px; border: 2px dashed #ccc; border-radius: 10px; 
+		                        display: flex; align-items: center; justify-content: center; flex-direction: column;
+		                        cursor: pointer; background: #f8f9fa;" 
+		                 onclick="openProductImageUpload(${productId}, ${i})">
+		                <i class="fas fa-plus text-secondary"></i>
+		                <small>图片${i}</small>
+		            </div>
+		            <input type="file" id="merchantProductImg${productId}_${i}" accept="image/*" style="display: none;" 
+		                   onchange="handleMerchantProductImageUpload(event, ${productId}, ${i})">
+		        `;
+		    }
+		    return html;
+		}
+		
+		// 删除商品
+		function removeMerchantProductItem(id) {
+		    const item = document.getElementById(`merchantProductItem${id}`);
+		    if (item) item.remove();
+		}
+		
+		// 打开图片上传
+		function openProductImageUpload(productId, imgIndex) {
+		    document.getElementById(`merchantProductImg${productId}_${imgIndex}`).click();
+		}
+		
+		// 处理图片上传
+		function handleMerchantProductImageUpload(event, productId, imgIndex) {
+		    const file = event.target.files[0];
+		    if (!file) return;
+		    
+		    if (!merchantProductImages[productId]) merchantProductImages[productId] = {};
+		    
+		    const reader = new FileReader();
+		    reader.onload = function(e) {
+		        merchantProductImages[productId][imgIndex] = e.target.result;
+		        
+		        // 更新UI
+		        const uploadDiv = document.querySelector(`.product-img-upload[data-product="${productId}"][data-img="${imgIndex}"]`);
+		        if (uploadDiv) {
+		            uploadDiv.style.background = `url(${e.target.result}) center/cover no-repeat`;
+		            uploadDiv.style.border = '2px solid #2E7D32';
+		            uploadDiv.innerHTML = '';
+		            const checkIcon = document.createElement('i');
+		            checkIcon.className = 'fas fa-check-circle text-success';
+		            checkIcon.style.fontSize = '24px';
+		            uploadDiv.appendChild(checkIcon);
+		        }
+		        
+		        // 验证图片数量
+		        validateProductImages(productId);
+		    };
+		    reader.readAsDataURL(file);
+		}
+		
+		// 验证商品图片是否至少3张
+		function validateProductImages(productId) {
+		    const images = merchantProductImages[productId] || {};
+		    const imageCount = Object.keys(images).length;
+		    const warningDiv = document.getElementById(`merchantProductImgWarning${productId}`);
+		    if (warningDiv) {
+		        warningDiv.style.display = imageCount >= 3 ? 'none' : 'block';
+		    }
+		    return imageCount >= 3;
+		}
+		
+		// AI代写描述
+		function toggleAiDescription(productId) {
+		    const aiCheckbox = document.getElementById(`merchantProdAi${productId}`);
+		    const descTextarea = document.getElementById(`merchantProdDesc${productId}`);
+		    const nameInput = document.getElementById(`merchantProdName${productId}`);
+		    const priceInput = document.getElementById(`merchantProdPrice${productId}`);
+		    const originInput = document.getElementById(`merchantProdOrigin${productId}`);
+		    
+		    if (aiCheckbox.checked) {
+		        const productName = nameInput?.value || '商品';
+		        const price = priceInput?.value || '实惠';
+		        const origin = originInput?.value || '原产地';
+		        const generatedDesc = `【${productName}】产自${origin}，新鲜采摘，品质保证！仅售¥${price}，源头直供，健康美味，坏果包赔，售后无忧！`;
+		        descTextarea.value = generatedDesc;
+		    }
+		}
+		
+		// 收集所有商品数据
+		function collectMerchantProducts() {
+		    const products = [];
+		    const productItems = document.querySelectorAll('[id^="merchantProductItem"]');
+		    
+		    for (let i = 0; i < productItems.length; i++) {
+		        const item = productItems[i];
+		        const idMatch = item.id.match(/\d+$/);
+		        if (!idMatch) continue;
+		        const pid = idMatch[0];
+		        
+		        const name = document.getElementById(`merchantProdName${pid}`)?.value;
+		        if (!name) continue; // 跳过没有名称的商品
+		        
+		        const price = parseFloat(document.getElementById(`merchantProdPrice${pid}`)?.value) || 0;
+		        const unit = document.getElementById(`merchantProdUnit${pid}`)?.value || '斤';
+		        const origin = document.getElementById(`merchantProdOrigin${pid}`)?.value || '';
+		        const stock = parseInt(document.getElementById(`merchantProdStock${pid}`)?.value) || 0;
+		        const description = document.getElementById(`merchantProdDesc${pid}`)?.value || '';
+		        
+		        // 获取图片
+		        const images = merchantProductImages[pid] || {};
+		        const imageUrls = Object.values(images);
+		        
+		        // 验证图片至少3张
+		        if (imageUrls.length < 3) {
+		            showToast(`商品「${name}」请至少上传3张实拍图`);
+		            return null;
+		        }
+		        
+		        products.push({
+		            id: Date.now() + pid,
+		            name: name,
+		            price: price,
+		            unit: unit,
+		            origin: origin,
+		            stock: stock,
+		            description: description,
+		            images: imageUrls,
+		            mainImage: imageUrls[0]
+		        });
+		    }
+		    
+		    if (products.length === 0) {
+		        showToast('请至少添加1个商品');
+		        return null;
+		    }
+		    
+		    return products;
 		}
 		
         let productCount = 1;
