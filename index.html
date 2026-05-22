@@ -4929,9 +4929,11 @@
 		}
 
 		
-		// 商家注册处理
 		// 商家注册处理 - 同时保存到本地和后端
-		async function handleMerchantRegister() {
+		async function handleMerchantRegister(event) {  // 👈 加上 event 参数
+		    const submitBtn = event.target;  // 👈 在函数最开头获取按钮
+		    const originalText = submitBtn.innerHTML;
+		    
 		    const entityType = document.getElementById('merchantEntityType')?.value;
 		    const legalName = document.getElementById('merchantLegalName')?.value;
 		    const idNumber = document.getElementById('merchantIdNumber')?.value;
@@ -5123,9 +5125,7 @@
 		        apply_date: new Date().toISOString()
 		    };
 		    
-		    // ========== 获取提交按钮，显示加载状态 ==========
-		    const submitBtn = event.target;
-		    const originalText = submitBtn.innerHTML;
+		    // ========== 显示加载状态 ==========
 		    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>提交中...';
 		    submitBtn.disabled = true;
 		    
@@ -5140,19 +5140,25 @@
 		        });
 		        
 		        const result = await response.json();
+		        console.log('后端响应:', result);
 		        
 		        if (result.success) {
 		            backendSuccess = true;
-		            console.log('✅ 后端保存成功');
 		        } else {
-		            console.warn('后端返回失败:', result.message);
+		            showToast('提交失败：' + (result.message || '请重试'));
+		            submitBtn.innerHTML = originalText;
+		            submitBtn.disabled = false;
+		            return;
 		        }
 		    } catch (error) {
 		        console.error('❌ 后端保存失败:', error);
-		        showToast('网络错误，但申请已保存到本地，联网后会自动同步');
+		        showToast('网络错误，请检查网络后重试');
+		        submitBtn.innerHTML = originalText;
+		        submitBtn.disabled = false;
+		        return;
 		    }
 		    
-		    // ========== 保存到本地（无论后端是否成功，都保存本地）==========
+		    // ========== 保存到本地（后端成功后）==========
 		    const newUser = {
 		        userId: Date.now().toString() + phone.slice(-6),
 		        account: account,
@@ -5244,11 +5250,7 @@
 		    submitBtn.innerHTML = originalText;
 		    submitBtn.disabled = false;
 		    
-		    if (backendSuccess) {
-		        showToast(`入驻申请已提交！账号：${account}，请等待管理员审核（1-3个工作日）`);
-		    } else {
-		        showToast(`申请已保存到本地！账号：${account}，联网后会自动提交审核`);
-		    }
+		    showToast(`入驻申请已提交！账号：${account}，请等待管理员审核（1-3个工作日）`);
 		}
 		
 		// 打开商品详情页（增强版）
