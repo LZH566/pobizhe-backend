@@ -4930,7 +4930,8 @@
 
 		
 		// 商家注册处理
-		function handleMerchantRegister() {
+		// 商家注册处理 - 同时保存到本地和后端
+		async function handleMerchantRegister() {
 		    const entityType = document.getElementById('merchantEntityType')?.value;
 		    const legalName = document.getElementById('merchantLegalName')?.value;
 		    const idNumber = document.getElementById('merchantIdNumber')?.value;
@@ -4941,10 +4942,8 @@
 		    const password = document.getElementById('merchantPassword')?.value;
 		    const confirmPassword = document.getElementById('merchantConfirmPassword')?.value;
 		    const agree = document.getElementById('merchantAgreeTerms')?.checked;
-			// 收集库存更新频率
-			const inventoryFrequency = document.getElementById('inventoryFrequency')?.value || 'daily';
-			// 收集物流能力
-			const shippingType = document.querySelector('input[name="shippingType"]:checked')?.value || 'self';
+		    const inventoryFrequency = document.getElementById('inventoryFrequency')?.value || 'daily';
+		    const shippingType = document.querySelector('input[name="shippingType"]:checked')?.value || 'self';
 		    
 		    // 获取上传的文件
 		    const idFront = document.getElementById('merchantIdFrontInput')?.files[0];
@@ -4993,8 +4992,6 @@
 		    }
 		    
 		    // ========== 收集操作习惯数据 ==========
-		    
-		    // 收集工具使用情况
 		    const tools = [];
 		    if (document.getElementById('toolWechat')?.checked) tools.push('微信');
 		    if (document.getElementById('toolDouyin')?.checked) tools.push('抖音');
@@ -5002,35 +4999,43 @@
 		    if (document.getElementById('toolTaobao')?.checked) tools.push('淘宝');
 		    if (document.getElementById('toolNone')?.checked) tools.push('无电商经验');
 		    
-		    // 收集网页后台接受度
 		    let webManage = '';
 		    if (document.getElementById('webManageYes')?.checked) webManage = '接受';
 		    else if (document.getElementById('webManageNo')?.checked) webManage = '不接受';
 		    else if (document.getElementById('webManageMaybe')?.checked) webManage = '需要培训';
 		    
-		    // 收集辅助功能需求
 		    const needs = [];
 		    if (document.getElementById('needSimple')?.checked) needs.push('极简版');
 		    if (document.getElementById('needVoice')?.checked) needs.push('语音辅助');
 		    if (document.getElementById('needManual')?.checked) needs.push('纸质手册');
 		    if (document.getElementById('needTraining')?.checked) needs.push('线下培训');
 		    
-		    // 收集结算周期
 		    const settlementPeriod = document.getElementById('merchantSettlementPeriod')?.value || 'T+7';
 		    
-		    // 收集商品类目
+		    // 收集商品类目（使用正确的ID）
 		    const categories = [];
-		    if (document.getElementById('categoryFruit')?.checked) categories.push('水果');
-		    if (document.getElementById('categoryVegetable')?.checked) categories.push('蔬菜');
-		    if (document.getElementById('categoryDry')?.checked) categories.push('干货');
-		    if (document.getElementById('categoryEgg')?.checked) categories.push('禽蛋');
-		    if (document.getElementById('categoryGrain')?.checked) categories.push('粮油米面');
-		    if (document.getElementById('categorySeafood')?.checked) categories.push('水产海鲜');
-		    if (document.getElementById('categoryOther')?.checked) categories.push('其他');
+		    if (document.getElementById('catFruit')?.checked) categories.push('水果');
+		    if (document.getElementById('catVeg')?.checked) categories.push('蔬菜');
+		    if (document.getElementById('catDry')?.checked) categories.push('干货');
+		    if (document.getElementById('catEgg')?.checked) categories.push('禽蛋');
+		    if (document.getElementById('catGrain')?.checked) categories.push('粮油米面');
+		    if (document.getElementById('catSeafood')?.checked) categories.push('水产海鲜');
+		    const otherCategory = document.getElementById('categoryOtherText')?.value;
+		    if (document.getElementById('catOther')?.checked && otherCategory) categories.push(otherCategory);
 		    
-		    // 收集销售模式
-		    const needPresale = document.getElementById('needPresale')?.checked || false;
-		    const needGroup = document.getElementById('needGroup')?.checked || false;
+		    // 收集痛点（包含自定义输入）
+		    const pains = [];
+		    if (document.getElementById('painPublish')?.checked) pains.push('不会上架');
+		    if (document.getElementById('painPhoto')?.checked) pains.push('不会拍图');
+		    if (document.getElementById('painLogistics')?.checked) pains.push('物流太贵');
+		    if (document.getElementById('painTraffic')?.checked) pains.push('没有流量');
+		    const otherPain = document.getElementById('otherPainText')?.value;
+		    if (document.getElementById('painOther')?.checked && otherPain) pains.push(otherPain);
+		    
+		    const services = [];
+		    if (document.getElementById('serviceOperation')?.checked) services.push('代运营');
+		    if (document.getElementById('serviceTraining')?.checked) services.push('培训指导');
+		    if (document.getElementById('serviceTraffic')?.checked) services.push('流量扶持');
 		    
 		    // 收集售卖规格
 		    const saleUnits = [];
@@ -5047,42 +5052,107 @@
 		    if (document.getElementById('shipProvince')?.checked) shipAreas.push('本省');
 		    if (document.getElementById('shipNationwide')?.checked) shipAreas.push('全国');
 		    
-		    // 收集冷链需求
 		    let needColdChain = '';
 		    if (document.getElementById('coldYes')?.checked) needColdChain = '需要';
 		    else if (document.getElementById('coldNo')?.checked) needColdChain = '不需要';
 		    else if (document.getElementById('coldSometimes')?.checked) needColdChain = '部分季节需要';
 		    
-		    // 收集痛点
-		    const pains = [];
-		    if (document.getElementById('painPublish')?.checked) pains.push('不会上架');
-		    if (document.getElementById('painPhoto')?.checked) pains.push('不会拍图');
-		    if (document.getElementById('painLogistics')?.checked) pains.push('物流太贵');
-		    if (document.getElementById('painTraffic')?.checked) pains.push('没有流量');
-		    if (document.getElementById('painOther')?.checked) pains.push('其他');
+		    const needPresale = document.getElementById('needPresale')?.checked || false;
+		    const needGroup = document.getElementById('needGroup')?.checked || false;
 		    
-		    // 收集服务需求
-		    const services = [];
-		    if (document.getElementById('serviceOperation')?.checked) services.push('代运营');
-		    if (document.getElementById('serviceTraining')?.checked) services.push('培训指导');
-		    if (document.getElementById('serviceTraffic')?.checked) services.push('流量扶持');
+		    // ========== 收集商品数据 ==========
+		    const merchantProductsData = collectMerchantProducts();
+		    if (!merchantProductsData) {
+		        return;
+		    }
 		    
-			// ========== 收集商品数据 ==========
-			const merchantProductsData = collectMerchantProducts();
-			if (!merchantProductsData) {
-			    return;  // 商品验证失败，停止提交
-			}
-			
-		    // ========== 保存头像 ==========
+		    // ========== 获取头像（转为base64）==========
+		    let avatarBase64 = '';
 		    const avatarImg = document.querySelector('#merchantAvatarPreview img');
 		    if (avatarImg) {
-		        localStorage.setItem('pobizhe_avatar', avatarImg.src);
+		        avatarBase64 = avatarImg.src;
 		    }
+		    
+		    // 获取身份证图片（转为base64）
+		    let idCardFrontBase64 = '';
+		    let idCardBackBase64 = '';
+		    let originProofBase64 = '';
+		    
+		    const idFrontImg = document.getElementById('merchantIdFrontImg')?.src;
+		    const idBackImg = document.getElementById('merchantIdBackImg')?.src;
+		    const originProofImg = document.getElementById('merchantOriginProofImg')?.src;
+		    
+		    if (idFrontImg) idCardFrontBase64 = idFrontImg;
+		    if (idBackImg) idCardBackBase64 = idBackImg;
+		    if (originProofImg) originProofBase64 = originProofImg;
 		    
 		    // ========== 生成账号 ==========
 		    const account = generateAccount('merchant', phone);
 		    
-		    // ========== 创建用户（保存到全局用户列表）==========
+		    // ========== 构建后端申请数据 ==========
+		    const applicationData = {
+		        name: legalName,
+		        phone: phone,
+		        id_card: idNumber,
+		        shop_name: shopName,
+		        origin: origin,
+		        category: categories.join('、'),
+		        bank_card: bankCard || '',
+		        bank_name: bankName || '',
+		        ship_address: shipAddress,
+		        entity_type: entityType,
+		        settlement_period: settlementPeriod,
+		        tools: tools,
+		        web_manage: webManage,
+		        needs: needs,
+		        sale_units: saleUnits,
+		        ship_areas: shipAreas,
+		        need_cold_chain: needColdChain,
+		        pains: pains,
+		        services: services,
+		        need_presale: needPresale,
+		        need_group: needGroup,
+		        inventory_frequency: inventoryFrequency,
+		        shipping_type: shippingType,
+		        products: merchantProductsData,
+		        id_card_front: idCardFrontBase64,
+		        id_card_back: idCardBackBase64,
+		        origin_proof: originProofBase64,
+		        avatar: avatarBase64,
+		        password: password,
+		        apply_date: new Date().toISOString()
+		    };
+		    
+		    // ========== 获取提交按钮，显示加载状态 ==========
+		    const submitBtn = event.target;
+		    const originalText = submitBtn.innerHTML;
+		    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>提交中...';
+		    submitBtn.disabled = true;
+		    
+		    // ========== 发送到后端 API ==========
+		    let backendSuccess = false;
+		    try {
+		        const API_URL = 'https://pobizhe-backend.vercel.app/api/merchant/apply';
+		        const response = await fetch(API_URL, {
+		            method: 'POST',
+		            headers: { 'Content-Type': 'application/json' },
+		            body: JSON.stringify(applicationData)
+		        });
+		        
+		        const result = await response.json();
+		        
+		        if (result.success) {
+		            backendSuccess = true;
+		            console.log('✅ 后端保存成功');
+		        } else {
+		            console.warn('后端返回失败:', result.message);
+		        }
+		    } catch (error) {
+		        console.error('❌ 后端保存失败:', error);
+		        showToast('网络错误，但申请已保存到本地，联网后会自动同步');
+		    }
+		    
+		    // ========== 保存到本地（无论后端是否成功，都保存本地）==========
 		    const newUser = {
 		        userId: Date.now().toString() + phone.slice(-6),
 		        account: account,
@@ -5093,7 +5163,7 @@
 		        address: shipAddress,
 		        verified: false,
 		        isApplying: true,
-				products: merchantProductsData, 
+		        products: merchantProductsData,
 		        merchantInfo: {
 		            entityType: entityType,
 		            idNumber: idNumber,
@@ -5114,14 +5184,19 @@
 		            services: services,
 		            needPresale: needPresale,
 		            needGroup: needGroup,
-				    inventoryFrequency: inventoryFrequency,  
-				    shippingType: shippingType,              
+		            inventoryFrequency: inventoryFrequency,
+		            shippingType: shippingType,
 		        },
 		        registerDate: new Date().toISOString()
 		    };
 		    
 		    allUsers.push(newUser);
 		    saveAllUsers();
+		    
+		    // 保存头像到本地
+		    if (avatarBase64) {
+		        localStorage.setItem('pobizhe_avatar', avatarBase64);
+		    }
 		    
 		    // ========== 设置当前登录用户 ==========
 		    currentUser = {
@@ -5136,35 +5211,44 @@
 		        merchantInfo: newUser.merchantInfo,
 		        registerDate: newUser.registerDate
 		    };
-			
-			// ========== 自动上架商品到首页 ==========
-			if (merchantProductsData && merchantProductsData.length > 0) {
-			    for (const prod of merchantProductsData) {
-			        const newProduct = {
-			            id: prod.id,
-			            name: prod.name,
-			            price: prod.price,
-			            unit: prod.unit,
-			            image: prod.mainImage,
-			            seller: shopName || legalName,
-			            badge: '新店推荐',
-			            address: prod.origin || origin,
-			            description: prod.description,
-			            stock: prod.stock,
-			            isCertified: false,
-			            images: prod.images
-			        };
-			        products.unshift(newProduct);
-			    }
-			    loadProducts();  // 刷新商品列表
-			    showToast(`已自动上架 ${merchantProductsData.length} 个商品到首页！`);
-			}
+		    
+		    // ========== 自动上架商品到首页 ==========
+		    if (merchantProductsData && merchantProductsData.length > 0) {
+		        for (const prod of merchantProductsData) {
+		            const newProduct = {
+		                id: prod.id,
+		                name: prod.name,
+		                price: prod.price,
+		                unit: prod.unit,
+		                image: prod.mainImage,
+		                seller: shopName || legalName,
+		                badge: '新店推荐',
+		                address: prod.origin || origin,
+		                description: prod.description,
+		                stock: prod.stock,
+		                isCertified: false,
+		                images: prod.images,
+		                salesCount: 0,
+		                goodRate: 100,
+		                reviewCount: 0
+		            };
+		            products.unshift(newProduct);
+		        }
+		        loadProducts();
+		        showToast(`已自动上架 ${merchantProductsData.length} 个商品到首页！`);
+		    }
 		    
 		    saveToStorage();
 		    updateUserInfo();
 		    closeAuthModal();
+		    submitBtn.innerHTML = originalText;
+		    submitBtn.disabled = false;
 		    
-		    showToast(`入驻申请已提交！您的账号是：${account}，请牢记。我们将尽快审核，预计1-3个工作日完成`);
+		    if (backendSuccess) {
+		        showToast(`入驻申请已提交！账号：${account}，请等待管理员审核（1-3个工作日）`);
+		    } else {
+		        showToast(`申请已保存到本地！账号：${account}，联网后会自动提交审核`);
+		    }
 		}
 		
 		// 打开商品详情页（增强版）
