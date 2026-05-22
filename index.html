@@ -4475,22 +4475,158 @@
 
         // 商品数据（15 个）
         const products = [
-            { id: 1, name: '烟台红富士苹果', price: 5.5, unit: '斤', image: './images/yantai-apple.jpeg', seller: '山东·张农户', badge: '新鲜采摘', address: '山东省烟台市栖霞县蛇窝泊镇' },
-            { id: 2, name: '东北五常大米', price: 8.0, unit: '斤', image: './images/rice.jpeg', seller: '黑龙江·李农户', badge: '产地直供', address: '黑龙江省哈尔滨市五常市' },
-            { id: 3, name: '赣南脐橙', price: 6.0, unit: '斤', image: './images/orange.jpeg', seller: '江西·王农户', badge: '热销爆款', address: '江西省赣州市信丰县' },
-            { id: 4, name: '云南野生菌', price: 35.0, unit: '斤', image: './images/mushroom.jpeg', seller: '云南·陈农户', badge: '山珍美味', address: '云南省楚雄市南华县' },
-            { id: 5, name: '新疆红枣', price: 12.0, unit: '斤', image: './images/jujube.png', seller: '新疆·赵农户', badge: '特级品质', address: '新疆维吾尔自治区和田地区' },
-            { id: 6, name: '土鸡蛋', price: 1.5, unit: '个', image: './images/egg.jpg', seller: '四川·刘农户', badge: '散养土鸡', address: '四川省绵阳市三台县' },
-            { id: 7, name: '洛川苹果', price: 6.5, unit: '斤', image: './images/luochuan-apple.jpeg', seller: '陕西·马农户', badge: '国家地理标志', address: '陕西省延安市洛川县' },
-            { id: 8, name: '西湖龙井茶', price: 180.0, unit: '两', image: './images/tea.jpeg', seller: '浙江·周农户', badge: '明前茶', address: '浙江省杭州市西湖区' },
-            { id: 9, name: '宁夏枸杞', price: 45.0, unit: '斤', image: './images/medlar.jpeg', seller: '宁夏·吴农户', badge: '中宁特产', address: '宁夏回族自治区中卫市中宁县' },
-            { id: 10, name: '海南芒果', price: 8.5, unit: '斤', image: './images/mango.jpeg', seller: '海南·黄农户', badge: '热带水果', address: '海南省三亚市天涯区' },
-            { id: 11, name: '内蒙古牛肉干', price: 68.0, unit: '斤', image: './images/beef jerky.jpeg', seller: '内蒙古·巴农户', badge: '草原风味', address: '内蒙古自治区通辽市' },
-            { id: 12, name: '福建铁观音', price: 95.0, unit: '两', image: './images/tea1.jpeg', seller: '福建·林农户', badge: '安溪原产', address: '福建省泉州市安溪县' },
-            { id: 13, name: '阳澄湖大闸蟹', price: 88.0, unit: '只', image: './images/crab.jpeg', seller: '江苏·孙农户', badge: '正宗产地', address: '江苏省苏州市' },
-            { id: 14, name: '贵州辣椒', price: 15.0, unit: '斤', image: './images/pepper.jpeg', seller: '贵州·杨农户', badge: '香辣可口', address: '贵州省遵义市' },
-            { id: 15, name: '西藏青稞', price: 22.0, unit: '斤', image: './images/highland harley.jpg', seller: '西藏·卓农户', badge: '高原特产', address: '西藏自治区拉萨市' }
+            { 
+                id: 1, name: '烟台红富士苹果', price: 5.5, unit: '斤', 
+                image: './images/yantai-apple.jpeg', seller: '山东·张农户', 
+                badge: '新鲜采摘', address: '山东省烟台市栖霞县蛇窝泊镇',
+                salesCount: 328, goodRate: 98, reviewCount: 156,
+                buyerShowImages: ['./images/buyer-show/apple1.jpg', './images/buyer-show/apple2.jpg']
+            },
+            { 
+                id: 2, name: '东北五常大米', price: 8.0, unit: '斤', 
+                image: './images/rice.jpeg', seller: '黑龙江·李农户', 
+                badge: '产地直供', address: '黑龙江省哈尔滨市五常市',
+                salesCount: 892, goodRate: 99, reviewCount: 423,
+                buyerShowImages: ['./images/buyer-show/rice1.jpg']
+            },
+            { 
+                id: 3, name: '赣南脐橙', price: 6.0, unit: '斤', 
+                image: './images/orange.jpeg', seller: '江西·王农户', 
+                badge: '热销爆款', address: '江西省赣州市信丰县',
+                salesCount: 567, goodRate: 97, reviewCount: 289,
+                buyerShowImages: ['./images/buyer-show/orange1.jpg', './images/buyer-show/orange2.jpg']
+            },
+            { 
+                id: 4, name: '云南野生菌', price: 35.0, unit: '斤', 
+                image: './images/mushroom.jpeg', seller: '云南·陈农户', 
+                badge: '山珍美味', address: '云南省楚雄市南华县',
+                salesCount: 123, goodRate: 96, reviewCount: 78,
+                buyerShowImages: []
+            },
+            { 
+                id: 5, name: '新疆红枣', price: 12.0, unit: '斤', 
+                image: './images/jujube.png', seller: '新疆·赵农户', 
+                badge: '特级品质', address: '新疆维吾尔自治区和田地区',
+                salesCount: 456, goodRate: 98, reviewCount: 234,
+                buyerShowImages: ['./images/buyer-show/jujube1.jpg']
+            },
+            { 
+                id: 6, name: '土鸡蛋', price: 1.5, unit: '个', 
+                image: './images/egg.jpg', seller: '四川·刘农户', 
+                badge: '散养土鸡', address: '四川省绵阳市三台县',
+                salesCount: 2345, goodRate: 95, reviewCount: 892,
+                buyerShowImages: ['./images/buyer-show/egg1.jpg', './images/buyer-show/egg2.jpg']
+            },
+            { 
+                id: 7, name: '洛川苹果', price: 6.5, unit: '斤', 
+                image: './images/luochuan-apple.jpeg', seller: '陕西·马农户', 
+                badge: '国家地理标志', address: '陕西省延安市洛川县',
+                salesCount: 678, goodRate: 99, reviewCount: 345,
+                buyerShowImages: ['./images/buyer-show/luochuan1.jpg']
+            },
+            { 
+                id: 8, name: '西湖龙井茶', price: 180.0, unit: '两', 
+                image: './images/tea.jpeg', seller: '浙江·周农户', 
+                badge: '明前茶', address: '浙江省杭州市西湖区',
+                salesCount: 234, goodRate: 97, reviewCount: 156,
+                buyerShowImages: ['./images/buyer-show/tea1.jpg']
+            },
+            { 
+                id: 9, name: '宁夏枸杞', price: 45.0, unit: '斤', 
+                image: './images/medlar.jpeg', seller: '宁夏·吴农户', 
+                badge: '中宁特产', address: '宁夏回族自治区中卫市中宁县',
+                salesCount: 567, goodRate: 98, reviewCount: 278,
+                buyerShowImages: []
+            },
+            { 
+                id: 10, name: '海南芒果', price: 8.5, unit: '斤', 
+                image: './images/mango.jpeg', seller: '海南·黄农户', 
+                badge: '热带水果', address: '海南省三亚市天涯区',
+                salesCount: 789, goodRate: 96, reviewCount: 367,
+                buyerShowImages: ['./images/buyer-show/mango1.jpg']
+            },
+            { 
+                id: 11, name: '内蒙古牛肉干', price: 68.0, unit: '斤', 
+                image: './images/beef jerky.jpeg', seller: '内蒙古·巴农户', 
+                badge: '草原风味', address: '内蒙古自治区通辽市',
+                salesCount: 345, goodRate: 97, reviewCount: 189,
+                buyerShowImages: []
+            },
+            { 
+                id: 12, name: '福建铁观音', price: 95.0, unit: '两', 
+                image: './images/tea1.jpeg', seller: '福建·林农户', 
+                badge: '安溪原产', address: '福建省泉州市安溪县',
+                salesCount: 456, goodRate: 98, reviewCount: 234,
+                buyerShowImages: ['./images/buyer-show/tieguanyin1.jpg']
+            },
+            { 
+                id: 13, name: '阳澄湖大闸蟹', price: 88.0, unit: '只', 
+                image: './images/crab.jpeg', seller: '江苏·孙农户', 
+                badge: '正宗产地', address: '江苏省苏州市',
+                salesCount: 234, goodRate: 99, reviewCount: 178,
+                buyerShowImages: ['./images/buyer-show/crab1.jpg', './images/buyer-show/crab2.jpg']
+            },
+            { 
+                id: 14, name: '贵州辣椒', price: 15.0, unit: '斤', 
+                image: './images/pepper.jpeg', seller: '贵州·杨农户', 
+                badge: '香辣可口', address: '贵州省遵义市',
+                salesCount: 567, goodRate: 95, reviewCount: 234,
+                buyerShowImages: []
+            },
+            { 
+                id: 15, name: '西藏青稞', price: 22.0, unit: '斤', 
+                image: './images/highland harley.jpg', seller: '西藏·卓农户', 
+                badge: '高原特产', address: '西藏自治区拉萨市',
+                salesCount: 123, goodRate: 96, reviewCount: 67,
+                buyerShowImages: []
+            }
         ];
+		
+		// ========== 商品评价数据 ==========
+		let productReviews = {
+		    // 格式: productId: [ { user: '用***户', rating: 5, content: '很好吃！', images: [], date: '2025-05-20' } ]
+		};
+		
+		// 初始化示例评价数据
+		function initProductReviews() {
+		    const sampleReviews = {
+		        1: [
+		            { user: '张***生', rating: 5, content: '苹果很甜，水分足，包装也很好，没有坏果！', images: ['./images/review1.jpg'], date: '2025-05-19' },
+		            { user: '李***姐', rating: 5, content: '第二次购买了，家里人都说好吃，会继续回购', images: [], date: '2025-05-18' },
+		            { user: '王***妈', rating: 4, content: '果子新鲜，就是有几个稍微小了点', images: ['./images/review2.jpg'], date: '2025-05-17' }
+		        ],
+		        2: [
+		            { user: '赵***叔', rating: 5, content: '大米很香，煮出来的饭软糯可口', images: [], date: '2025-05-19' }
+		        ],
+		        7: [
+		            { user: '刘***姐', rating: 5, content: '洛川苹果名不虚传，脆甜多汁！', images: ['./images/review3.jpg'], date: '2025-05-20' },
+		            { user: '陈***生', rating: 5, content: '包装很用心，苹果完好无损', images: [], date: '2025-05-18' }
+		        ]
+		    };
+		    
+		    for (let id in sampleReviews) {
+		        if (!productReviews[id]) {
+		            productReviews[id] = sampleReviews[id];
+		        }
+		    }
+		}
+		
+		// 保存评价到本地存储
+		function saveProductReviews() {
+		    localStorage.setItem('pobizhe_product_reviews', JSON.stringify(productReviews));
+		}
+		
+		// 加载评价
+		function loadProductReviews() {
+		    const saved = localStorage.getItem('pobizhe_product_reviews');
+		    if (saved) {
+		        productReviews = JSON.parse(saved);
+		    } else {
+		        initProductReviews();
+		        saveProductReviews();
+		    }
+		}
+		
 		let currentDisplayCount = 9;
 		
 		const certifiedIds = [1, 2, 3, 5, 7, 9, 12, 15]; // 模拟认证商品
@@ -5031,12 +5167,18 @@
 		    showToast(`入驻申请已提交！您的账号是：${account}，请牢记。我们将尽快审核，预计1-3个工作日完成`);
 		}
 		
-		// 1. 打开商品详情页
+		// 打开商品详情页（增强版）
 		function openProductDetail(id) {
 		    const product = products.find(p => p.id === id);
 		    if (!product) return;
 		    
 		    currentDetailProduct = product;
+		    
+		    // 确保商品有默认的统计数据
+		    if (product.salesCount === undefined) product.salesCount = 0;
+		    if (product.goodRate === undefined) product.goodRate = 98;
+		    if (product.reviewCount === undefined) product.reviewCount = 0;
+		    if (product.buyerShowImages === undefined) product.buyerShowImages = [];
 		    
 		    // 填充基础信息
 		    document.getElementById('detailImg').src = product.image;
@@ -5046,33 +5188,144 @@
 		    document.getElementById('detailSeller').textContent = product.seller;
 		    document.getElementById('detailAddress').textContent = product.address;
 		    document.getElementById('detailDesc').textContent = `这是来自${product.address}的优质${product.name}。${product.badge || '农家自产'}，新鲜采摘，品质保证。`;
-		
-		    // 生成并填充关键词标签
+		    
+		    // ========== 填充统计数据 ==========
+		    // 计算实际好评率（从评价中计算）
+		    const reviews = productReviews[product.id] || [];
+		    const totalReviews = reviews.length;
+		    const goodReviews = reviews.filter(r => r.rating >= 4).length;
+		    const goodRate = totalReviews > 0 ? Math.round(goodReviews / totalReviews * 100) : (product.goodRate || 98);
+		    const totalSales = product.salesCount || 0;
+		    
+		    document.getElementById('detailSalesCount').textContent = totalSales;
+		    document.getElementById('detailGoodRate').textContent = goodRate + '%';
+		    document.getElementById('detailReviewCount').textContent = totalReviews;
+		    
+		    // ========== 渲染买家秀 ==========
+		    const allBuyerImages = [];
+		    reviews.forEach(review => {
+		        if (review.images && review.images.length > 0) {
+		            allBuyerImages.push(...review.images);
+		        }
+		    });
+		    // 加上商品自带的买家秀
+		    if (product.buyerShowImages && product.buyerShowImages.length > 0) {
+		        allBuyerImages.push(...product.buyerShowImages);
+		    }
+		    
+		    const buyerShowContainer = document.getElementById('buyerShowList');
+		    const buyerShowCountSpan = document.getElementById('buyerShowCount');
+		    
+		    if (allBuyerImages.length > 0) {
+		        buyerShowCountSpan.textContent = allBuyerImages.length + '张晒图';
+		        buyerShowContainer.innerHTML = allBuyerImages.slice(0, 6).map(img => `
+		            <div style="width: 80px; height: 80px; flex-shrink: 0; cursor: pointer;" onclick="viewFullImage('${img}')">
+		                <img src="${img}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #eee;">
+		            </div>
+		        `).join('');
+		    } else {
+		        buyerShowCountSpan.textContent = '暂无晒图';
+		        buyerShowContainer.innerHTML = '<div class="text-muted small py-2">暂无买家秀，快来晒出您的实拍吧！</div>';
+		    }
+		    
+		    // ========== 渲染最新评价 ==========
+		    const latestReviews = [...reviews].reverse().slice(0, 3);
+		    const reviewsContainer = document.getElementById('latestReviews');
+		    if (latestReviews.length > 0) {
+		        reviewsContainer.innerHTML = latestReviews.map(r => `
+		            <div class="border-bottom pb-2 mb-2">
+		                <div class="d-flex justify-content-between align-items-center">
+		                    <div>
+		                        <span class="fw-bold small">${r.user}</span>
+		                        <span class="text-warning ms-1">${'★'.repeat(r.rating)}${'☆'.repeat(5-r.rating)}</span>
+		                    </div>
+		                    <small class="text-muted">${r.date}</small>
+		                </div>
+		                <p class="small mb-1 mt-1">${r.content}</p>
+		                ${r.images && r.images.length > 0 ? `<div class="d-flex gap-1 mt-1">${r.images.slice(0,3).map(img => `<img src="${img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; cursor: pointer;" onclick="viewFullImage('${img}')">`).join('')}</div>` : ''}
+		            </div>
+		        `).join('');
+		    } else {
+		        reviewsContainer.innerHTML = '<div class="text-muted small text-center py-2">暂无评价，快去下单成为第一个评价用户吧！</div>';
+		    }
+		    
+		    // 生成关键词标签
 		    const keywords = generateKeywords(product.name);
 		    const keywordContainer = document.getElementById('detailKeywords');
 		    keywordContainer.innerHTML = keywords.map(k => 
 		        `<span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 me-2 mb-2 px-3 py-2 rounded-pill" style="font-weight: 500;">${k}</span>`
 		    ).join('');
-		
-		    // 离线模式处理：禁用购买按钮
+		    
+		    // 离线模式处理
 		    const buyBtn = document.getElementById('detailBuyBtn');
 		    if (isOfflineMode) {
 		        buyBtn.disabled = true;
 		        buyBtn.classList.add('disabled');
 		        buyBtn.innerHTML = '<i class="fas fa-wifi-slash"></i> 离线不可用';
-		        buyBtn.style.backgroundColor = '#ccc';
-		        buyBtn.style.borderColor = '#ccc';
 		    } else {
 		        buyBtn.disabled = false;
 		        buyBtn.classList.remove('disabled');
 		        buyBtn.innerHTML = '<i class="fas fa-bolt me-1"></i>立即购买';
-		        buyBtn.style.backgroundColor = '';
-		        buyBtn.style.borderColor = '';
 		    }
-		
+		    
 		    // 显示弹窗
 		    document.getElementById('productDetailModal').classList.add('show');
-		    document.body.style.overflow = 'hidden'; // 禁止背景滚动
+		    document.body.style.overflow = 'hidden';
+		}
+		
+		// 查看大图
+		function viewFullImage(imgSrc) {
+		    const modal = document.createElement('div');
+		    modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:100000;display:flex;align-items:center;justify-content:center;cursor:pointer;';
+		    modal.innerHTML = `<img src="${imgSrc}" style="max-width:90%;max-height:90%;object-fit:contain;">`;
+		    modal.onclick = () => modal.remove();
+		    document.body.appendChild(modal);
+		}
+		
+		// 查看全部评价
+		function viewAllReviews() {
+		    const product = currentDetailProduct;
+		    if (!product) return;
+		    
+		    const reviews = productReviews[product.id] || [];
+		    const goodCount = reviews.filter(r => r.rating >= 4).length;
+		    const goodRate = reviews.length > 0 ? Math.round(goodCount / reviews.length * 100) : 0;
+		    
+		    let reviewsHtml = `
+		        <div style="max-height: 500px; overflow-y: auto;">
+		            <div class="text-center mb-3">
+		                <div class="fs-1 fw-bold text-warning">${goodRate}%</div>
+		                <div>好评率</div>
+		                <div>共 ${reviews.length} 条评价</div>
+		            </div>
+		    `;
+		    
+		    reviews.forEach(r => {
+		        reviewsHtml += `
+		            <div class="border-bottom pb-3 mb-3">
+		                <div class="d-flex justify-content-between">
+		                    <span class="fw-bold">${r.user}</span>
+		                    <span class="text-warning">${'★'.repeat(r.rating)}</span>
+		                </div>
+		                <small class="text-muted">${r.date}</small>
+		                <p class="mt-2">${r.content}</p>
+		                ${r.images && r.images.length > 0 ? `<div class="d-flex gap-2 mt-2">${r.images.map(img => `<img src="${img}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; cursor: pointer;" onclick="viewFullImage('${img}')">`).join('')}</div>` : ''}
+		            </div>
+		        `;
+		    });
+		    
+		    reviewsHtml += `</div><button class="btn btn-custom w-100 mt-3" onclick="closeAllReviewsModal()">关闭</button>`;
+		    
+		    const modal = document.createElement('div');
+		    modal.id = 'allReviewsModal';
+		    modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:100001;display:flex;align-items:center;justify-content:center;';
+		    modal.innerHTML = `<div class="bg-white rounded-4 p-4" style="width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;">${reviewsHtml}</div>`;
+		    document.body.appendChild(modal);
+		}
+		
+		function closeAllReviewsModal() {
+		    const modal = document.getElementById('allReviewsModal');
+		    if (modal) modal.remove();
 		}
 		
 		// 2. 关闭商品详情页
@@ -5386,7 +5639,8 @@
             loadFromStorage();
             loadAllUsers();
             loadMerchantApplications();
-            checkPaymentResult();  // 新增：检查支付结果
+			loadProductReviews();
+            checkPaymentResult();  
             
             // 页面加载完成后隐藏加载动画
             window.addEventListener('load', function() {
@@ -6230,9 +6484,192 @@
                         <span class="text-muted small">${order.date}</span>
                         <span class="fw-bold" style="color: var(--secondary-color);">¥${order.total.toFixed(2)}</span>
                     </div>
+		            <div class="mt-2 d-flex gap-2">
+		                ${order.status === 'pending' ? 
+		                    `<button class="btn btn-sm btn-primary" onclick="simulateShipOrder('${order.id}')">
+		                        <i class="fas fa-truck me-1"></i>模拟发货
+		                    </button>` : ''}
+		                ${order.status === 'completed' && !order.reviewed ? 
+		                    `<button class="btn btn-sm btn-outline-warning" onclick="openReviewModal('${order.id}')">
+		                        <i class="fas fa-star me-1"></i>评价
+		                    </button>` : ''}
+		                ${order.status === 'shipped' ? 
+		                    `<span class="small text-success"><i class="fas fa-check-circle"></i> 已发货，预计3天内送达</span>` : ''}
+		                ${order.status === 'completed' && order.reviewed ? 
+		                    `<span class="small text-muted"><i class="fas fa-check"></i> 已评价</span>` : ''}
+		            </div>
                 </div>
             `).join('');
         }
+		
+		// 模拟发货
+		function simulateShipOrder(orderId) {
+		    const order = userOrders.find(o => o.id === orderId);
+		    if (order && order.status === 'pending') {
+		        order.status = 'shipped';
+		        order.shipDate = new Date().toLocaleDateString();
+		        order.trackingNo = 'SF' + Date.now().toString().slice(-10);
+		        
+		        saveToStorage();
+		        renderOrders();
+		        showToast('已模拟发货！物流单号：' + order.trackingNo);
+		        
+		        // 显示物流追踪
+		        showTrackingInfo(order);
+		    }
+		}
+		
+		// 显示物流追踪
+		function showTrackingInfo(order) {
+		    const trackingDiv = document.getElementById('orderTrackingSection');
+		    if (trackingDiv && order.trackingNo) {
+		        trackingDiv.style.display = 'block';
+		        document.getElementById('trackingInfo').innerHTML = `
+		            订单 ${order.id} 已发货<br>
+		            物流单号：${order.trackingNo}<br>
+		            承运商：顺丰速运<br>
+		            预计送达：${new Date(Date.now() + 3*24*60*60*1000).toLocaleDateString()}
+		        `;
+		        setTimeout(() => {
+		            trackingDiv.style.display = 'none';
+		        }, 8000);
+		    }
+		}
+		
+		// 打开评价弹窗
+		function openReviewModal(orderId) {
+		    const order = userOrders.find(o => o.id === orderId);
+		    if (!order) return;
+		    
+		    currentReviewOrder = order;
+		    
+		    let productsHtml = '';
+		    order.items.forEach((item, idx) => {
+		        productsHtml += `
+		            <div class="d-flex align-items-center mb-3 p-2 border rounded">
+		                <img src="${item.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+		                <div class="ms-2 flex-grow-1">
+		                    <div class="fw-bold small">${item.name}</div>
+		                    <div class="rating-stars" data-product-index="${idx}">
+		                        ${[1,2,3,4,5].map(s => `<i class="far fa-star star-rating" data-score="${s}" style="cursor:pointer; font-size:1.2rem; margin-right:3px;"></i>`).join('')}
+		                    </div>
+		                </div>
+		            </div>
+		        `;
+		    });
+		    
+		    const modalHtml = `
+		        <div id="reviewModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:100002;display:flex;align-items:center;justify-content:center;">
+		            <div class="bg-white rounded-4 p-4" style="width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+		                <div class="d-flex justify-content-between mb-3">
+		                    <h5 class="fw-bold">评价商品</h5>
+		                    <button class="btn-close" onclick="closeReviewModal()"></button>
+		                </div>
+		                <div id="reviewProductsList">${productsHtml}</div>
+		                <div class="mb-3">
+		                    <label class="form-label fw-bold">评价内容</label>
+		                    <textarea id="reviewContent" class="form-control" rows="3" placeholder="分享您的使用体验..."></textarea>
+		                </div>
+		                <div class="mb-3">
+		                    <label class="form-label fw-bold">晒图（可选）</label>
+		                    <div class="d-flex gap-2 flex-wrap" id="reviewImageContainer">
+		                        <div class="review-img-upload" onclick="document.getElementById('reviewImageInput').click()" 
+		                             style="width: 80px; height: 80px; border: 2px dashed #ccc; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+		                            <i class="fas fa-plus text-secondary"></i>
+		                        </div>
+		                    </div>
+		                    <input type="file" id="reviewImageInput" accept="image/*" style="display: none;" onchange="handleReviewImageUpload(this)">
+		                </div>
+		                <button class="btn btn-custom w-100" onclick="submitReview('${orderId}')">提交评价</button>
+		            </div>
+		        </div>
+		    `;
+		    
+		    document.body.insertAdjacentHTML('beforeend', modalHtml);
+		    
+		    // 绑定评分事件
+		    document.querySelectorAll('.rating-stars').forEach((container, idx) => {
+		        const stars = container.querySelectorAll('.star-rating');
+		        stars.forEach(star => {
+		            star.onclick = function() {
+		                const score = parseInt(this.dataset.score);
+		                stars.forEach((s, i) => {
+		                    if (i < score) {
+		                        s.className = 'fas fa-star star-rating';
+		                        s.style.color = '#FFC107';
+		                    } else {
+		                        s.className = 'far fa-star star-rating';
+		                        s.style.color = '#ccc';
+		                    }
+		                });
+		                container.dataset.rating = score;
+		            };
+		        });
+		    });
+		}
+		
+		let pendingReviewImages = [];
+		
+		function handleReviewImageUpload(input) {
+		    const file = input.files[0];
+		    if (!file) return;
+		    const reader = new FileReader();
+		    reader.onload = function(e) {
+		        pendingReviewImages.push(e.target.result);
+		        const container = document.getElementById('reviewImageContainer');
+		        const imgDiv = document.createElement('div');
+		        imgDiv.style.cssText = 'width: 80px; height: 80px; position: relative;';
+		        imgDiv.innerHTML = `
+		            <img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+		            <button class="btn btn-sm btn-danger rounded-circle position-absolute top-0 end-0" style="width: 20px; height: 20px; padding: 0; font-size: 12px;" onclick="this.parentElement.remove()">&times;</button>
+		        `;
+		        container.insertBefore(imgDiv, container.firstChild);
+		    };
+		    reader.readAsDataURL(file);
+		    input.value = '';
+		}
+		
+		function submitReview(orderId) {
+		    const order = userOrders.find(o => o.id === orderId);
+		    if (!order) return;
+		    
+		    const content = document.getElementById('reviewContent')?.value || '';
+		    
+		    // 获取评分
+		    const ratingContainers = document.querySelectorAll('.rating-stars');
+		    for (let i = 0; i < ratingContainers.length; i++) {
+		        const container = ratingContainers[i];
+		        const rating = container.dataset.rating;
+		        if (rating && order.items[i]) {
+		            const product = order.items[i];
+		            
+		            if (!productReviews[product.id]) productReviews[product.id] = [];
+		            
+		            productReviews[product.id].push({
+		                user: (currentUser?.nickname || currentUser?.name || '匿名用户').slice(0, 2) + '***',
+		                rating: parseInt(rating),
+		                content: content,
+		                images: [...pendingReviewImages],
+		                date: new Date().toLocaleDateString(),
+		                orderId: orderId
+		            });
+		        }
+		    }
+		    
+		    order.reviewed = true;
+		    saveProductReviews();
+		    saveToStorage();
+		    
+		    closeReviewModal();
+		    renderOrders();
+		    showToast('评价成功！感谢您的分享');
+		    pendingReviewImages = [];
+		}
+		
+		function closeReviewModal() {
+		    const modal = document.getElementById('reviewModal');
+		    if (modal) modal.remove();
+		}
 
         // ========== 商家中心 ==========
         function openMerchantCenter() {
@@ -9129,6 +9566,21 @@
 		
 		// 订单支付确认（支持购物车和直接购买）
 		function confirmPaymentOrder() {
+		    
+		    // ========== 新增：更新商品销量的函数 ==========
+		    function updateProductSales(orderItems) {
+		        for (const item of orderItems) {
+		            const product = products.find(p => p.id === item.id);
+		            if (product) {
+		                product.salesCount = (product.salesCount || 0) + item.quantity;
+		            }
+		        }
+		        // 保存到本地存储
+		        localStorage.setItem('pobizhe_products', JSON.stringify(products));
+		        console.log('✅ 商品销量已更新:', orderItems);
+		    }
+		    // ============================================
+		    
 		    // 1. 优先处理直接购买模式
 		    if (window.tempDirectBuyOrder) {
 		        const tempOrder = window.tempDirectBuyOrder;
@@ -9158,6 +9610,10 @@
 		        
 		        userOrders.unshift(order);
 		        saveToStorage();
+		        
+		        // ========== 新增：更新销量 ==========
+		        updateProductSales(order.items);
+		        // ==================================
 		        
 		        // 清空临时订单
 		        window.tempDirectBuyOrder = null;
@@ -9208,6 +9664,11 @@
 		        };
 		        
 		        userOrders.unshift(order);
+		        
+		        // ========== 新增：更新销量（购物车模式）==========
+		        updateProductSales(order.items);
+		        // ================================================
+		        
 		        shoppingCart = [];
 		        saveToStorage();
 		        updateCartBadge();
@@ -9304,6 +9765,58 @@
 	                <h6 class="fw-bold mb-2"><i class="fas fa-leaf text-success me-2"></i>商品亮点</h6>
 	                <p class="text-muted small mb-0" id="detailDesc" style="line-height: 1.6;"></p>
 	            </div>
+				
+				<!-- ========== 商品统计数据行 ========== -->
+				<div class="row g-3 mb-3" id="detailStats">
+				    <div class="col-4 text-center">
+				        <div class="p-2 bg-light rounded">
+				            <div class="small text-muted">已售</div>
+				            <div class="fw-bold text-success fs-5" id="detailSalesCount">0</div>
+				        </div>
+				    </div>
+				    <div class="col-4 text-center">
+				        <div class="p-2 bg-light rounded">
+				            <div class="small text-muted">好评度</div>
+				            <div class="fw-bold text-warning fs-5" id="detailGoodRate">0%</div>
+				        </div>
+				    </div>
+				    <div class="col-4 text-center">
+				        <div class="p-2 bg-light rounded">
+				            <div class="small text-muted">评价</div>
+				            <div class="fw-bold text-primary fs-5" id="detailReviewCount">0</div>
+				        </div>
+				    </div>
+				</div>
+				
+				<!-- ========== 买家秀专区 ========== -->
+				<div class="mb-3">
+				    <div class="d-flex justify-content-between align-items-center mb-2">
+				        <h6 class="fw-bold mb-0"><i class="fas fa-camera me-2 text-primary"></i>买家秀</h6>
+				        <small class="text-muted" id="buyerShowCount">0张晒图</small>
+				    </div>
+				    <div class="d-flex gap-2 overflow-auto pb-2" id="buyerShowList" style="scrollbar-width: thin;">
+				        <!-- 买家秀图片将动态生成 -->
+				    </div>
+				</div>
+				
+				<!-- ========== 最新评价 ========== -->
+				<div class="mb-3">
+				    <div class="d-flex justify-content-between align-items-center mb-2">
+				        <h6 class="fw-bold mb-0"><i class="fas fa-star me-2 text-warning"></i>最新评价</h6>
+				        <button class="btn btn-sm btn-link text-decoration-none p-0" onclick="viewAllReviews()">查看全部</button>
+				    </div>
+				    <div id="latestReviews" class="bg-light rounded p-2" style="max-height: 200px; overflow-y: auto;">
+				        <!-- 评价列表动态生成 -->
+				    </div>
+				</div>
+				
+				<!-- ========== 物流追踪（订单完成后显示） ========== -->
+				<div id="orderTrackingSection" class="mt-3 mb-2" style="display: none;">
+				    <div class="alert alert-info small p-2 mb-0">
+				        <i class="fas fa-truck me-1"></i>
+				        <span id="trackingInfo">物流信息加载中...</span>
+				    </div>
+				</div>
 	            
 	            <!-- 农户信息 -->
 	            <div class="d-flex align-items-center mb-4 pb-4 border-bottom">
