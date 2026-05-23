@@ -4184,6 +4184,11 @@
 		let currentReport = '';
         let selectedPaymentMethod = 'wechat';
 		let merchantApplications = [];
+		let merchantProductImages = {};
+		let merchantProductCount = 1;
+		let isOfflineMode = false;
+		let currentProductImage = '';
+		let currentDetailProduct = null;
         let userAddresses = {
             shipAddresses: [],    // 发货地址列表（商家用，支持多个）
             receiveAddresses: []  // 收货地址列表（顾客和商家都用，支持多个）
@@ -4930,6 +4935,10 @@
 		    }
 		}
 
+		// 辅助函数：为商家生成商品描述
+		function generateMerchantProductDescription(name, price, unit, origin) {
+		    return `【${name}】产自${origin}，新鲜采摘，品质保证！仅售¥${price}/${unit}，源头直供，健康美味，坏果包赔，售后无忧！`;
+		}
 		
 		// 商家注册处理 - 同时保存到本地和后端
 		async function handleMerchantRegister(event) {  // 👈 加上 event 参数
@@ -5249,32 +5258,6 @@
 		    allUsers.push(newUser);
 		    saveAllUsers();
 			
-			// ========== 自动上架商品到首页 ==========
-			if (merchantProductsData && merchantProductsData.length > 0) {
-			    for (const prod of merchantProductsData) {
-			        const newProduct = {
-			            id: prod.id,
-			            name: prod.name,
-			            price: prod.price,
-			            unit: prod.unit,
-			            image: prod.mainImage,
-			            seller: shopName || legalName,
-			            badge: '新店推荐',
-			            address: prod.origin || origin,
-			            description: prod.description,
-			            stock: prod.stock,
-			            isCertified: false,
-			            images: prod.images,
-			            salesCount: 0,
-			            goodRate: 100,
-			            reviewCount: 0
-			        };
-			        products.unshift(newProduct);  // 添加到商品列表最前面
-			    }
-			    loadProducts();  // 刷新商品展示
-			    showToast(`✅ 已自动上架 ${merchantProductsData.length} 个商品到首页！`);
-			}
-		    
 		    // 保存头像到本地
 		    if (avatarBase64) {
 		        localStorage.setItem('pobizhe_avatar', avatarBase64);
@@ -5795,14 +5778,20 @@
         
         // 在 DOMContentLoaded 中调用
         document.addEventListener('DOMContentLoaded', function() {
+            // 确保必要的DOM元素存在
+            if (!document.getElementById('productGrid')) {
+                console.warn('productGrid 元素不存在');
+                return;
+            }
+            
             initSpeechRecognition();
             loadProducts();
             loadCertifiedZone();
             loadFromStorage();
             loadAllUsers();
             loadMerchantApplications();
-			loadProductReviews();
-            checkPaymentResult();  
+            loadProductReviews();
+            checkPaymentResult();
             
             // 页面加载完成后隐藏加载动画
             window.addEventListener('load', function() {
@@ -5822,46 +5811,61 @@
             const savedOrders = localStorage.getItem('pobizhe_orders');
             
             if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                updateUserInfo();
-            }
-            if (savedCart) {
-                shoppingCart = JSON.parse(savedCart);
-                updateCartBadge();
-            }
-            if (savedOrders) {
-                userOrders = JSON.parse(savedOrders);
+                try {
+                    currentUser = JSON.parse(savedUser);
+                } catch(e) {
+                    console.error('解析用户数据失败:', e);
+                    currentUser = null;
+                }
             }
             
-            // ========== 关键修改：按用户ID加载地址 ==========
+            if (savedCart) {
+                try {
+                    shoppingCart = JSON.parse(savedCart);
+                } catch(e) {
+                    shoppingCart = [];
+                }
+                updateCartBadge();
+            }
+            
+            if (savedOrders) {
+                try {
+                    userOrders = JSON.parse(savedOrders);
+                } catch(e) {
+                    userOrders = [];
+                }
+            }
+            
+            // 初始化地址数据结构
             if (currentUser && currentUser.userId) {
                 const savedAddresses = localStorage.getItem(`pobizhe_addresses_${currentUser.userId}`);
                 if (savedAddresses) {
-                    userAddresses = JSON.parse(savedAddresses);
-                    if (!userAddresses.receiveAddresses) {
-                        userAddresses.receiveAddresses = [];
-                    }
-                    if (!userAddresses.shipAddresses) {
-                        userAddresses.shipAddresses = [];
+                    try {
+                        userAddresses = JSON.parse(savedAddresses);
+                    } catch(e) {
+                        userAddresses = { receiveAddresses: [], shipAddresses: [] };
                     }
                 } else {
-                    userAddresses = {
-                        receiveAddresses: [],
-                        shipAddresses: []
-                    };
+                    userAddresses = { receiveAddresses: [], shipAddresses: [] };
                 }
             } else {
-                userAddresses = {
-                    receiveAddresses: [],
-                    shipAddresses: []
-                };
+                userAddresses = { receiveAddresses: [], shipAddresses: [] };
             }
-            // ============================================
+            
+            // 确保地址数组存在
+            if (!userAddresses.receiveAddresses) userAddresses.receiveAddresses = [];
+            if (!userAddresses.shipAddresses) userAddresses.shipAddresses = [];
             
             if (currentUser) {
+                updateUserInfo();
                 renderOrders();
+            } else {
+                // 确保未登录时隐藏用户信息区域
+                const authButtons = document.getElementById('authButtons');
+                const userInfo = document.getElementById('userInfo');
+                if (authButtons) authButtons.style.display = 'block';
+                if (userInfo) userInfo.style.display = 'none';
             }
-            updateUserInfo();
         }
 
         function saveToStorage() {
@@ -7874,10 +7878,6 @@
 		    div.style.display = chk.checked ? 'block' : 'none';
 		}
 		
-		// ========== 商家入驻商品管理 ==========
-		let merchantProductCount = 1;
-		let merchantProductImages = {};  // 存储商品图片 { productId: { imgIndex: dataURL } }
-		
 		// 添加商品
 		function addMerchantProductItem() {
 		    merchantProductCount++;
@@ -8026,17 +8026,6 @@
 		        validateProductImages(productId);
 		    };
 		    reader.readAsDataURL(file);
-		}
-		
-		// 验证商品图片是否至少3张
-		function validateProductImages(productId) {
-		    const images = merchantProductImages[productId] || {};
-		    const imageCount = Object.keys(images).length;
-		    const warningDiv = document.getElementById(`merchantProductImgWarning${productId}`);
-		    if (warningDiv) {
-		        warningDiv.style.display = imageCount >= 3 ? 'none' : 'block';
-		    }
-		    return imageCount >= 3;
 		}
 		
 		// 验证商品图片是否至少3张
@@ -8628,42 +8617,41 @@
 		}
 
         function updateUserInfo() {
-            document.getElementById('userName').textContent = currentUser.name;
-            document.getElementById('authButtons').style.display = 'none';
-            document.getElementById('userInfo').style.display = 'block';
+            // 添加空值检查
+            if (!currentUser) {
+                document.getElementById('authButtons').style.display = 'block';
+                document.getElementById('userInfo').style.display = 'none';
+                return;
+            }
             
-            if (currentUser.verified) {
-                document.getElementById('userVerified').style.display = 'inline-flex';
-            } else {
-                document.getElementById('userVerified').style.display = 'none';
+            const userNameSpan = document.getElementById('userName');
+            if (userNameSpan) userNameSpan.textContent = currentUser.name || '用户';
+            
+            const authButtons = document.getElementById('authButtons');
+            const userInfo = document.getElementById('userInfo');
+            if (authButtons) authButtons.style.display = 'none';
+            if (userInfo) userInfo.style.display = 'block';
+            
+            const userVerified = document.getElementById('userVerified');
+            if (userVerified) {
+                userVerified.style.display = currentUser.verified ? 'inline-flex' : 'none';
             }
             
             // 显示/隐藏商家菜单
             document.querySelectorAll('.merchant-only').forEach(el => {
                 el.style.display = currentUser.type === 'merchant' ? 'block' : 'none';
             });
-			
-			// 控制 AI 生成商品菜单：仅商家显示
-			const aiMenuItem = document.getElementById('aiGenMenuItem');
-			if (aiMenuItem) {
-			    aiMenuItem.style.display = currentUser.type === 'merchant' ? 'block' : 'none';
-			}
-			
-			const aiQuickEntry = document.getElementById('aiQuickEntry');
-			    if (aiQuickEntry) {
-			        aiQuickEntry.style.display = currentUser.type === 'merchant' ? 'block' : 'none';
-			    }
-			
-			const addressDisplay = document.getElementById('user-address-display'); // 替换为您实际的 ID
-			    if (addressDisplay) {
-			        if (userAddresses && userAddresses.shipAddress) {
-			            addressDisplay.textContent = userAddresses.shipAddress;
-			            addressDisplay.classList.remove('text-muted'); // 去掉灰色样式
-			        } else {
-			            addressDisplay.textContent = '未设置';
-			            addressDisplay.classList.add('text-muted');
-			        }
-			    }
+            
+            // 控制 AI 生成商品菜单：仅商家显示
+            const aiMenuItem = document.getElementById('aiGenMenuItem');
+            if (aiMenuItem) {
+                aiMenuItem.style.display = currentUser.type === 'merchant' ? 'block' : 'none';
+            }
+            
+            const aiQuickEntry = document.getElementById('aiQuickEntry');
+            if (aiQuickEntry) {
+                aiQuickEntry.style.display = currentUser.type === 'merchant' ? 'block' : 'none';
+            }
         }
 
         function logout() {
