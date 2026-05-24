@@ -4481,113 +4481,148 @@
 		}
 
         // 商品数据（15 个）
-        const products = [
+        // ========== 商品数据持久化 ==========
+        const PRODUCTS_STORAGE_KEY = 'pobizhe_all_products';
+        
+        // 默认商品数据
+        const DEFAULT_PRODUCTS = [
             { 
                 id: 1, name: '烟台红富士苹果', price: 5.5, unit: '斤', 
                 image: './images/yantai-apple.jpeg', seller: '山东·张农户', 
                 badge: '新鲜采摘', address: '山东省烟台市栖霞县蛇窝泊镇',
                 salesCount: 328, goodRate: 98, reviewCount: 156,
-                buyerShowImages: ['./images/buyer-show/apple1.jpg', './images/buyer-show/apple2.jpg']
+                buyerShowImages: [], isCertified: true, 
+                traceCode: 'RX-1', certifyDate: '2025-03-20',
+                originCert: '烟台栖霞核心产区',
+                inspectReport: '农药残留未检出',
+                packaging: '可降解环保袋'
             },
             { 
                 id: 2, name: '东北五常大米', price: 8.0, unit: '斤', 
                 image: './images/rice.jpeg', seller: '黑龙江·李农户', 
                 badge: '产地直供', address: '黑龙江省哈尔滨市五常市',
                 salesCount: 892, goodRate: 99, reviewCount: 423,
-                buyerShowImages: ['./images/buyer-show/rice1.jpg']
+                buyerShowImages: [], isCertified: true,
+                traceCode: 'RX-2'
             },
             { 
                 id: 3, name: '赣南脐橙', price: 6.0, unit: '斤', 
                 image: './images/orange.jpeg', seller: '江西·王农户', 
                 badge: '热销爆款', address: '江西省赣州市信丰县',
                 salesCount: 567, goodRate: 97, reviewCount: 289,
-                buyerShowImages: ['./images/buyer-show/orange1.jpg', './images/buyer-show/orange2.jpg']
+                buyerShowImages: [], isCertified: true,
+                traceCode: 'RX-3'
             },
             { 
                 id: 4, name: '云南野生菌', price: 35.0, unit: '斤', 
                 image: './images/mushroom.jpeg', seller: '云南·陈农户', 
                 badge: '山珍美味', address: '云南省楚雄市南华县',
                 salesCount: 123, goodRate: 96, reviewCount: 78,
-                buyerShowImages: []
+                buyerShowImages: [], isCertified: false
             },
             { 
                 id: 5, name: '新疆红枣', price: 12.0, unit: '斤', 
                 image: './images/jujube.png', seller: '新疆·赵农户', 
                 badge: '特级品质', address: '新疆维吾尔自治区和田地区',
                 salesCount: 456, goodRate: 98, reviewCount: 234,
-                buyerShowImages: ['./images/buyer-show/jujube1.jpg']
+                buyerShowImages: [], isCertified: true,
+                traceCode: 'RX-5'
             },
             { 
                 id: 6, name: '土鸡蛋', price: 1.5, unit: '个', 
                 image: './images/egg.jpg', seller: '四川·刘农户', 
                 badge: '散养土鸡', address: '四川省绵阳市三台县',
                 salesCount: 2345, goodRate: 95, reviewCount: 892,
-                buyerShowImages: ['./images/buyer-show/egg1.jpg', './images/buyer-show/egg2.jpg']
+                buyerShowImages: [], isCertified: false
             },
             { 
                 id: 7, name: '洛川苹果', price: 6.5, unit: '斤', 
                 image: './images/luochuan-apple.jpeg', seller: '陕西·马农户', 
                 badge: '国家地理标志', address: '陕西省延安市洛川县',
                 salesCount: 678, goodRate: 99, reviewCount: 345,
-                buyerShowImages: ['./images/buyer-show/luochuan1.jpg']
+                buyerShowImages: [], isCertified: true,
+                traceCode: 'RX-7'
             },
             { 
                 id: 8, name: '西湖龙井茶', price: 180.0, unit: '两', 
                 image: './images/tea.jpeg', seller: '浙江·周农户', 
                 badge: '明前茶', address: '浙江省杭州市西湖区',
                 salesCount: 234, goodRate: 97, reviewCount: 156,
-                buyerShowImages: ['./images/buyer-show/tea1.jpg']
+                buyerShowImages: [], isCertified: false
             },
             { 
                 id: 9, name: '宁夏枸杞', price: 45.0, unit: '斤', 
                 image: './images/medlar.jpeg', seller: '宁夏·吴农户', 
                 badge: '中宁特产', address: '宁夏回族自治区中卫市中宁县',
                 salesCount: 567, goodRate: 98, reviewCount: 278,
-                buyerShowImages: []
+                buyerShowImages: [], isCertified: true,
+                traceCode: 'RX-9'
             },
             { 
                 id: 10, name: '海南芒果', price: 8.5, unit: '斤', 
                 image: './images/mango.jpeg', seller: '海南·黄农户', 
                 badge: '热带水果', address: '海南省三亚市天涯区',
                 salesCount: 789, goodRate: 96, reviewCount: 367,
-                buyerShowImages: ['./images/buyer-show/mango1.jpg']
+                buyerShowImages: [], isCertified: false
             },
             { 
                 id: 11, name: '内蒙古牛肉干', price: 68.0, unit: '斤', 
                 image: './images/beef jerky.jpeg', seller: '内蒙古·巴农户', 
                 badge: '草原风味', address: '内蒙古自治区通辽市',
                 salesCount: 345, goodRate: 97, reviewCount: 189,
-                buyerShowImages: []
+                buyerShowImages: [], isCertified: false
             },
             { 
                 id: 12, name: '福建铁观音', price: 95.0, unit: '两', 
                 image: './images/tea1.jpeg', seller: '福建·林农户', 
                 badge: '安溪原产', address: '福建省泉州市安溪县',
                 salesCount: 456, goodRate: 98, reviewCount: 234,
-                buyerShowImages: ['./images/buyer-show/tieguanyin1.jpg']
+                buyerShowImages: [], isCertified: true,
+                traceCode: 'RX-12'
             },
             { 
                 id: 13, name: '阳澄湖大闸蟹', price: 88.0, unit: '只', 
                 image: './images/crab.jpeg', seller: '江苏·孙农户', 
                 badge: '正宗产地', address: '江苏省苏州市',
                 salesCount: 234, goodRate: 99, reviewCount: 178,
-                buyerShowImages: ['./images/buyer-show/crab1.jpg', './images/buyer-show/crab2.jpg']
+                buyerShowImages: [], isCertified: false
             },
             { 
                 id: 14, name: '贵州辣椒', price: 15.0, unit: '斤', 
                 image: './images/pepper.jpeg', seller: '贵州·杨农户', 
                 badge: '香辣可口', address: '贵州省遵义市',
                 salesCount: 567, goodRate: 95, reviewCount: 234,
-                buyerShowImages: []
+                buyerShowImages: [], isCertified: false
             },
             { 
                 id: 15, name: '西藏青稞', price: 22.0, unit: '斤', 
                 image: './images/highland harley.jpg', seller: '西藏·卓农户', 
                 badge: '高原特产', address: '西藏自治区拉萨市',
                 salesCount: 123, goodRate: 96, reviewCount: 67,
-                buyerShowImages: []
+                buyerShowImages: [], isCertified: false
             }
         ];
+        
+        // 初始化商品
+        function initProducts() {
+            const saved = localStorage.getItem(PRODUCTS_STORAGE_KEY);
+            if (saved) {
+                try {
+                    return JSON.parse(saved);
+                } catch(e) {
+                    return DEFAULT_PRODUCTS;
+                }
+            }
+            localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(DEFAULT_PRODUCTS));
+            return DEFAULT_PRODUCTS;
+        }
+        
+        function saveProducts(productsArray) {
+            localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(productsArray));
+        }
+        
+        // 全局商品数组
+        let products = initProducts();
 		
 		// ========== 商品评价数据 ==========
 		let productReviews = {
@@ -5319,8 +5354,12 @@
 			    }
 			}
 			
-		    // ========== 自动上架商品到首页 ==========
+		    // ========== 自动上架商品到首页（所有用户共享） ==========
 		    if (merchantProductsData && merchantProductsData.length > 0) {
+		        // 获取当前所有商品
+		        let currentProducts = initProducts();
+		        let newCount = 0;
+		        
 		        for (const prod of merchantProductsData) {
 		            const newProduct = {
 		                id: prod.id,
@@ -5338,20 +5377,26 @@
 		                salesCount: 0,
 		                goodRate: 100,
 		                reviewCount: 0,
-		                // ========== 新增：详情页必需的字段 ==========
-		                buyerShowImages: [],           // 买家秀（空数组）
-		                traceCode: null,               // 溯源码
-		                isCertified: false             // 是否认证
+		                buyerShowImages: [],
+		                traceCode: null
 		            };
 		            
-		            // 确保商品已存在才添加，避免重复
-		            const exists = products.some(p => p.id === newProduct.id);
+		            // 检查是否已存在（避免重复添加）
+		            const exists = currentProducts.some(p => p.id === newProduct.id);
 		            if (!exists) {
-		                products.unshift(newProduct);
+		                currentProducts.unshift(newProduct);
+		                newCount++;
 		            }
 		        }
-		        loadProducts();
-		        showToast(`已自动上架 ${merchantProductsData.length} 个商品到首页！`);
+		        
+		        if (newCount > 0) {
+		            // 保存到 localStorage（所有用户共享）
+		            saveProducts(currentProducts);
+		            // 更新全局变量并刷新页面
+		            products = currentProducts;
+		            loadProducts();
+		            showToast(`已自动上架 ${newCount} 个商品到首页！`);
+		        }
 		    }
 		    
 		    saveToStorage();
