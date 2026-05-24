@@ -9813,96 +9813,89 @@
     </script>
 	
 	<div class="profile-modal" id="productDetailModal">
-	    <div class="profile-content" style="max-width: 500px; padding: 0; border-radius: 15px; overflow: hidden; animation: slideUp 0.3s ease;">
+	    <div class="profile-content" style="max-width: 500px; padding: 0; border-radius: 15px; overflow: hidden; display: flex; flex-direction: column; max-height: 90vh;">
 	        <!-- 关闭按钮 -->
 	        <button class="auth-close" onclick="closeProductDetail()" style="z-index: 10; background: rgba(0,0,0,0.6); color: white; width: 30px; height: 30px; line-height: 30px; text-align: center; border-radius: 50%; top: 10px; right: 10px;">&times;</button>
 	        
-	        <!-- 商品主图 -->
-	        <div style="height: 300px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+	        <!-- 商品主图（固定高度） -->
+	        <div style="height: 250px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
 	            <img id="detailImg" src="" style="width: 100%; height: 100%; object-fit: cover;" alt="商品详情">
 	        </div>
-	        <div class="p-4">
+	        
+	        <!-- 可滚动的内容区域 -->
+	        <div style="flex: 1; overflow-y: auto; padding: 16px;">
 	            <!-- 价格与标题 -->
 	            <div class="d-flex align-items-baseline mb-2">
 	                <span class="text-danger fw-bold" style="font-size: 1.8rem;" id="detailPrice">¥0.00</span>
 	                <span class="text-muted small ms-2" id="detailUnit">/斤</span>
 	            </div>
-				
-	            <h4 id="detailTitle" class="fw-bold mb-3 text-dark" style="line-height: 1.4;">商品标题</h4>
 	            
-				<!-- 👇【新增】语音朗读按钮 👇 -->
-				<button onclick="toggleSpeech()" id="speechBtn" class="btn btn-sm btn-outline-success rounded-circle ms-2 mb-3" 
-				    style="width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; float: right;" 
-				    title="点击朗读">
-				    <i class="fas fa-volume-up"></i>
-				</button>
-				<!-- 👆 新增结束 👆 -->
-				
-	            <!-- 关键词标签区 (核心功能) -->
-	            <div class="mb-4" id="detailKeywords">
-	                <!-- JS会自动在这里填入标签 -->
-	            </div>
+	            <h4 id="detailTitle" class="fw-bold mb-2 text-dark" style="line-height: 1.4;">商品标题</h4>
+	            
+	            <!-- 语音朗读按钮 -->
+	            <button onclick="toggleSpeech()" id="speechBtn" class="btn btn-sm btn-outline-success rounded-circle" style="width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; float: right; margin-top: -40px;" title="点击朗读">
+	                <i class="fas fa-volume-up"></i>
+	            </button>
+	            
+	            <!-- 关键词标签区 -->
+	            <div class="mb-3" id="detailKeywords"></div>
 	            
 	            <!-- 详情描述 -->
-	            <div class="mb-4 p-3 bg-light rounded">
+	            <div class="mb-3 p-3 bg-light rounded">
 	                <h6 class="fw-bold mb-2"><i class="fas fa-leaf text-success me-2"></i>商品亮点</h6>
 	                <p class="text-muted small mb-0" id="detailDesc" style="line-height: 1.6;"></p>
 	            </div>
-				
-				<!-- ========== 商品统计数据行 ========== -->
-				<div class="row g-3 mb-3" id="detailStats">
-				    <div class="col-4 text-center">
-				        <div class="p-2 bg-light rounded">
-				            <div class="small text-muted">已售</div>
-				            <div class="fw-bold text-success fs-5" id="detailSalesCount">0</div>
-				        </div>
-				    </div>
-				    <div class="col-4 text-center">
-				        <div class="p-2 bg-light rounded">
-				            <div class="small text-muted">好评度</div>
-				            <div class="fw-bold text-warning fs-5" id="detailGoodRate">0%</div>
-				        </div>
-				    </div>
-				    <div class="col-4 text-center">
-				        <div class="p-2 bg-light rounded">
-				            <div class="small text-muted">评价</div>
-				            <div class="fw-bold text-primary fs-5" id="detailReviewCount">0</div>
-				        </div>
-				    </div>
-				</div>
-				
-				<!-- ========== 买家秀专区 ========== -->
-				<div class="mb-3">
-				    <div class="d-flex justify-content-between align-items-center mb-2">
-				        <h6 class="fw-bold mb-0"><i class="fas fa-camera me-2 text-primary"></i>买家秀</h6>
-				        <small class="text-muted" id="buyerShowCount">0张晒图</small>
-				    </div>
-				    <div class="d-flex gap-2 overflow-auto pb-2" id="buyerShowList" style="scrollbar-width: thin;">
-				        <!-- 买家秀图片将动态生成 -->
-				    </div>
-				</div>
-				
-				<!-- ========== 最新评价 ========== -->
-				<div class="mb-3">
-				    <div class="d-flex justify-content-between align-items-center mb-2">
-				        <h6 class="fw-bold mb-0"><i class="fas fa-star me-2 text-warning"></i>最新评价</h6>
-				        <button class="btn btn-sm btn-link text-decoration-none p-0" onclick="viewAllReviews()">查看全部</button>
-				    </div>
-				    <div id="latestReviews" class="bg-light rounded p-2" style="max-height: 200px; overflow-y: auto;">
-				        <!-- 评价列表动态生成 -->
-				    </div>
-				</div>
-				
-				<!-- ========== 物流追踪（订单完成后显示） ========== -->
-				<div id="orderTrackingSection" class="mt-3 mb-2" style="display: none;">
-				    <div class="alert alert-info small p-2 mb-0">
-				        <i class="fas fa-truck me-1"></i>
-				        <span id="trackingInfo">物流信息加载中...</span>
-				    </div>
-				</div>
+	            
+	            <!-- 商品统计数据行 -->
+	            <div class="row g-2 mb-3" id="detailStats">
+	                <div class="col-4 text-center">
+	                    <div class="p-2 bg-light rounded">
+	                        <div class="small text-muted">已售</div>
+	                        <div class="fw-bold text-success fs-6" id="detailSalesCount">0</div>
+	                    </div>
+	                </div>
+	                <div class="col-4 text-center">
+	                    <div class="p-2 bg-light rounded">
+	                        <div class="small text-muted">好评度</div>
+	                        <div class="fw-bold text-warning fs-6" id="detailGoodRate">0%</div>
+	                    </div>
+	                </div>
+	                <div class="col-4 text-center">
+	                    <div class="p-2 bg-light rounded">
+	                        <div class="small text-muted">评价</div>
+	                        <div class="fw-bold text-primary fs-6" id="detailReviewCount">0</div>
+	                    </div>
+	                </div>
+	            </div>
+	            
+	            <!-- 买家秀专区 -->
+	            <div class="mb-3">
+	                <div class="d-flex justify-content-between align-items-center mb-2">
+	                    <h6 class="fw-bold mb-0"><i class="fas fa-camera me-2 text-primary"></i>买家秀</h6>
+	                    <small class="text-muted" id="buyerShowCount">0张晒图</small>
+	                </div>
+	                <div class="d-flex gap-2 overflow-auto pb-2" id="buyerShowList" style="scrollbar-width: thin;"></div>
+	            </div>
+	            
+	            <!-- 最新评价 -->
+	            <div class="mb-3">
+	                <div class="d-flex justify-content-between align-items-center mb-2">
+	                    <h6 class="fw-bold mb-0"><i class="fas fa-star me-2 text-warning"></i>最新评价</h6>
+	                    <button class="btn btn-sm btn-link text-decoration-none p-0" onclick="viewAllReviews()">查看全部</button>
+	                </div>
+	                <div id="latestReviews" class="bg-light rounded p-2" style="max-height: 150px; overflow-y: auto;"></div>
+	            </div>
+	            
+	            <!-- 物流追踪 -->
+	            <div id="orderTrackingSection" class="mt-2 mb-2" style="display: none;">
+	                <div class="alert alert-info small p-2 mb-0">
+	                    <i class="fas fa-truck me-1"></i>
+	                    <span id="trackingInfo">物流信息加载中...</span>
+	                </div>
+	            </div>
 	            
 	            <!-- 农户信息 -->
-	            <div class="d-flex align-items-center mb-4 pb-4 border-bottom">
+	            <div class="d-flex align-items-center mb-3 pt-2 border-top">
 	                <div class="bg-light rounded-circle p-2 me-3">
 	                    <i class="fas fa-user-circle fa-2x text-secondary"></i>
 	                </div>
@@ -9911,16 +9904,16 @@
 	                    <div class="text-muted small"><i class="fas fa-map-marker-alt me-1"></i><span id="detailAddress">地址</span></div>
 	                </div>
 	            </div>
-	            
-	            <!-- 底部操作栏 -->
-	            <div class="d-flex gap-3">
-	                <button class="btn btn-outline-warning flex-fill py-2 fw-bold" onclick="addToCartFromDetail()">
-	                    <i class="fas fa-shopping-cart me-1"></i>加入购物车
-	                </button>
-	                <button class="btn btn-custom flex-fill py-2 fw-bold" onclick="buyNowFromDetail()" id="detailBuyBtn">
-	                    <i class="fas fa-bolt me-1"></i>立即购买
-	                </button>
-	            </div>
+	        </div>
+	        
+	        <!-- 底部操作栏（固定在底部） -->
+	        <div class="d-flex gap-3 p-3 border-top" style="background: white; flex-shrink: 0;">
+	            <button class="btn btn-outline-warning flex-fill py-2 fw-bold" onclick="addToCartFromDetail()">
+	                <i class="fas fa-shopping-cart me-1"></i>加入购物车
+	            </button>
+	            <button class="btn btn-custom flex-fill py-2 fw-bold" onclick="buyNowFromDetail()" id="detailBuyBtn">
+	                <i class="fas fa-bolt me-1"></i>立即购买
+	            </button>
 	        </div>
 	    </div>
 	</div>
