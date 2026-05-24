@@ -5163,19 +5163,19 @@
 		        ship_address: shipAddress,
 		        entity_type: entityType,
 		        settlement_period: settlementPeriod,
-		        tools: tools,
+		        tools: JSON.stringify(tools),           // 数组转 JSON 字符串
 		        web_manage: webManage,
-		        needs: needs,
-		        sale_units: saleUnits,
-		        ship_areas: shipAreas,
+		        needs: JSON.stringify(needs),           // 数组转 JSON 字符串
+		        sale_units: JSON.stringify(saleUnits),   // 数组转 JSON 字符串
+		        ship_areas: JSON.stringify(shipAreas),   // 数组转 JSON 字符串
 		        need_cold_chain: needColdChain,
-		        pains: pains,
-		        services: services,
+		        pains: JSON.stringify(pains),            // 数组转 JSON 字符串
+		        services: JSON.stringify(services),      // 数组转 JSON 字符串
 		        need_presale: needPresale,
 		        need_group: needGroup,
 		        inventory_frequency: inventoryFrequency,
 		        shipping_type: shippingType,
-		        products: merchantProductsData,
+		        products: JSON.stringify(merchantProductsData),  // 商品数据转 JSON 字符串
 		        password: password,
 		        apply_date: new Date().toISOString()
 		    };
