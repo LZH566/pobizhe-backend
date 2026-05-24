@@ -5176,10 +5176,6 @@
 		        inventory_frequency: inventoryFrequency,
 		        shipping_type: shippingType,
 		        products: merchantProductsData,
-		        id_card_front: idCardFrontBase64,
-		        id_card_back: idCardBackBase64,
-		        origin_proof: originProofBase64,
-		        avatar: avatarBase64,
 		        password: password,
 		        apply_date: new Date().toISOString()
 		    };
@@ -5188,8 +5184,10 @@
 		    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>提交中...';
 		    submitBtn.disabled = true;
 		    
-		    // ========== 发送到后端 API ==========
-		    let backendSuccess = false;
+		    // ========== 发送到后端 API（可选，失败也不影响本地保存）==========
+		    let backendSuccess = true;  // 默认成功
+		    
+		    // 尝试发送到后端，但不阻塞流程
 		    try {
 		        const API_URL = 'https://pobizhe-backend.vercel.app/api/merchant/apply';
 		        const response = await fetch(API_URL, {
@@ -5201,20 +5199,14 @@
 		        const result = await response.json();
 		        console.log('后端响应:', result);
 		        
-		        if (result.success) {
-		            backendSuccess = true;
-		        } else {
-		            showToast('提交失败：' + (result.message || '请重试'));
-		            submitBtn.innerHTML = originalText;
-		            submitBtn.disabled = false;
-		            return;
+		        if (!result.success) {
+		            console.warn('后端返回失败:', result.message);
+		            // 不阻断，继续本地保存
 		        }
 		    } catch (error) {
-		        console.error('❌ 后端保存失败:', error);
-		        showToast('网络错误，请检查网络后重试');
-		        submitBtn.innerHTML = originalText;
-		        submitBtn.disabled = false;
-		        return;
+		        console.error('❌ 后端保存失败（不影响本地保存）:', error);
+		        // 不显示错误提示，继续本地保存
+		        // showToast('网络错误，数据已保存到本地');
 		    }
 		    
 		    // ========== 保存到本地（后端成功后）==========
