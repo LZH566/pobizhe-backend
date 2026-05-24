@@ -5410,6 +5410,18 @@
 		
 		// 打开商品详情页（增强版）
 		function openProductDetail(id) {
+		    console.log('点击购买，商品ID:', id, '类型:', typeof id);
+		    console.log('当前所有商品:', products.map(p => ({id: p.id, name: p.name})));
+		    
+		    const product = products.find(p => p.id == id);  // 使用 == 而不是 ===
+		    
+		    if (!product) {
+		        console.error('找不到商品，ID:', id);
+		        showToast('商品不存在');
+		        return;
+		    }
+		    
+		    console.log('找到商品:', product);
 		    const product = products.find(p => p.id === id);
 		    if (!product) return;
 		    
