@@ -5210,6 +5210,20 @@
 		    }
 		    
 		    // ========== 保存到本地（后端成功后）==========
+		    // 处理商品数据：只保存图片的缩略信息，不保存完整 base64
+		    const productsWithoutImages = merchantProductsData.map(prod => ({
+		        id: prod.id,
+		        name: prod.name,
+		        price: prod.price,
+		        unit: prod.unit,
+		        origin: prod.origin,
+		        stock: prod.stock,
+		        description: prod.description,
+		        // 只保存第一张图片的缩略图（压缩后），或不保存图片
+		        image: prod.mainImage ? prod.mainImage.substring(0, 200) + '...' : '',  // 只保存前200字符
+		        imageCount: prod.images ? prod.images.length : 0
+		    }));
+		    
 		    const newUser = {
 		        userId: Date.now().toString() + phone.slice(-6),
 		        account: account,
@@ -5220,7 +5234,7 @@
 		        address: shipAddress,
 		        verified: false,
 		        isApplying: true,
-		         products: merchantProductsData, 
+		        products: productsWithoutImages,  // 使用不包含图片的商品数据
 		        merchantInfo: {
 		            entityType: entityType,
 		            idNumber: idNumber,
