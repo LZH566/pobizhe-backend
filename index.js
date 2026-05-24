@@ -75,6 +75,8 @@ app.post("/api/merchant/apply", (req, res) => {
   }
 });
 
+
+
 // ========== 获取所有申请 ==========
 app.get("/api/merchant/applications", (req, res) => {
   const { status } = req.query;
@@ -125,6 +127,54 @@ app.get("/api/merchant/statistics", (req, res) => {
   ).length;
 
   res.json({ success: true, data: { total, pending, approved, rejected } });
+});
+
+// ==================== 商品管理 API ====================
+
+// 内存中存储所有商品，作为共享数据源
+// 注意：服务器重启后数据会丢失，生产环境应使用数据库
+let globalProducts = [];
+
+// 初始化时，可以从 localStorage 同步一次，或使用默认数据
+// 我们提供一个初始化接口，让前端可以主动同步
+
+// 【新增】获取所有商品 (供前端调用)
+app.get("/api/products", (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  console.log(`[API] 获取商品列表，当前共 ${globalProducts.length} 个商品`);
+  res.json({ success: true, products: globalProducts });
+});
+
+// 【新增】同步商品数据到后端 (商家上架新商品时调用)
+app.post("/api/products/sync", (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  try {
+    const { products } = req.body;
+    if (products && Array.isArray(products)) {
+      // 更新全局商品数据
+      globalProducts = products;
+      console.log(`[API] 商品同步成功，共 ${globalProducts.length} 个商品`);
+      res.json({ success: true, message: "商品数据已同步" });
+    } else {
+      res.status(400).json({ success: false, message: "无效的商品数据" });
+    }
+  } catch (error) {
+    console.error("同步商品失败:", error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// 【可选】初始化默认商品 (防止首次使用时为空)
+app.post("/api/products/init", (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  const { defaultProducts } = req.body;
+  if (defaultProducts && Array.isArray(defaultProducts) && globalProducts.length === 0) {
+    globalProducts = defaultProducts;
+    console.log(`[API] 初始化商品完成，共 ${globalProducts.length} 个商品`);
+    res.json({ success: true, message: "商品初始化完成" });
+  } else {
+    res.json({ success: false, message: "已有商品数据或初始化数据无效" });
+  }
 });
 
 const PORT = process.env.PORT || 3000;
