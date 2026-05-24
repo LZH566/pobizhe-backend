@@ -5264,6 +5264,32 @@
 		    allUsers.push(newUser);
 		    saveAllUsers();
 			
+			// ========== 同步商品到商家中心 ==========
+			// 将入驻时填写的商品保存到 merchantProducts 数组中
+			for (const prod of merchantProductsData) {
+			    // 检查是否已经存在（避免重复）
+			    const exists = merchantProducts.some(p => p.id === prod.id);
+			    if (!exists) {
+			        merchantProducts.push({
+			            id: prod.id,
+			            name: prod.name,
+			            price: prod.price,
+			            unit: prod.unit,
+			            image: prod.mainImage || prod.images?.[0] || 'https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?w=400',
+			            seller: shopName || legalName,
+			            badge: '新店商品',
+			            address: prod.origin || origin,
+			            description: prod.description,
+			            stock: prod.stock,
+			            isCertified: false,
+			            salesCount: 0,
+			            goodRate: 100,
+			            reviewCount: 0
+			        });
+			    }
+			}
+			console.log(`已同步 ${merchantProductsData.length} 个商品到商家中心`);
+			
 		    // 保存头像到本地
 		    if (avatarBase64) {
 		        localStorage.setItem('pobizhe_avatar', avatarBase64);
@@ -5283,27 +5309,46 @@
 		        registerDate: newUser.registerDate
 		    };
 		    
+			// 刷新商家中心的商品列表（如果已登录且是商家）
+			if (currentUser.type === 'merchant') {
+			    // 将商品也添加到 currentUser 中
+			    currentUser.products = productsWithoutImages;
+			    // 刷新个人主页的商品列表（如果个人主页是打开的）
+			    if (document.getElementById('profileModal')?.classList.contains('show')) {
+			        renderMerchantProductList();
+			    }
+			}
+			
 		    // ========== 自动上架商品到首页 ==========
 		    if (merchantProductsData && merchantProductsData.length > 0) {
 		        for (const prod of merchantProductsData) {
 		            const newProduct = {
 		                id: prod.id,
 		                name: prod.name,
-		                price: prod.price,
+		                price: parseFloat(prod.price),
 		                unit: prod.unit,
-		                image: prod.mainImage,
+		                image: prod.mainImage || prod.images?.[0] || 'https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?w=400',
 		                seller: shopName || legalName,
 		                badge: '新店推荐',
 		                address: prod.origin || origin,
-		                description: prod.description,
-		                stock: prod.stock,
+		                description: prod.description || `【${prod.name}】产自${prod.origin || origin}，新鲜采摘，品质保证！`,
+		                stock: prod.stock || 0,
 		                isCertified: false,
-		                images: prod.images,
+		                images: prod.images || [],
 		                salesCount: 0,
 		                goodRate: 100,
-		                reviewCount: 0
+		                reviewCount: 0,
+		                // ========== 新增：详情页必需的字段 ==========
+		                buyerShowImages: [],           // 买家秀（空数组）
+		                traceCode: null,               // 溯源码
+		                isCertified: false             // 是否认证
 		            };
-		            products.unshift(newProduct);
+		            
+		            // 确保商品已存在才添加，避免重复
+		            const exists = products.some(p => p.id === newProduct.id);
+		            if (!exists) {
+		                products.unshift(newProduct);
+		            }
 		        }
 		        loadProducts();
 		        showToast(`已自动上架 ${merchantProductsData.length} 个商品到首页！`);
@@ -5332,7 +5377,7 @@
 		    if (product.buyerShowImages === undefined) product.buyerShowImages = [];
 		    
 		    // 填充基础信息
-		    document.getElementById('detailImg').src = product.image;
+		    document.getElementById('detailImg').src = product.image || 'https://images.unsplash.com/photo-1570913149827-d2ac84ab3f9a?w=400';
 		    document.getElementById('detailPrice').textContent = '¥' + parseFloat(product.price).toFixed(2);
 		    document.getElementById('detailUnit').textContent = '/' + product.unit;
 		    document.getElementById('detailTitle').textContent = product.name;
@@ -8462,12 +8507,10 @@
 		    // 获取商家发布的所有商品（包括注册时添加的和后期发布的）
 		    let allProducts = [];
 		    
-		    // 1. 从商家入驻申请中获取商品
-		    if (currentUser && currentUser.merchantApplicationId) {
-		        const application = merchantApplications.find(app => app.applyDate === currentUser.merchantApplicationId);
-		        if (application && application.products) {
-		            allProducts = [...application.products];
-		        }
+		    // 1. 从商家入驻申请中获取商品（修改这里）
+		    if (currentUser && currentUser.products && currentUser.products.length > 0) {
+		        // 直接从 currentUser.products 获取入驻时填写的商品
+		        allProducts = [...currentUser.products];
 		    }
 		    
 		    // 2. 从商家中心发布的商品中获取
