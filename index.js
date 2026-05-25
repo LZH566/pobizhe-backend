@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const { createClient } = require("@supabase/supabase-js");
 require("dotenv").config();
 
 const app = express();
@@ -9,176 +10,405 @@ app.use(
   cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"] }),
 );
 app.options("*", cors());
-
-// 增加请求体大小限制
 app.use(express.json({ limit: "50mb" }));
 
-// ========== 内存存储（不用数据库） ==========
-let merchantApplications = [];
-let nextId = 1;
+// Supabase 客户端
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_ANON_KEY;
+const supabase = createClient(supabaseUrl, supabaseKey);
 
-// 健康检查
+// ==================== 健康检查 ====================
 app.get("/", (req, res) => {
   res.json({ message: "破壁者后端API运行中", status: "ok" });
 });
 
-// 测试接口
 app.get("/api/status", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-// ========== 提交商家入驻申请 ==========
-app.post("/api/merchant/apply", (req, res) => {
-  console.log("收到入驻申请:", req.body.name);
+// ==================== 用户管理 API ====================
 
+// 获取所有用户
+app.get("/api/users", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    res.json({ success: true, data: data || [] });
+  } catch (error) {
+    res.json({ success: false, message: error.message, data: [] });
+  }
+});
+
+// 获取单个用户
+app.get("/api/users/:id", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("user_id", req.params.id)
+      .single();
+    if (error) throw error;
+    res.json({ success: true, data });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+// 注册用户
+app.post("/api/users/register", async (req, res) => {
+  try {
+    const userData = req.body;
+
+    // 检查手机号是否已存在
+    const { data: existing } = await supabase
+      .from("users")
+      .select("phone")
+      .eq("phone", userData.phone);
+    if (existing && existing.length > 0) {
+      return res.json({ success: false, message: "手机号已注册" });
+    }
+
+    const { data, error } = await supabase
+      .from("users")
+      .insert([userData])
+      .select();
+    if (error) throw error;
+
+    res.json({ success: true, data: data[0], message: "注册成功" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+// 登录
+app.post("/api/users/login", async (req, res) => {
+  try {
+    const { account, password } = req.body;
+    const { data, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("account", account)
+      .eq("password", password);
+    if (error) throw error;
+
+    if (data && data.length > 0) {
+      res.json({ success: true, data: data[0], message: "登录成功" });
+    } else {
+      res.json({ success: false, message: "账号或密码错误" });
+    }
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+// 更新用户信息
+app.put("/api/users/:id", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("users")
+      .update(req.body)
+      .eq("user_id", req.params.id)
+      .select();
+    if (error) throw error;
+    res.json({ success: true, data: data[0], message: "更新成功" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+// 删除用户
+app.delete("/api/users/:id", async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from("users")
+      .delete()
+      .eq("user_id", req.params.id);
+    if (error) throw error;
+    res.json({ success: true, message: "删除成功" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+// ==================== 商家入驻申请 API ====================
+
+// 提交申请
+app.post("/api/merchant/apply", async (req, res) => {
   try {
     const data = req.body;
 
-    // 验证必填字段
-    if (!data.name || !data.phone || !data.shop_name) {
-      return res.status(400).json({
-        success: false,
-        message: "缺少必要信息：姓名、手机号、店铺名称",
-      });
+    // 检查手机号是否已有申请
+    const { data: existing } = await supabase
+      .from("merchant_applications")
+      .select("phone")
+      .eq("phone", data.phone)
+      .eq("status", "pending");
+    if (existing && existing.length > 0) {
+      return res.json({ success: false, message: "已有待审核的申请" });
     }
 
-    // 保存到内存
-    const newApp = {
-      id: nextId++,
-      name: data.name,
-      phone: data.phone,
-      id_card: data.id_card || "",
-      shop_name: data.shop_name,
-      origin: data.origin || "",
-      category: data.category || "",
-      bank_card: data.bank_card || "",
-      bank_name: data.bank_name || "",
-      entity_type: data.entity_type || "个人农户",
-      settlement_period: data.settlement_period || "T+7",
-      products: data.products || "[]",
-      status: "pending",
-      created_at: new Date().toISOString(),
-      review_remark: "",
-    };
+    const { error } = await supabase.from("merchant_applications").insert([
+      {
+        name: data.name,
+        phone: data.phone,
+        id_card: data.id_card,
+        shop_name: data.shop_name,
+        origin: data.origin,
+        category: data.category,
+        bank_card: data.bank_card,
+        bank_name: data.bank_name,
+        ship_address: data.ship_address,
+        entity_type: data.entity_type,
+        settlement_period: data.settlement_period,
+        tools: data.tools,
+        web_manage: data.web_manage,
+        needs: data.needs,
+        sale_units: data.sale_units,
+        ship_areas: data.ship_areas,
+        need_cold_chain: data.need_cold_chain,
+        pains: data.pains,
+        services: data.services,
+        need_presale: data.need_presale,
+        need_group: data.need_group,
+        inventory_frequency: data.inventory_frequency,
+        shipping_type: data.shipping_type,
+        products: data.products,
+        avatar: data.avatar,
+        status: "pending",
+      },
+    ]);
 
-    merchantApplications.unshift(newApp);
-    console.log("当前申请总数:", merchantApplications.length);
-
-    res.json({
-      success: true,
-      message: "入驻申请已提交，等待审核",
-      applyId: newApp.id,
-    });
+    if (error) throw error;
+    res.json({ success: true, message: "申请已提交" });
   } catch (error) {
-    console.error("提交失败:", error);
-    res.status(500).json({ success: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
 });
 
-
-
-// ========== 获取所有申请 ==========
-app.get("/api/merchant/applications", (req, res) => {
-  const { status } = req.query;
-  let result = [...merchantApplications];
-
-  if (status && status !== "all") {
-    result = result.filter((app) => app.status === status);
+// 获取所有申请
+app.get("/api/merchant/applications", async (req, res) => {
+  try {
+    const { status } = req.query;
+    let query = supabase
+      .from("merchant_applications")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (status && status !== "all") {
+      query = query.eq("status", status);
+    }
+    const { data, error } = await query;
+    if (error) throw error;
+    res.json({ success: true, data: data || [] });
+  } catch (error) {
+    res.json({ success: false, message: error.message, data: [] });
   }
-
-  res.json({ success: true, data: result });
 });
 
-// ========== 审核申请 ==========
-app.post("/api/merchant/review/:id", (req, res) => {
+// 审核申请
+app.post("/api/merchant/review/:id", async (req, res) => {
   try {
     const { status, reviewRemark } = req.body;
-    const id = parseInt(req.params.id);
+    const { error } = await supabase
+      .from("merchant_applications")
+      .update({
+        status: status,
+        review_remark: reviewRemark,
+        reviewed_at: new Date().toISOString(),
+      })
+      .eq("id", req.params.id);
 
-    const app = merchantApplications.find((a) => a.id === id);
-    if (!app) {
-      return res.status(404).json({ success: false, message: "申请不存在" });
-    }
-
-    app.status = status;
-    app.review_remark = reviewRemark || "";
-    app.reviewed_at = new Date().toISOString();
-
+    if (error) throw error;
     res.json({
       success: true,
       message: status === "approved" ? "已通过" : "已拒绝",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.json({ success: false, message: error.message });
   }
-});
-
-// ========== 统计数据 ==========
-app.get("/api/merchant/statistics", (req, res) => {
-  const total = merchantApplications.length;
-  const pending = merchantApplications.filter(
-    (a) => a.status === "pending",
-  ).length;
-  const approved = merchantApplications.filter(
-    (a) => a.status === "approved",
-  ).length;
-  const rejected = merchantApplications.filter(
-    (a) => a.status === "rejected",
-  ).length;
-
-  res.json({ success: true, data: { total, pending, approved, rejected } });
 });
 
 // ==================== 商品管理 API ====================
 
-// 内存中存储所有商品，作为共享数据源
-// 注意：服务器重启后数据会丢失，生产环境应使用数据库
-let globalProducts = [];
-
-// 初始化时，可以从 localStorage 同步一次，或使用默认数据
-// 我们提供一个初始化接口，让前端可以主动同步
-
-// 【新增】获取所有商品 (供前端调用)
-app.get("/api/products", (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  console.log(`[API] 获取商品列表，当前共 ${globalProducts.length} 个商品`);
-  res.json({ success: true, products: globalProducts });
-});
-
-// 【新增】同步商品数据到后端 (商家上架新商品时调用)
-app.post("/api/products/sync", (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+// 获取所有商品
+app.get("/api/products", async (req, res) => {
   try {
-    const { products } = req.body;
-    if (products && Array.isArray(products)) {
-      // 更新全局商品数据
-      globalProducts = products;
-      console.log(`[API] 商品同步成功，共 ${globalProducts.length} 个商品`);
-      res.json({ success: true, message: "商品数据已同步" });
-    } else {
-      res.status(400).json({ success: false, message: "无效的商品数据" });
-    }
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    res.json({ success: true, products: data || [] });
   } catch (error) {
-    console.error("同步商品失败:", error);
-    res.status(500).json({ success: false, message: error.message });
+    res.json({ success: false, products: [], message: error.message });
   }
 });
 
-// 【可选】初始化默认商品 (防止首次使用时为空)
-app.post("/api/products/init", (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  const { defaultProducts } = req.body;
-  if (defaultProducts && Array.isArray(defaultProducts) && globalProducts.length === 0) {
-    globalProducts = defaultProducts;
-    console.log(`[API] 初始化商品完成，共 ${globalProducts.length} 个商品`);
-    res.json({ success: true, message: "商品初始化完成" });
-  } else {
-    res.json({ success: false, message: "已有商品数据或初始化数据无效" });
+// 同步商品（批量）
+app.post("/api/products/sync", async (req, res) => {
+  try {
+    const { products } = req.body;
+    if (!products || !Array.isArray(products)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "无效的商品数据" });
+    }
+
+    // 先清空再插入
+    await supabase.from("products").delete().neq("id", "0");
+
+    for (const product of products) {
+      const { error } = await supabase.from("products").insert([
+        {
+          id: String(product.id),
+          name: product.name,
+          price: product.price,
+          unit: product.unit || "斤",
+          image: product.image,
+          seller: product.seller,
+          badge: product.badge,
+          address: product.address,
+          description: product.description,
+          stock: product.stock || 0,
+          is_certified: product.isCertified || false,
+          images: product.images || [],
+          sales_count: product.salesCount || 0,
+          good_rate: product.goodRate || 100,
+          review_count: product.reviewCount || 0,
+          trace_code: product.traceCode || null,
+        },
+      ]);
+      if (error) console.error("商品插入失败:", error);
+    }
+
+    res.json({ success: true, message: `已同步 ${products.length} 个商品` });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+// 添加单个商品
+app.post("/api/products", async (req, res) => {
+  try {
+    const product = req.body;
+    const { error } = await supabase.from("products").insert([
+      {
+        id: String(product.id),
+        name: product.name,
+        price: product.price,
+        unit: product.unit || "斤",
+        image: product.image,
+        seller: product.seller,
+        badge: product.badge,
+        address: product.address,
+        description: product.description,
+        stock: product.stock || 0,
+        is_certified: product.isCertified || false,
+        images: product.images || [],
+        sales_count: 0,
+        good_rate: 100,
+        review_count: 0,
+      },
+    ]);
+    if (error) throw error;
+    res.json({ success: true, message: "商品添加成功" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+// 删除商品
+app.delete("/api/products/:id", async (req, res) => {
+  try {
+    const { error } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", req.params.id);
+    if (error) throw error;
+    res.json({ success: true, message: "商品已删除" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+// ==================== 订单管理 API ====================
+
+// 获取所有订单
+app.get("/api/orders", async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from("orders")
+      .select("*")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    res.json({ success: true, data: data || [] });
+  } catch (error) {
+    res.json({ success: false, data: [], message: error.message });
+  }
+});
+
+// 创建订单
+app.post("/api/orders", async (req, res) => {
+  try {
+    const order = req.body;
+    const { error } = await supabase.from("orders").insert([order]);
+    if (error) throw error;
+    res.json({ success: true, message: "订单创建成功" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+// 更新订单状态
+app.put("/api/orders/:id", async (req, res) => {
+  try {
+    const { status } = req.body;
+    const { error } = await supabase
+      .from("orders")
+      .update({
+        status: status,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", req.params.id);
+    if (error) throw error;
+    res.json({ success: true, message: "订单状态已更新" });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
+
+// ==================== 统计数据 API ====================
+
+app.get("/api/statistics", async (req, res) => {
+  try {
+    const [usersRes, productsRes, ordersRes, merchantAppsRes] =
+      await Promise.all([
+        supabase.from("users").select("*", { count: "exact", head: true }),
+        supabase.from("products").select("*", { count: "exact", head: true }),
+        supabase.from("orders").select("*", { count: "exact", head: true }),
+        supabase
+          .from("merchant_applications")
+          .select("*", { count: "exact", head: true })
+          .eq("status", "pending"),
+      ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalUsers: usersRes.count || 0,
+        totalProducts: productsRes.count || 0,
+        totalOrders: ordersRes.count || 0,
+        pendingApplications: merchantAppsRes.count || 0,
+      },
+    });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
   }
 });
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`服务器运行在端口 ${PORT}`);
-  console.log(`内存中已有 ${merchantApplications.length} 条申请`);
 });
