@@ -6462,6 +6462,20 @@
                     const SUPABASE_URL = 'https://snqlzwwtlkmeflvhezfk.supabase.co';
                     const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlenZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ';
                     
+					// 添加一个超时控制的 fetch 包装函数
+					async function fetchWithTimeout(url, options = {}, timeout = 10000) {
+					    const controller = new AbortController();
+					    const id = setTimeout(() => controller.abort(), timeout);
+					    try {
+					        const response = await fetch(url, { ...options, signal: controller.signal });
+					        clearTimeout(id);
+					        return response;
+					    } catch (error) {
+					        clearTimeout(id);
+					        throw error;
+					    }
+					}
+					
                     const supabaseOrder = {
                         order_no: order.id,
                         user_id: currentUser.userId || currentUser.phone,
