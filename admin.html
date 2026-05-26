@@ -660,43 +660,67 @@
             return;
         }
         
-        container.innerHTML = filtered.map(order => `
-            <div class="order-card" onclick="toggleOrderDetail('${order.id}')">
-                <div class="order-header">
-                    <div>
-                        <span class="order-id">📋 订单号：${order.id}</span>
-                        <span class="order-user"><i class="fas fa-user me-1"></i>${escapeHtml(order.userName || order.receiver)}</span>
+        container.innerHTML = filtered.map(order => {
+            // 解析 items（可能是字符串或数组）
+            let items = order.items;
+            if (typeof items === 'string') {
+                try {
+                    items = JSON.parse(items);
+                } catch(e) {
+                    items = [];
+                }
+            }
+            if (!Array.isArray(items)) {
+                items = [];
+            }
+            
+            // 获取订单金额（兼容多种字段名）
+            const orderTotal = order.total_amount || order.total || order.final_amount || 0;
+            
+            // 获取地址（兼容多种字段名）
+            const address = order.receiver_address || order.address || '';
+            const receiver = order.receiver_name || order.receiver || '';
+            const phone = order.receiver_phone || order.phone || '';
+            const userName = order.user_name || order.userName || receiver;
+            
+            return `
+                <div class="order-card" onclick="toggleOrderDetail('${order.id}')">
+                    <div class="order-header">
+                        <div>
+                            <span class="order-id">📋 订单号：${order.id}</span>
+                            <span class="order-user"><i class="fas fa-user me-1"></i>${escapeHtml(userName)}</span>
+                        </div>
+                        <span class="status status-${order.status}">
+                            ${order.status === 'pending' ? '待发货' : order.status === 'shipped' ? '已发货' : '已完成'}
+                        </span>
                     </div>
-                    <span class="status status-${order.status}">
-                        ${order.status === 'pending' ? '待发货' : order.status === 'shipped' ? '已发货' : '已完成'}
-                    </span>
-                </div>
-                <div class="order-items">
-                    <i class="fas fa-box me-1"></i>${(Array.isArray(order.items) ? order.items : JSON.parse(order.items || '[]')).map(i => `${i.name} ×${i.quantity}`).join('、')}
-                </div>
-                <div class="order-address">
-                    <i class="fas fa-map-marker-alt me-1"></i>${order.address}
-                </div>
-                <div class="order-footer">
-                    <span class="order-total">¥${order.total.toFixed(2)}</span>
-                    <div class="order-actions" onclick="event.stopPropagation()">
-                        ${order.status === 'pending' ? `<button class="btn-sm btn-ship" onclick="shipOrder('${order.id}')">🚚 确认发货</button>` : ''}
-                        <button class="btn-sm btn-delete" onclick="deleteOrder('${order.id}')">🗑️ 删除</button>
+                    <div class="order-items">
+                        <i class="fas fa-box me-1"></i>${items.map(i => `${i.name} ×${i.quantity}`).join('、')}
+                    </div>
+                    <div class="order-address">
+                        <i class="fas fa-map-marker-alt me-1"></i>${escapeHtml(address)}
+                    </div>
+                    <div class="order-footer">
+                        <span class="order-total">¥${orderTotal.toFixed(2)}</span>
+                        <div class="order-actions" onclick="event.stopPropagation()">
+                            ${order.status === 'pending' ? `<button class="btn-sm btn-ship" onclick="shipOrder('${order.id}')">🚚 确认发货</button>` : ''}
+                            <button class="btn-sm btn-delete" onclick="deleteOrder('${order.id}')">🗑️ 删除</button>
+                        </div>
+                    </div>
+                    <div class="order-detail" id="order-detail-${order.id}">
+                        <div class="detail-grid">
+                            <div class="detail-item"><div class="detail-label">收货人</div><div class="detail-value">${escapeHtml(receiver)} ${escapeHtml(phone)}</div></div>
+                            <div class="detail-item"><div class="detail-label">收货地址</div><div class="detail-value">${escapeHtml(address)}</div></div>
+                            <div class="detail-item"><div class="detail-label">支付方式</div><div class="detail-value">${order.payment_method || order.paymentMethod || '微信支付'}</div></div>
+                            <div class="detail-item"><div class="detail-label">下单时间</div><div class="detail-value">${order.date || new Date(order.created_at).toLocaleString()}</div></div>
+                        </div>
+                        <div class="detail-grid">
+                            <div class="detail-item"><div class="detail-label">商品明细</div><div class="detail-value">${items.map(i => `${i.name}：¥${i.price} × ${i.quantity}`).join('<br>')}</div></div>
+                        </div>
                     </div>
                 </div>
-                <div class="order-detail" id="order-detail-${order.id}">
-                    <div class="detail-grid">
-                        <div class="detail-item"><div class="detail-label">收货人</div><div class="detail-value">${escapeHtml(order.receiver)} ${order.phone}</div></div>
-                        <div class="detail-item"><div class="detail-label">收货地址</div><div class="detail-value">${escapeHtml(order.address)}</div></div>
-                        <div class="detail-item"><div class="detail-label">支付方式</div><div class="detail-value">${order.paymentMethod || '微信支付'}</div></div>
-                        <div class="detail-item"><div class="detail-label">下单时间</div><div class="detail-value">${order.date || new Date(order.createdAt).toLocaleString()}</div></div>
-                    </div>
-                    <div class="detail-grid">
-                        <div class="detail-item"><div class="detail-label">商品明细</div><div class="detail-value">${(Array.isArray(order.items) ? order.items : JSON.parse(order.items || '[]')).map(i => `${i.name}：¥${i.price} × ${i.quantity}`).join('<br>')}</div></div>
-                    </div>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
     
     function toggleOrderDetail(orderId) {
