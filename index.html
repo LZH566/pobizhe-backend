@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --primary-color: #2E7D32;
@@ -4202,6 +4203,13 @@
 		// 全局用户数据存储
 		let allUsers = [];
 		
+		// ========== Supabase 配置（添加在全局变量定义之后）==========
+		const SUPABASE_URL = 'https://snqlzwwtlkmeflvhezfk.supabase.co';
+		const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlemZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ';  // 从 Supabase 获取
+		
+		// 创建 Supabase 客户端
+		const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+		
 		// 加载所有用户
 		function loadAllUsers() {
 		    const saved = localStorage.getItem('pobizhe_all_users');
@@ -5354,7 +5362,7 @@
 		    }
 		    
 		    // ========== 保存到本地（后端成功后）==========
-		    // 处理商品数据：只保存图片的缩略信息，不保存完整 base64
+		    // 处理商品数据：保存图片 URL（不是 base64）
 		    const productsWithoutImages = merchantProductsData.map(prod => ({
 		        id: prod.id,
 		        name: prod.name,
@@ -5363,8 +5371,8 @@
 		        origin: prod.origin,
 		        stock: prod.stock,
 		        description: prod.description,
-		        // 只保存第一张图片的缩略图（压缩后），或不保存图片
-		        image: prod.mainImage ? prod.mainImage.substring(0, 200) + '...' : '',  // 只保存前200字符
+		        image: prod.mainImage || (prod.images ? prod.images[0] : ''),  // 保存 URL
+		        images: prod.images || [],  // 保存 URL 数组
 		        imageCount: prod.images ? prod.images.length : 0
 		    }));
 		    
@@ -8309,21 +8317,29 @@
 		    document.getElementById(`merchantProductImg${productId}_${imgIndex}`).click();
 		}
 		
-		// 处理商家商品图片上传
-		function handleMerchantProductImageUpload(event, productId, imgIndex) {
+		// 处理商家商品图片上传（使用 Supabase Storage）
+		async function handleMerchantProductImageUpload(event, productId, imgIndex) {
 		    const file = event.target.files[0];
 		    if (!file) return;
 		    
-		    if (!merchantProductImages[productId]) merchantProductImages[productId] = {};
+		    // 显示加载状态
+		    const uploadDiv = document.querySelector(`.product-img-upload[data-product="${productId}"][data-img="${imgIndex}"]`);
+		    if (uploadDiv) {
+		        uploadDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+		        uploadDiv.style.background = '#f0f0f0';
+		    }
 		    
-		    const reader = new FileReader();
-		    reader.onload = function(e) {
-		        merchantProductImages[productId][imgIndex] = e.target.result;
+		    try {
+		        // 上传到 Supabase
+		        const imageUrl = await uploadProductImage(file, productId, imgIndex);
+		        
+		        // 存储 URL 而不是 base64
+		        if (!merchantProductImages[productId]) merchantProductImages[productId] = {};
+		        merchantProductImages[productId][imgIndex] = imageUrl;
 		        
 		        // 更新UI显示
-		        const uploadDiv = document.querySelector(`.product-img-upload[data-product="${productId}"][data-img="${imgIndex}"]`);
 		        if (uploadDiv) {
-		            uploadDiv.style.background = `url(${e.target.result}) center/cover no-repeat`;
+		            uploadDiv.style.background = `url(${imageUrl}) center/cover no-repeat`;
 		            uploadDiv.style.border = '2px solid #2E7D32';
 		            uploadDiv.innerHTML = '';
 		            const checkIcon = document.createElement('i');
@@ -8334,8 +8350,16 @@
 		        
 		        // 验证图片数量
 		        validateProductImages(productId);
-		    };
-		    reader.readAsDataURL(file);
+		        showToast('图片上传成功');
+		    } catch (error) {
+		        console.error('上传失败:', error);
+		        showToast('图片上传失败，请重试');
+		        // 恢复原样
+		        if (uploadDiv) {
+		            uploadDiv.innerHTML = '<i class="fas fa-plus text-secondary"></i><small>图片' + imgIndex + '</small>';
+		            uploadDiv.style.background = '#f8f9fa';
+		        }
+		    }
 		}
 		
 		// 验证商品图片是否至少3张
@@ -8555,6 +8579,39 @@
             };
             reader.readAsDataURL(file);
         }
+		
+		// 上传图片到 Supabase Storage
+		async function uploadProductImage(file, productId, index) {
+		    try {
+		        const fileExt = file.name.split('.').pop();
+		        const fileName = `product_${productId}_${index}_${Date.now()}.${fileExt}`;
+		        
+		        // 上传到 Supabase Storage
+		        const { data, error } = await supabase.storage
+		            .from('product-images')  // 需要先在 Supabase 创建这个 bucket
+		            .upload(fileName, file, {
+		                cacheControl: '3600',
+		                upsert: false
+		            });
+		        
+		        if (error) throw error;
+		        
+		        // 获取公开 URL
+		        const { data: urlData } = supabase.storage
+		            .from('product-images')
+		            .getPublicUrl(fileName);
+		        
+		        return urlData.publicUrl;
+		    } catch (error) {
+		        console.error('上传图片失败:', error);
+		        // 如果上传失败，回退到 base64
+		        return new Promise((resolve) => {
+		            const reader = new FileReader();
+		            reader.onload = (e) => resolve(e.target.result);
+		            reader.readAsDataURL(file);
+		        });
+		    }
+		}
 		
 		// 直接购买相关变量
 		let directBuyProduct = null;
