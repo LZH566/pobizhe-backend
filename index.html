@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-	<link rel="icon" type="image/png" href="./favicon.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>破壁者 - 乡村零门槛电商生态圈</title>
@@ -5918,8 +5917,6 @@
         // 在 DOMContentLoaded 中调用
         // 在 document.addEventListener('DOMContentLoaded') 中添加
         document.addEventListener('DOMContentLoaded', function() {
-            // 显示骨架屏
-            showSkeleton();
             
             // 使用 requestIdleCallback 或 setTimeout 延迟加载非关键资源
             requestIdleCallback(() => {
@@ -5932,9 +5929,6 @@
                 loadProductReviews();
                 checkPaymentResult();
             });
-            
-            // 隐藏骨架屏
-            hideSkeleton();
         });
         
         // 骨架屏样式
