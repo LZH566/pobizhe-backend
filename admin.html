@@ -551,21 +551,32 @@
     // ========== 订单管理 ==========
     async function loadOrders() {
         try {
+            // 1. 先从后端 API 加载订单
             const response = await fetch(`${API_BASE}/api/orders`);
             const result = await response.json();
-            if (result.success) {
-                allOrders = result.data || [];
+            
+            if (result.success && result.data) {
+                allOrders = result.data;
+                console.log(`从后端加载了 ${allOrders.length} 个订单`);
             } else {
+                // 2. 如果后端没有数据，尝试从本地 localStorage 加载
+                console.log('后端无订单数据，使用本地数据');
                 allOrders = getLocalOrders();
+                // 如果有本地订单，同步到后端
+                if (allOrders.length > 0) {
+                    syncAllOrdersToBackend();
+                }
             }
         } catch (error) {
-            console.log('后端无订单API，使用本地数据');
+            console.error('加载订单失败:', error);
+            // 3. 网络错误时回退到本地数据
             allOrders = getLocalOrders();
         }
         updateOrderStats();
         renderOrders();
     }
     
+    // 获取本地订单（兼容旧数据）
     function getLocalOrders() {
         const savedOrders = localStorage.getItem('pobizhe_orders');
         const orders = savedOrders ? JSON.parse(savedOrders) : [];
@@ -580,6 +591,22 @@
                 userPhone: user?.phone || order.phone || ''
             };
         });
+    }
+    
+    // 同步所有本地订单到后端
+    async function syncAllOrdersToBackend() {
+        for (const order of allOrders) {
+            try {
+                await fetch(`${API_BASE}/api/orders`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(order)
+                });
+                console.log(`同步订单 ${order.id} 到后端成功`);
+            } catch(e) {
+                console.error(`同步订单 ${order.id} 失败:`, e);
+            }
+        }
     }
     
     function updateOrderStats() {
@@ -683,6 +710,19 @@
         const order = allOrders.find(o => o.id === orderId);
         if (order) {
             order.status = 'shipped';
+            
+            // 同步更新到后端
+            try {
+                await fetch(`${API_BASE}/api/orders/${orderId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: 'shipped' })
+                });
+                console.log(`订单 ${orderId} 状态已同步到后端`);
+            } catch(e) {
+                console.error('同步订单状态失败:', e);
+            }
+            
             saveOrdersToStorage();
             renderOrders();
             updateOrderStats();
@@ -696,6 +736,17 @@
         const index = allOrders.findIndex(o => o.id === orderId);
         if (index !== -1) {
             allOrders.splice(index, 1);
+            
+            // 同步删除到后端
+            try {
+                await fetch(`${API_BASE}/api/orders/${orderId}`, {
+                    method: 'DELETE'
+                });
+                console.log(`订单 ${orderId} 已从后端删除`);
+            } catch(e) {
+                console.error('从后端删除订单失败:', e);
+            }
+            
             saveOrdersToStorage();
             renderOrders();
             updateOrderStats();
@@ -704,7 +755,11 @@
     }
     
     function saveOrdersToStorage() {
+        // 保存到 localStorage
         localStorage.setItem('pobizhe_orders', JSON.stringify(allOrders));
+        
+        // 同时同步所有订单到后端（保持数据一致）
+        syncAllOrdersToBackend();
     }
     
     // ========== 商家入驻申请管理 ==========

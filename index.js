@@ -179,6 +179,75 @@ app.post("/api/products/init", (req, res) => {
   }
 });
 
+// ========== 订单管理 API ==========
+
+let globalOrders = [];
+
+// 获取所有订单
+app.get("/api/orders", (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.json({ success: true, data: globalOrders });
+});
+
+// 创建订单
+app.post("/api/orders", (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    try {
+        const order = req.body;
+        if (!order.id || !order.userId) {
+            return res.status(400).json({ success: false, message: "订单信息不完整" });
+        }
+        
+        order.createdAt = order.createdAt || new Date().toISOString();
+        globalOrders.unshift(order);
+        
+        console.log(`新订单创建: ${order.id}, 用户: ${order.userName}, 金额: ¥${order.total}`);
+        res.json({ success: true, message: "订单创建成功", orderId: order.id });
+    } catch (error) {
+        console.error("创建订单失败:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// 更新订单状态
+app.put("/api/orders/:id/status", (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    try {
+        const orderId = req.params.id;
+        const { status } = req.body;
+        
+        const order = globalOrders.find(o => o.id === orderId);
+        if (!order) {
+            return res.status(404).json({ success: false, message: "订单不存在" });
+        }
+        
+        order.status = status;
+        order.updatedAt = new Date().toISOString();
+        
+        res.json({ success: true, message: "订单状态已更新" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// 删除订单
+app.delete("/api/orders/:id", (req, res) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    try {
+        const orderId = req.params.id;
+        const index = globalOrders.findIndex(o => o.id === orderId);
+        
+        if (index === -1) {
+            return res.status(404).json({ success: false, message: "订单不存在" });
+        }
+        
+        globalOrders.splice(index, 1);
+        res.json({ success: true, message: "订单已删除" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`服务器运行在端口 ${PORT}`);
