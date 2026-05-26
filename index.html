@@ -5914,24 +5914,25 @@
             }
         }
         
-        // 在 document.addEventListener('DOMContentLoaded') 中修改为：
         document.addEventListener('DOMContentLoaded', function() {
-            // 先初始化商品数据
-            products = initProducts();
+            // 先确保 products 数组已初始化
+            if (typeof products === 'undefined') {
+                products = initProducts();
+            }
             
-            // 立即加载认证专区和商品（不要用 requestIdleCallback）
+            // 立即调用认证专区和商品加载
             loadCertifiedZone();
             loadProducts();
             
-            // 其他初始化可以延迟
-            setTimeout(() => {
-                initSpeechRecognition();
-                loadFromStorage();
-                loadAllUsers();
-                loadMerchantApplications();
-                loadProductReviews();
-                checkPaymentResult();
-            }, 100);
+            // 其他功能稍后加载
+            setTimeout(function() {
+                if (typeof initSpeechRecognition === 'function') initSpeechRecognition();
+                if (typeof loadFromStorage === 'function') loadFromStorage();
+                if (typeof loadAllUsers === 'function') loadAllUsers();
+                if (typeof loadMerchantApplications === 'function') loadMerchantApplications();
+                if (typeof loadProductReviews === 'function') loadProductReviews();
+                if (typeof checkPaymentResult === 'function') checkPaymentResult();
+            }, 200);
         });
         
         // 骨架屏样式
