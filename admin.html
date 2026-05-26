@@ -672,7 +672,7 @@
                     </span>
                 </div>
                 <div class="order-items">
-                    <i class="fas fa-box me-1"></i>${order.items.map(i => `${i.name} ×${i.quantity}`).join('、')}
+                    <i class="fas fa-box me-1"></i>${(Array.isArray(order.items) ? order.items : JSON.parse(order.items || '[]')).map(i => `${i.name} ×${i.quantity}`).join('、')}
                 </div>
                 <div class="order-address">
                     <i class="fas fa-map-marker-alt me-1"></i>${order.address}
@@ -692,7 +692,7 @@
                         <div class="detail-item"><div class="detail-label">下单时间</div><div class="detail-value">${order.date || new Date(order.createdAt).toLocaleString()}</div></div>
                     </div>
                     <div class="detail-grid">
-                        <div class="detail-item"><div class="detail-label">商品明细</div><div class="detail-value">${order.items.map(i => `${i.name}：¥${i.price} × ${i.quantity}`).join('<br>')}</div></div>
+                        <div class="detail-item"><div class="detail-label">商品明细</div><div class="detail-value">${(Array.isArray(order.items) ? order.items : JSON.parse(order.items || '[]')).map(i => `${i.name}：¥${i.price} × ${i.quantity}`).join('<br>')}</div></div>
                     </div>
                 </div>
             </div>
