@@ -4604,16 +4604,18 @@
         
         // 初始化商品
         // 替换原来的 initProducts 函数
+        // 初始化商品
         function initProducts() {
             const saved = localStorage.getItem(PRODUCTS_STORAGE_KEY);
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
                     // 确保每个商品都有 isCertified 属性
+                    // 【关键修复】将 p.id 转为数字进行比较
                     return parsed.map(p => ({
                         ...p,
-                        isCertified: certifiedIds.includes(p.id),
-                        traceCode: certifiedIds.includes(p.id) ? (p.traceCode || `RX-${p.id}${Math.floor(Math.random()*10000)}`) : null
+                        isCertified: certifiedIds.includes(parseInt(p.id)),
+                        traceCode: certifiedIds.includes(parseInt(p.id)) ? (p.traceCode || `RX-${parseInt(p.id)}${Math.floor(Math.random()*10000)}`) : null
                     }));
                 } catch(e) {
                     console.error('解析商品数据失败', e);
