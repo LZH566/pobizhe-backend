@@ -4604,17 +4604,36 @@
         ];
         
         // 初始化商品
+        // 替换原来的 initProducts 函数
         function initProducts() {
             const saved = localStorage.getItem(PRODUCTS_STORAGE_KEY);
             if (saved) {
                 try {
-                    return JSON.parse(saved);
+                    const parsed = JSON.parse(saved);
+                    // 确保每个商品都有 isCertified 属性
+                    return parsed.map(p => ({
+                        ...p,
+                        isCertified: certifiedIds.includes(p.id),
+                        traceCode: certifiedIds.includes(p.id) ? (p.traceCode || `RX-${p.id}${Math.floor(Math.random()*10000)}`) : null
+                    }));
                 } catch(e) {
-                    return DEFAULT_PRODUCTS;
+                    console.error('解析商品数据失败', e);
                 }
             }
-            localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(DEFAULT_PRODUCTS));
-            return DEFAULT_PRODUCTS;
+            
+            // 初始化默认商品并添加认证属性
+            const defaultWithCert = DEFAULT_PRODUCTS.map(p => ({
+                ...p,
+                isCertified: certifiedIds.includes(p.id),
+                traceCode: certifiedIds.includes(p.id) ? `RX-${p.id}${Math.floor(Math.random()*10000)}-${Date.now().toString().slice(-6)}` : null,
+                certifyDate: '2025-03-20',
+                originCert: p.address?.split('省')[1] || (p.address + '核心产区'),
+                inspectReport: '农药残留未检出，重金属符合国家标准',
+                packaging: '可降解环保袋'
+            }));
+            
+            localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(defaultWithCert));
+            return defaultWithCert;
         }
         
         // 原有的 saveProducts 函数
@@ -5897,32 +5916,41 @@
         }
         
         // 在 DOMContentLoaded 中调用
+        // 在 document.addEventListener('DOMContentLoaded') 中添加
         document.addEventListener('DOMContentLoaded', function() {
-            // 确保必要的DOM元素存在
-            if (!document.getElementById('productGrid')) {
-                console.warn('productGrid 元素不存在');
-                return;
-            }
+            // 显示骨架屏
+            showSkeleton();
             
-            initSpeechRecognition();
-            loadProductsFromBackend();
-            loadCertifiedZone();
-            loadFromStorage();
-            loadAllUsers();
-            loadMerchantApplications();
-            loadProductReviews();
-            checkPaymentResult();
-            
-            // 页面加载完成后隐藏加载动画
-            window.addEventListener('load', function() {
-                const loader = document.getElementById('pageLoader');
-                if (loader) {
-                    setTimeout(function() {
-                        loader.classList.add('hide');
-                    }, 500);
-                }
+            // 使用 requestIdleCallback 或 setTimeout 延迟加载非关键资源
+            requestIdleCallback(() => {
+                loadCertifiedZone();
+                loadProducts();
+                initSpeechRecognition();
+                loadFromStorage();
+                loadAllUsers();
+                loadMerchantApplications();
+                loadProductReviews();
+                checkPaymentResult();
             });
+            
+            // 隐藏骨架屏
+            hideSkeleton();
         });
+        
+        // 骨架屏样式
+        const skeletonStyle = `
+            .skeleton-card {
+                background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+                background-size: 200% 100%;
+                animation: skeleton-loading 1.5s infinite;
+                border-radius: 15px;
+                height: 280px;
+            }
+            @keyframes skeleton-loading {
+                0% { background-position: 200% 0; }
+                100% { background-position: -200% 0; }
+            }
+        `;
 		
 		// ========== 从后端加载商品数据 ==========
 		async function loadProductsFromBackend() {
