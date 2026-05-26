@@ -6610,10 +6610,6 @@
                     userOrders.unshift(order);
 					syncOrderToVercel(order);
                     
-                    // 保存到 Supabase
-                    const SUPABASE_URL = 'https://snqlzwwtlkmeflvhezfk.supabase.co';
-                    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlenZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ';
-                    
                     const supabaseOrder = {
                         order_no: order.id,
                         user_id: currentUser.userId || currentUser.phone,
