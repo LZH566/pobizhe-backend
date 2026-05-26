@@ -871,23 +871,14 @@
         const container = document.getElementById('usersList');
         container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载用户中...</div>';
         
+        // 直接从 localStorage 加载用户数据（不请求后端）
         try {
-            const response = await fetch(`${API_BASE}/api/users`);
-            const result = await response.json();
-            
-            if (result.success && result.data) {
-                allUsers = result.data;
-            } else {
-                // 如果接口返回格式不符合，尝试用本地数据
-                console.warn('后端返回格式异常:', result);
-                const saved = localStorage.getItem('pobizhe_all_users');
-                allUsers = saved ? JSON.parse(saved) : [];
-            }
-        } catch (error) {
-            console.error('加载用户失败:', error);
-            // 失败时回退到本地数据
             const saved = localStorage.getItem('pobizhe_all_users');
             allUsers = saved ? JSON.parse(saved) : [];
+            console.log(`从本地加载了 ${allUsers.length} 个用户`);
+        } catch (error) {
+            console.error('加载用户失败:', error);
+            allUsers = [];
         }
         renderUsers();
     }
@@ -986,34 +977,14 @@
     async function deleteUser(userId) {
         if (!confirm('确定删除这个用户吗？')) return;
         
-        // 尝试调用后端删除接口
-        try {
-            const response = await fetch(`${API_BASE}/api/users/${userId}`, {
-                method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' }
-            });
-            const result = await response.json();
-            if (result.success) {
-                showToast('用户已删除');
-                loadUsers(); // 重新加载列表
-            } else {
-                // 如果后端没有删除接口，从本地删除
-                const index = allUsers.findIndex(u => u.userId === userId);
-                if (index !== -1) {
-                    allUsers.splice(index, 1);
-                    renderUsers();
-                    showToast('用户已删除（本地）');
-                }
-            }
-        } catch (error) {
-            // 网络错误时从本地删除
-            console.error('删除失败:', error);
-            const index = allUsers.findIndex(u => u.userId === userId);
-            if (index !== -1) {
-                allUsers.splice(index, 1);
-                renderUsers();
-                showToast('用户已删除（本地）');
-            }
+        // 直接从本地删除
+        const index = allUsers.findIndex(u => u.userId === userId);
+        if (index !== -1) {
+            allUsers.splice(index, 1);
+            // 保存回 localStorage
+            localStorage.setItem('pobizhe_all_users', JSON.stringify(allUsers));
+            renderUsers();
+            showToast('用户已删除');
         }
     }
     
