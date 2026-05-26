@@ -9681,10 +9681,18 @@
 		            const paymentInfo = JSON.parse(pendingPayment);
 		            localStorage.removeItem('pending_star_payment');
 		            
-		            // 调用订单创建函数
+		            // ========== 【修改这里】==========
 		            if (paymentInfo.orderData && paymentInfo.orderData.createOrder) {
-		                paymentInfo.orderData.createOrder();
+		                // 购物车模式
+		                createOrderFromCart();
+		            } else if (window.tempDirectBuyOrder) {
+		                // 直接购买模式
+		                createOrderFromDirectBuy();
+		            } else {
+		                // 默认
+		                createOrderFromCart();
 		            }
+		            // ================================
 		            
 		            closeStarPromoterModal();
 		            closePayment();
@@ -9705,6 +9713,108 @@
 		    const modal = document.getElementById('starPromoterModal');
 		    if (modal) {
 		        modal.classList.remove('show');
+		    }
+		}
+		
+		// 从直接购买创建订单
+		function createOrderFromDirectBuy() {
+		    if (!window.tempDirectBuyOrder) return;
+		    
+		    const tempOrder = window.tempDirectBuyOrder;
+		    const order = {
+		        id: 'ORD' + Date.now(),
+		        userId: currentUser?.userId || currentUser?.phone || 'guest',
+		        userName: currentUser?.name || '游客',
+		        userPhone: currentUser?.phone || '',
+		        items: [{
+		            id: tempOrder.product.id,
+		            name: tempOrder.product.name,
+		            price: tempOrder.product.price,
+		            unit: tempOrder.product.unit,
+		            quantity: tempOrder.qty,
+		            image: tempOrder.product.image,
+		            seller: tempOrder.product.seller || '商家'
+		        }],
+		        subtotal: tempOrder.subtotal,
+		        shippingFee: tempOrder.shippingFee,
+		        total: tempOrder.total,
+		        status: 'pending',
+		        paymentMethod: 'wechat',
+		        address: tempOrder.address?.address || '',
+		        receiver: tempOrder.address?.name || '',
+		        phone: tempOrder.address?.phone || '',
+		        date: new Date().toLocaleDateString(),
+		        createdAt: new Date().toISOString()
+		    };
+		    
+		    userOrders.unshift(order);
+		    saveToStorage();
+		    
+		    // 同步到后端
+		    syncOrderToVercel(order);
+		    
+		    window.tempDirectBuyOrder = null;
+		    updateProfileStats();
+		}
+		
+		// 从购物车创建订单
+		function createOrderFromCart() {
+		    if (shoppingCart.length === 0) return;
+		    
+		    const defaultAddress = getDefaultReceiveAddress();
+		    const subtotal = shoppingCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+		    const shippingFee = subtotal >= 19.9 ? 0 : 8;
+		    const total = subtotal + shippingFee;
+		    
+		    const order = {
+		        id: 'ORD' + Date.now(),
+		        userId: currentUser?.userId || currentUser?.phone || 'guest',
+		        userName: currentUser?.name || '游客',
+		        userPhone: currentUser?.phone || '',
+		        items: [...shoppingCart],
+		        subtotal: subtotal,
+		        shippingFee: shippingFee,
+		        total: total,
+		        status: 'pending',
+		        paymentMethod: 'wechat',
+		        address: defaultAddress?.address || '',
+		        receiver: defaultAddress?.name || '',
+		        phone: defaultAddress?.phone || '',
+		        date: new Date().toLocaleDateString(),
+		        createdAt: new Date().toISOString()
+		    };
+		    
+		    userOrders.unshift(order);
+		    
+		    // 同步到后端
+		    syncOrderToVercel(order);
+		    
+		    shoppingCart = [];
+		    saveToStorage();
+		    updateCartBadge();
+		    updateProfileStats();
+		}
+		
+		// 同步订单到 Vercel 后端
+		async function syncOrderToVercel(order) {
+		    try {
+		        console.log('正在同步订单到后端:', order.id);
+		        const response = await fetch('https://pobizhe-backend.vercel.app/api/orders', {
+		            method: 'POST',
+		            headers: { 
+		                'Content-Type': 'application/json'
+		            },
+		            body: JSON.stringify(order)
+		        });
+		        
+		        const result = await response.json();
+		        if (result.success) {
+		            console.log('✅ 订单同步成功:', order.id);
+		        } else {
+		            console.error('❌ 订单同步失败:', result.message);
+		        }
+		    } catch (error) {
+		        console.error('❌ 订单同步网络错误:', error);
 		    }
 		}
 		
