@@ -17,10 +17,8 @@ app.use(express.json({ limit: "50mb" }));
 const { createClient } = require("@supabase/supabase-js");
 
 // 使用您现有的 Supabase 配置
-const SUPABASE_URL = "https://snqlzwwtlkmeflvhezfk.supabase.co";
-const SUPABASE_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlenZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ";
-
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://snqlzwwtlkmeflvhezfk.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;  // 从环境变量读取
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // ========== 健康检查 ==========
