@@ -5914,21 +5914,24 @@
             }
         }
         
-        // 在 DOMContentLoaded 中调用
-        // 在 document.addEventListener('DOMContentLoaded') 中添加
+        // 在 document.addEventListener('DOMContentLoaded') 中修改为：
         document.addEventListener('DOMContentLoaded', function() {
+            // 先初始化商品数据
+            products = initProducts();
             
-            // 使用 requestIdleCallback 或 setTimeout 延迟加载非关键资源
-            requestIdleCallback(() => {
-                loadCertifiedZone();
-                loadProducts();
+            // 立即加载认证专区和商品（不要用 requestIdleCallback）
+            loadCertifiedZone();
+            loadProducts();
+            
+            // 其他初始化可以延迟
+            setTimeout(() => {
                 initSpeechRecognition();
                 loadFromStorage();
                 loadAllUsers();
                 loadMerchantApplications();
                 loadProductReviews();
                 checkPaymentResult();
-            });
+            }, 100);
         });
         
         // 骨架屏样式
