@@ -4723,16 +4723,15 @@
 		// ========== 【核心】为商品添加认证属性，并生成可扫码溯源码链接 ==========
 		
 		products.forEach(p => {
-		    p.isCertified = certifiedIds.includes(p.id);
+		    p.isCertified = certifiedIds.includes(parseInt(p.id));  // ✅ 加上 parseInt
 		    if(p.isCertified){
-		        // 生成唯一溯源码（产品ID+随机码+时间戳）
+		        // 生成唯一溯源码
 		        p.traceCode = `RX-${p.id}${Math.floor(Math.random()*10000)}-${Date.now().toString().slice(-6)}`;
 		        p.certifyDate = '2025-03-20';
 		        p.originCert = p.address.split('省')[1] || p.address + '核心产区';
 		        p.inspectReport = '农药残留未检出，重金属符合国家标准，绿色食品A级';
 		        p.packaging = '可降解环保袋+食品级保鲜箱';
-		        // 构建溯源详情页URL（模拟真实可扫码打开的页面）
-		        p.traceUrl = `https://pobizhe.com/trace/${p.traceCode}`;  // 实际扫码将打开这个链接，我们使用弹窗模拟
+		        p.traceUrl = `https://pobizhe.com/trace/${p.traceCode}`;
 		    } else {
 		        p.traceCode = null;
 		    }
