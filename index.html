@@ -1972,6 +1972,8 @@
 		    }
 		}
 		
+		
+		
 		/* 全局防止溢出 */
 		* {
 		    max-width: 100%;
@@ -2012,6 +2014,444 @@
 		    padding: 4px 12px;
 		    border-radius: 20px;
 		    font-size: 11px;
+		}
+		
+		/* ============================================
+		   手机端全面优化 (新增/覆盖)
+		   ============================================ */
+		
+		@media (max-width: 768px) {
+		    /* 基础字体调整 */
+		    body {
+		        font-size: 14px;
+		        line-height: 1.5;
+		        padding-bottom: 70px;
+		    }
+		    
+		    /* 导航栏优化 */
+		    .navbar {
+		        padding: 8px 0 !important;
+		    }
+		    .navbar-brand {
+		        font-size: 1.1rem !important;
+		    }
+		    .navbar-brand i {
+		        font-size: 1rem;
+		    }
+		    .nav-link {
+		        padding: 6px 10px !important;
+		        font-size: 0.75rem !important;
+		    }
+		    .btn-merchant, .btn-customer, .btn-login {
+		        padding: 4px 10px !important;
+		        font-size: 0.7rem !important;
+		        margin: 2px 0;
+		        white-space: nowrap;
+		    }
+		    
+		    /* Hero区域优化 */
+		    .hero-section {
+		        padding: 40px 0 !important;
+		    }
+		    .hero-section .row {
+		        flex-direction: column !important;
+		    }
+		    .hero-section .col-lg-3 {
+		        margin-bottom: 15px !important;
+		    }
+		    .hero-section img {
+		        max-height: 150px !important;
+		        width: auto !important;
+		    }
+		    .hero-title {
+		        font-size: 1.6rem !important;
+		        line-height: 1.3;
+		    }
+		    .hero-subtitle {
+		        font-size: 0.9rem !important;
+		        margin-top: 0 !important;
+		        line-height: 1.4;
+		        padding: 0 10px;
+		    }
+		    .hero-section .btn {
+		        padding: 8px 16px !important;
+		        font-size: 0.75rem !important;
+		        margin: 5px 3px !important;
+		    }
+		    
+		    /* 章节标题优化 */
+		    .section-title {
+		        font-size: 1.3rem !important;
+		        margin-bottom: 5px;
+		    }
+		    .section-subtitle {
+		        font-size: 0.75rem !important;
+		        margin-bottom: 20px;
+		    }
+		    
+		    /* ========== 商品网格 - 2列布局 ========== */
+		    #productGrid {
+		        display: flex !important;
+		        flex-wrap: wrap !important;
+		        margin: 0 -6px !important;
+		    }
+		    #productGrid [class*="col-"] {
+		        width: calc(50% - 12px) !important;
+		        margin: 0 6px 12px 6px !important;
+		        padding: 0 !important;
+		        flex: none !important;
+		    }
+		    
+		    /* 商品卡片优化 */
+		    .product-card {
+		        border-radius: 12px !important;
+		        overflow: hidden !important;
+		        height: auto !important;
+		    }
+		    .product-img {
+		        height: 130px !important;
+		        object-fit: cover !important;
+		    }
+		    .product-body {
+		        padding: 10px !important;
+		    }
+		    .product-name {
+		        font-size: 0.85rem !important;
+		        font-weight: 600 !important;
+		        margin: 5px 0 !important;
+		        white-space: nowrap !important;
+		        overflow: hidden !important;
+		        text-overflow: ellipsis !important;
+		    }
+		    .product-body .text-muted.small {
+		        font-size: 0.65rem !important;
+		        white-space: nowrap !important;
+		        overflow: hidden !important;
+		        text-overflow: ellipsis !important;
+		    }
+		    .product-price {
+		        font-size: 1rem !important;
+		        white-space: nowrap !important;
+		    }
+		    .product-body .btn-sm {
+		        padding: 4px 8px !important;
+		        font-size: 0.6rem !important;
+		        min-width: 50px !important;
+		    }
+		    .product-badge {
+		        font-size: 0.55rem !important;
+		        padding: 2px 6px !important;
+		        top: 5px !important;
+		        left: 5px !important;
+		    }
+		    .certify-tag {
+		        font-size: 0.55rem !important;
+		        padding: 2px 6px !important;
+		        white-space: nowrap !important;
+		    }
+		    
+		    /* ========== 认证专区优化 ========== */
+		    .certify-zone {
+		        padding: 15px !important;
+		        margin: 20px 0 !important;
+		    }
+		    .certify-zone-banner {
+		        font-size: 0.7rem !important;
+		        padding: 8px 12px !important;
+		        white-space: normal !important;
+		        line-height: 1.3;
+		    }
+		    #certifiedProductsGrid {
+		        display: flex !important;
+		        flex-wrap: wrap !important;
+		        margin: 0 -6px !important;
+		    }
+		    #certifiedProductsGrid [class*="col-"] {
+		        width: calc(50% - 12px) !important;
+		        margin: 0 6px 12px 6px !important;
+		        padding: 0 !important;
+		    }
+		    
+		    /* ========== 盲盒专区优化 ========== */
+		    .blind-box-section {
+		        padding: 15px !important;
+		    }
+		    .blind-box-card {
+		        padding: 15px !important;
+		    }
+		    .blind-box-icon {
+		        font-size: 2rem !important;
+		        margin: 10px 0 !important;
+		    }
+		    .blind-box-card h4 {
+		        font-size: 1rem !important;
+		    }
+		    .blind-box-card .price {
+		        font-size: 1.5rem !important;
+		    }
+		    .blind-box-card .btn {
+		        padding: 8px !important;
+		        font-size: 0.7rem !important;
+		    }
+		    
+		    /* ========== 服务卡片优化 ========== */
+		    .service-card {
+		        padding: 15px !important;
+		    }
+		    .icon-box {
+		        width: 50px !important;
+		        height: 50px !important;
+		        font-size: 1.3rem !important;
+		    }
+		    .card-title {
+		        font-size: 0.9rem !important;
+		        margin-bottom: 8px !important;
+		    }
+		    .card-text {
+		        font-size: 0.7rem !important;
+		        line-height: 1.4 !important;
+		    }
+		    .speak-btn {
+		        padding: 4px 10px !important;
+		        font-size: 0.6rem !important;
+		    }
+		    
+		    /* ========== 模态框优化 ========== */
+		    .auth-content, .profile-content, .cart-content, .payment-content {
+		        width: 95% !important;
+		        max-height: 90vh !important;
+		        padding: 15px !important;
+		        border-radius: 20px !important;
+		    }
+		    .auth-content h3, .profile-content h3 {
+		        font-size: 1.2rem !important;
+		    }
+		    
+		    /* 选项卡优化 */
+		    .tab-btn-login, .tab-btn-customer, .tab-btn-merchant {
+		        padding: 10px !important;
+		        font-size: 0.75rem !important;
+		    }
+		    .tab-btn-login small, .tab-btn-customer small, .tab-btn-merchant small {
+		        font-size: 0.55rem !important;
+		    }
+		    
+		    /* 表单优化 */
+		    .form-control, .form-select {
+		        font-size: 14px !important;
+		        padding: 8px 12px !important;
+		    }
+		    .form-label {
+		        font-size: 0.75rem !important;
+		        margin-bottom: 5px !important;
+		    }
+		    .btn-custom, .btn-primary-green {
+		        padding: 10px !important;
+		        font-size: 0.85rem !important;
+		    }
+		    
+		    /* ========== 个人主页优化 ========== */
+		    .profile-header {
+		        padding: 15px !important;
+		    }
+		    .profile-avatar {
+		        width: 60px !important;
+		        height: 60px !important;
+		    }
+		    .profile-header h4 {
+		        font-size: 1rem !important;
+		    }
+		    .profile-stats {
+		        padding: 10px !important;
+		    }
+		    .stat-value {
+		        font-size: 1rem !important;
+		    }
+		    .stat-label {
+		        font-size: 0.6rem !important;
+		    }
+		    .profile-tab {
+		        padding: 8px !important;
+		        font-size: 0.7rem !important;
+		    }
+		    
+		    /* 个人信息区域 */
+		    .info-card {
+		        padding: 12px !important;
+		    }
+		    .info-row {
+		        flex-direction: column !important;
+		        margin-bottom: 10px !important;
+		    }
+		    .info-label {
+		        width: auto !important;
+		        font-size: 0.7rem !important;
+		        margin-bottom: 3px !important;
+		    }
+		    .info-value {
+		        font-size: 0.85rem !important;
+		        word-break: break-all !important;
+		    }
+		    
+		    /* 订单卡片 */
+		    .order-card {
+		        padding: 12px !important;
+		    }
+		    .order-id {
+		        font-size: 0.7rem !important;
+		    }
+		    .order-status {
+		        font-size: 0.6rem !important;
+		        padding: 2px 8px !important;
+		    }
+		    .order-items {
+		        font-size: 0.7rem !important;
+		    }
+		    .order-address {
+		        font-size: 0.65rem !important;
+		    }
+		    .order-total {
+		        font-size: 0.9rem !important;
+		    }
+		    .order-actions .btn-sm {
+		        padding: 3px 8px !important;
+		        font-size: 0.6rem !important;
+		    }
+		    
+		    /* 地址卡片 */
+		    .address-card {
+		        padding: 10px !important;
+		        font-size: 0.7rem !important;
+		    }
+		    .address-card strong {
+		        font-size: 0.75rem !important;
+		    }
+		    .address-actions button {
+		        font-size: 0.6rem !important;
+		    }
+		    
+		    /* ========== 购物车优化 ========== */
+		    .cart-item {
+		        padding: 10px !important;
+		    }
+		    .cart-item-img {
+		        width: 50px !important;
+		        height: 50px !important;
+		    }
+		    .cart-item-info h6 {
+		        font-size: 0.75rem !important;
+		    }
+		    .cart-item-price {
+		        font-size: 0.8rem !important;
+		    }
+		    .qty-btn {
+		        width: 25px !important;
+		        height: 25px !important;
+		        font-size: 0.8rem !important;
+		    }
+		    
+		    /* ========== 支付页面 ========== */
+		    .payment-methods {
+		        grid-template-columns: repeat(2, 1fr) !important;
+		        gap: 8px !important;
+		    }
+		    .payment-method {
+		        padding: 10px !important;
+		    }
+		    .payment-method i {
+		        font-size: 1.5rem !important;
+		    }
+		    .payment-method div {
+		        font-size: 0.65rem !important;
+		    }
+		    
+		    /* ========== 商品详情页 ========== */
+		    #productDetailModal .profile-content {
+		        max-width: 95% !important;
+		    }
+		    #productDetailModal [style*="height: 250px"] {
+		        height: 180px !important;
+		    }
+		    #detailPrice {
+		        font-size: 1.3rem !important;
+		    }
+		    #detailTitle {
+		        font-size: 0.9rem !important;
+		    }
+		    .badge.bg-success {
+		        font-size: 0.55rem !important;
+		        padding: 3px 8px !important;
+		    }
+		    
+		    /* ========== 底部导航 ========== */
+		    .bottom-nav {
+		        display: flex !important;
+		        padding: 8px 0 !important;
+		        background: rgba(255,255,255,0.95) !important;
+		        backdrop-filter: blur(10px);
+		    }
+		    .bottom-nav-item {
+		        padding: 4px 8px !important;
+		    }
+		    .bottom-nav-item i {
+		        font-size: 1.1rem !important;
+		    }
+		    .bottom-nav-item span {
+		        font-size: 0.6rem !important;
+		    }
+		    
+		    /* ========== 语音助手 ========== */
+		    .voice-assistant-btn {
+		        bottom: 70px !important;
+		        right: 15px !important;
+		        width: 50px !important;
+		        height: 50px !important;
+		    }
+		    .voice-assistant-btn i {
+		        font-size: 1.3rem !important;
+		    }
+		    .voice-chat-box {
+		        width: 90% !important;
+		        right: 5% !important;
+		        left: 5% !important;
+		        bottom: 90px !important;
+		    }
+		    
+		    /* ========== 页脚 ========== */
+		    footer {
+		        padding: 25px 0 20px !important;
+		        margin-top: 30px !important;
+		    }
+		    footer h5 {
+		        font-size: 0.85rem !important;
+		    }
+		    footer .small, footer p, footer a {
+		        font-size: 0.65rem !important;
+		    }
+		    
+		    /* ========== 标准卡片 ========== */
+		    .standard-card {
+		        padding: 8px !important;
+		    }
+		    .standard-card .standard-icon i {
+		        font-size: 1.2rem !important;
+		    }
+		    .standard-card h6 {
+		        font-size: 0.65rem !important;
+		        margin: 5px 0 !important;
+		    }
+		    .standard-card small {
+		        font-size: 0.55rem !important;
+		    }
+		    
+		    /* 大字体按钮 */
+		    .font-size-toggle {
+		        top: 75px !important;
+		        right: 10px !important;
+		        width: 35px !important;
+		        height: 35px !important;
+		        font-size: 0.8rem !important;
+		    }
 		}
 		
     </style>
