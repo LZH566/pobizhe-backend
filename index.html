@@ -5040,7 +5040,17 @@
 		        const response = await fetch('https://pobizhe-backend.vercel.app/api/users/sync', {
 		            method: 'POST',
 		            headers: { 'Content-Type': 'application/json' },
-		            body: JSON.stringify(newUser)
+		            body: JSON.stringify({
+		                userId: newUser.userId,
+		                account: newUser.account,
+		                name: newUser.name,
+		                phone: newUser.phone,
+		                password: newUser.password,
+		                type: 'customer',
+		                address: newUser.address,
+		                verified: false,
+		                isApplying: false
+		            })
 		        });
 		        const result = await response.json();
 		        if (result.success) {
