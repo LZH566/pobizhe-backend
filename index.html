@@ -6376,11 +6376,278 @@
 		        buyBtn.classList.remove('disabled');
 		        buyBtn.innerHTML = '<i class="fas fa-bolt me-1"></i>立即购买';
 		    }
-		    
+			renderProductReviews(product.id, 'all');
+			initInlineRatingStars();
+			checkUserCanReview(product.id);
 		    // 显示弹窗
 		    document.getElementById('productDetailModal').classList.add('show');
 		    document.body.style.overflow = 'hidden';
 		}
+		
+		// ========== 新增：评价相关函数 ==========
+		
+		// 渲染评价列表（支持分类）
+		function renderProductReviews(productId, filter = 'all') {
+		    const reviews = productReviews[productId] || [];
+		    const container = document.getElementById('latestReviews');
+		    if (!container) return;
+		    
+		    // 计算各星级数量
+		    let goodCount = 0, midCount = 0, badCount = 0, withImageCount = 0;
+		    reviews.forEach(r => {
+		        if (r.rating >= 4) goodCount++;
+		        else if (r.rating === 3) midCount++;
+		        else badCount++;
+		        if (r.images && r.images.length > 0) withImageCount++;
+		    });
+		    const total = reviews.length;
+		    
+		    // 更新进度条
+		    const goodProgress = document.getElementById('goodProgress');
+		    const midProgress = document.getElementById('midProgress');
+		    const badProgress = document.getElementById('badProgress');
+		    const goodPercent = document.getElementById('goodPercent');
+		    const midPercent = document.getElementById('midPercent');
+		    const badPercent = document.getElementById('badPercent');
+		    
+		    if (goodProgress) goodProgress.style.width = total ? (goodCount/total*100) + '%' : '0%';
+		    if (midProgress) midProgress.style.width = total ? (midCount/total*100) + '%' : '0%';
+		    if (badProgress) badProgress.style.width = total ? (badCount/total*100) + '%' : '0%';
+		    if (goodPercent) goodPercent.innerText = total ? Math.round(goodCount/total*100) + '%' : '0%';
+		    if (midPercent) midPercent.innerText = total ? Math.round(midCount/total*100) + '%' : '0%';
+		    if (badPercent) badPercent.innerText = total ? Math.round(badCount/total*100) + '%' : '0%';
+		    
+		    // 更新标签上的数量
+		    const allBtn = document.querySelector('#reviewTags .btn[data-filter="all"]');
+		    const goodBtn = document.querySelector('#reviewTags .btn[data-filter="good"]');
+		    const midBtn = document.querySelector('#reviewTags .btn[data-filter="mid"]');
+		    const badBtn = document.querySelector('#reviewTags .btn[data-filter="bad"]');
+		    const withImageBtn = document.querySelector('#reviewTags .btn[data-filter="withImage"]');
+		    
+		    if (allBtn) allBtn.innerHTML = `全部 ${total}`;
+		    if (goodBtn) goodBtn.innerHTML = `好评 ${goodCount}`;
+		    if (midBtn) midBtn.innerHTML = `中评 ${midCount}`;
+		    if (badBtn) badBtn.innerHTML = `差评 ${badCount}`;
+		    if (withImageBtn) withImageBtn.innerHTML = `<i class="fas fa-camera me-1"></i>有图 ${withImageCount}`;
+		    
+		    // 过滤评价
+		    let filtered = [...reviews];
+		    if (filter === 'good') filtered = reviews.filter(r => r.rating >= 4);
+		    else if (filter === 'mid') filtered = reviews.filter(r => r.rating === 3);
+		    else if (filter === 'bad') filtered = reviews.filter(r => r.rating <= 2);
+		    else if (filter === 'withImage') filtered = reviews.filter(r => r.images && r.images.length > 0);
+		    
+		    // 按时间倒序
+		    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+		    
+		    if (filtered.length === 0) {
+		        container.innerHTML = '<div class="text-center text-muted py-4">暂无评价，快去下单成为第一个评价用户吧！</div>';
+		        return;
+		    }
+		    
+		    container.innerHTML = filtered.map(r => `
+		        <div class="border-bottom pb-3 mb-3">
+		            <div class="d-flex justify-content-between align-items-center">
+		                <div>
+		                    <span class="fw-bold small">${r.user}</span>
+		                    <span class="text-warning ms-2 small">${'★'.repeat(Math.floor(r.rating))}${r.rating % 1 >= 0.5 ? '½' : ''}${'☆'.repeat(5-Math.ceil(r.rating))}</span>
+		                </div>
+		                <small class="text-muted">${r.date}</small>
+		            </div>
+		            <p class="small mb-2 mt-1">${escapeHtml(r.content)}</p>
+		            ${r.images && r.images.length > 0 ? `
+		                <div class="d-flex gap-2 mt-2">
+		                    ${r.images.slice(0, 4).map(img => `
+		                        <img src="${img}" style="width: 65px; height: 65px; object-fit: cover; border-radius: 8px; cursor: pointer;" onclick="viewFullImage('${img}')">
+		                    `).join('')}
+		                    ${r.images.length > 4 ? `<div class="d-flex align-items-center justify-content-center" style="width: 65px; height: 65px; background: #f0f0f0; border-radius: 8px; cursor: pointer;" onclick="viewFullImage('${r.images[0]}')">+${r.images.length-4}</div>` : ''}
+		                </div>
+		            ` : ''}
+		        </div>
+		    `).join('');
+		}
+		
+		// 筛选评价
+		function filterReviews(type) {
+		    // 更新按钮样式
+		    document.querySelectorAll('#reviewTags .btn').forEach(btn => {
+		        btn.style.background = '#f5f5f5';
+		        btn.style.color = '#666';
+		    });
+		    const activeBtn = document.querySelector(`#reviewTags .btn[data-filter="${type}"]`);
+		    if (activeBtn) {
+		        activeBtn.style.background = '#FF6B35';
+		        activeBtn.style.color = 'white';
+		    }
+		    
+		    if (currentDetailProduct) {
+		        renderProductReviews(currentDetailProduct.id, type);
+		    }
+		}
+		
+		// 更新星级显示（根据好评率）
+		function updateStarDisplay(goodRate) {
+		    const starContainer = document.getElementById('detailStarDisplay');
+		    if (!starContainer) return;
+		    const fullStars = Math.floor(goodRate / 20);
+		    const hasHalf = (goodRate % 20) >= 10;
+		    
+		    starContainer.innerHTML = '';
+		    for (let i = 0; i < fullStars; i++) {
+		        starContainer.innerHTML += '<i class="fas fa-star" style="color: #FFC107;"></i>';
+		    }
+		    if (hasHalf) {
+		        starContainer.innerHTML += '<i class="fas fa-star-half-alt" style="color: #FFC107;"></i>';
+		    }
+		    for (let i = fullStars + (hasHalf ? 1 : 0); i < 5; i++) {
+		        starContainer.innerHTML += '<i class="far fa-star" style="color: #ccc;"></i>';
+		    }
+		}
+		
+		// 检查用户是否可以评价（是否购买过该商品）
+		function checkUserCanReview(productId) {
+		    const reviewArea = document.getElementById('reviewInputArea');
+		    if (!reviewArea) return;
+		    
+		    if (!currentUser) {
+		        reviewArea.style.display = 'none';
+		        return;
+		    }
+		    
+		    const hasPurchased = userOrders.some(order => 
+		        (order.status === 'shipped' || order.status === 'completed') &&
+		        order.items.some(item => item.id == productId)
+		    );
+		    
+		    reviewArea.style.display = hasPurchased ? 'block' : 'none';
+		}
+		
+		// 初始化评分星星事件
+		function initInlineRatingStars() {
+		    const stars = document.querySelectorAll('#ratingStars .star-input');
+		    stars.forEach(star => {
+		        star.onclick = function() {
+		            const score = parseInt(this.dataset.score);
+		            currentInlineRating = score;
+		            stars.forEach((s, i) => {
+		                if (i < score) {
+		                    s.className = 'fas fa-star star-input';
+		                    s.style.color = '#FFC107';
+		                } else {
+		                    s.className = 'far fa-star star-input';
+		                    s.style.color = '#ccc';
+		                }
+		            });
+		        };
+		    });
+		}
+		
+		// 处理内联评价图片上传
+		function handleInlineReviewImageUpload(input) {
+		    const file = input.files[0];
+		    if (!file) return;
+		    const reader = new FileReader();
+		    reader.onload = function(e) {
+		        currentInlineImages.push(e.target.result);
+		        const container = document.getElementById('reviewInputImages');
+		        const imgDiv = document.createElement('div');
+		        imgDiv.style.cssText = 'width: 60px; height: 60px; position: relative;';
+		        imgDiv.innerHTML = `
+		            <img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+		            <button class="btn btn-sm btn-danger rounded-circle position-absolute top-0 end-0" style="width: 18px; height: 18px; padding: 0; font-size: 10px;" onclick="this.parentElement.remove()">&times;</button>
+		        `;
+		        container.insertBefore(imgDiv, container.firstChild);
+		    };
+		    reader.readAsDataURL(file);
+		    input.value = '';
+		}
+		
+		// 提交内联评价
+		function submitInlineReview() {
+		    if (!currentUser) {
+		        showToast('请先登录');
+		        openAuthModal('customer');
+		        return;
+		    }
+		    
+		    if (!currentDetailProduct) return;
+		    
+		    // 检查用户是否购买过该商品
+		    const hasPurchased = userOrders.some(order => 
+		        (order.status === 'shipped' || order.status === 'completed') &&
+		        order.items.some(item => item.id == currentDetailProduct.id)
+		    );
+		    
+		    if (!hasPurchased) {
+		        showToast('只有购买过该商品的用户才能评价');
+		        return;
+		    }
+		    
+		    if (currentInlineRating === 0) {
+		        showToast('请先评分');
+		        return;
+		    }
+		    
+		    const content = document.getElementById('reviewInputContent').value;
+		    if (!content.trim()) {
+		        showToast('请填写评价内容');
+		        return;
+		    }
+		    
+		    // 保存评价
+		    if (!productReviews[currentDetailProduct.id]) productReviews[currentDetailProduct.id] = [];
+		    
+		    productReviews[currentDetailProduct.id].push({
+		        user: currentUser.nickname || currentUser.name || currentUser.phone,
+		        rating: currentInlineRating,
+		        content: content,
+		        images: [...currentInlineImages],
+		        date: new Date().toLocaleDateString()
+		    });
+		    
+		    // 更新商品的好评率
+		    const reviews = productReviews[currentDetailProduct.id];
+		    const goodCount = reviews.filter(r => r.rating >= 4).length;
+		    const totalCount = reviews.length;
+		    currentDetailProduct.goodRate = Math.round(goodCount / totalCount * 100);
+		    currentDetailProduct.reviewCount = totalCount;
+		    
+		    // 更新全局 products 数组
+		    const globalProduct = products.find(p => p.id == currentDetailProduct.id);
+		    if (globalProduct) {
+		        globalProduct.goodRate = currentDetailProduct.goodRate;
+		        globalProduct.reviewCount = totalCount;
+		    }
+		    
+		    saveProductReviews();
+		    saveProducts(products);
+		    
+		    // 刷新显示
+		    document.getElementById('detailGoodRate').innerHTML = currentDetailProduct.goodRate + '%';
+		    document.getElementById('detailReviewCount').innerText = totalCount;
+		    updateStarDisplay(currentDetailProduct.goodRate);
+		    renderProductReviews(currentDetailProduct.id);
+		    
+		    // 清空表单
+		    currentInlineRating = 0;
+		    currentInlineImages = [];
+		    document.getElementById('reviewInputContent').value = '';
+		    document.getElementById('reviewInputImages').innerHTML = `
+		        <div class="review-upload-btn" onclick="document.getElementById('reviewInputFile').click()" style="width: 60px; height: 60px; border: 1px dashed #ccc; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: white;">
+		            <i class="fas fa-camera text-secondary"></i>
+		        </div>
+		    `;
+		    document.querySelectorAll('#ratingStars .star-input').forEach(star => {
+		        star.className = 'far fa-star star-input';
+		        star.style.color = '#ccc';
+		    });
+		    
+		    showToast('评价成功！感谢您的分享');
+		}
+		
+		// 全局变量
+		let currentInlineRating = 0;
+		let currentInlineImages = [];
 		
 		// 查看大图
 		function viewFullImage(imgSrc) {
@@ -11142,44 +11409,135 @@
 	                <p class="text-muted small mb-0" id="detailDesc" style="line-height: 1.6;"></p>
 	            </div>
 	            
-	            <!-- 统计数据行 -->
-	            <div class="row g-2 mb-3" id="detailStats">
+	            <!-- 商品统计数据行 - 淘宝/拼多多风格 -->
+	            <div class="row g-3 mb-4" id="detailStats">
 	                <div class="col-4 text-center">
-	                    <div class="p-2 bg-light rounded">
-	                        <div class="small text-muted">已售</div>
-	                        <div class="fw-bold text-success fs-6" id="detailSalesCount">0</div>
+	                    <div class="p-2 rounded-3" style="background: #FFF8E7;">
+	                        <div class="small text-secondary">已售</div>
+	                        <div class="fw-bold fs-5" style="color: #FF6B35;" id="detailSalesCount">0</div>
 	                    </div>
 	                </div>
 	                <div class="col-4 text-center">
-	                    <div class="p-2 bg-light rounded">
-	                        <div class="small text-muted">好评度</div>
-	                        <div class="fw-bold text-warning fs-6" id="detailGoodRate">0%</div>
+	                    <div class="p-2 rounded-3" style="background: #FFF8E7;">
+	                        <div class="small text-secondary">评价</div>
+	                        <div class="fw-bold fs-5" style="color: #FF6B35;" id="detailReviewCount">0</div>
 	                    </div>
 	                </div>
 	                <div class="col-4 text-center">
-	                    <div class="p-2 bg-light rounded">
-	                        <div class="small text-muted">评价</div>
-	                        <div class="fw-bold text-primary fs-6" id="detailReviewCount">0</div>
+	                    <div class="p-2 rounded-3" style="background: #FFF8E7;">
+	                        <div class="small text-secondary">人气</div>
+	                        <div class="fw-bold fs-5" style="color: #FF6B35;" id="detailPopularity">🔥 99+</div>
 	                    </div>
 	                </div>
 	            </div>
 	            
-	            <!-- 买家秀专区 -->
+	            <!-- 好评率与评分详情 - 淘宝风格进度条 -->
+	            <div class="mb-4 p-3" style="background: #FAFAFA; border-radius: 16px;">
+	                <div class="d-flex align-items-center justify-content-between mb-2">
+	                    <div>
+	                        <span class="fw-bold fs-4" style="color: #FF6B35;" id="detailGoodRate">0%</span>
+	                        <span class="text-muted ms-1">好评率</span>
+	                    </div>
+	                    <div class="text-warning" id="detailStarDisplay">
+	                        <i class="fas fa-star"></i>
+	                        <i class="fas fa-star"></i>
+	                        <i class="fas fa-star"></i>
+	                        <i class="fas fa-star"></i>
+	                        <i class="fas fa-star-half-alt"></i>
+	                    </div>
+	                </div>
+	                
+	                <!-- 好评进度条 -->
+	                <div class="d-flex align-items-center mb-2">
+	                    <span class="small text-secondary" style="width: 45px;">好评</span>
+	                    <div class="flex-grow-1 mx-2">
+	                        <div class="progress" style="height: 6px; border-radius: 3px;">
+	                            <div class="progress-bar bg-success" id="goodProgress" style="width: 0%;"></div>
+	                        </div>
+	                    </div>
+	                    <span class="small text-secondary" id="goodPercent">0%</span>
+	                </div>
+	                <div class="d-flex align-items-center mb-2">
+	                    <span class="small text-secondary" style="width: 45px;">中评</span>
+	                    <div class="flex-grow-1 mx-2">
+	                        <div class="progress" style="height: 6px; border-radius: 3px;">
+	                            <div class="progress-bar bg-warning" id="midProgress" style="width: 0%;"></div>
+	                        </div>
+	                    </div>
+	                    <span class="small text-secondary" id="midPercent">0%</span>
+	                </div>
+	                <div class="d-flex align-items-center">
+	                    <span class="small text-secondary" style="width: 45px;">差评</span>
+	                    <div class="flex-grow-1 mx-2">
+	                        <div class="progress" style="height: 6px; border-radius: 3px;">
+	                            <div class="progress-bar bg-danger" id="badProgress" style="width: 0%;"></div>
+	                        </div>
+	                    </div>
+	                    <span class="small text-secondary" id="badPercent">0%</span>
+	                </div>
+	            </div>
+	            
+	            <!-- 评价分类标签 - 拼多多风格 -->
+	            <div class="mb-3">
+	                <div class="d-flex gap-2 overflow-auto pb-2" style="scrollbar-width: thin;" id="reviewTags">
+	                    <button class="btn btn-sm rounded-pill active" data-filter="all" onclick="filterReviews('all')" style="background: #FF6B35; color: white; border: none; padding: 6px 16px;">全部</button>
+	                    <button class="btn btn-sm rounded-pill" data-filter="good" onclick="filterReviews('good')" style="background: #f5f5f5; color: #666; border: none; padding: 6px 16px;">好评</button>
+	                    <button class="btn btn-sm rounded-pill" data-filter="mid" onclick="filterReviews('mid')" style="background: #f5f5f5; color: #666; border: none; padding: 6px 16px;">中评</button>
+	                    <button class="btn btn-sm rounded-pill" data-filter="bad" onclick="filterReviews('bad')" style="background: #f5f5f5; color: #666; border: none; padding: 6px 16px;">差评</button>
+	                    <button class="btn btn-sm rounded-pill" data-filter="withImage" onclick="filterReviews('withImage')" style="background: #f5f5f5; color: #666; border: none; padding: 6px 16px;">
+	                        <i class="fas fa-camera me-1"></i>有图
+	                    </button>
+	                </div>
+	            </div>
+	            
+	            <!-- 买家秀专区 - 横向滑动 -->
 	            <div class="mb-3">
 	                <div class="d-flex justify-content-between align-items-center mb-2">
-	                    <h6 class="fw-bold mb-0"><i class="fas fa-camera me-2 text-primary"></i>买家秀</h6>
+	                    <h6 class="fw-bold mb-0"><i class="fas fa-images me-2" style="color: #FF6B35;"></i>买家秀</h6>
 	                    <small class="text-muted" id="buyerShowCount">0张晒图</small>
 	                </div>
-	                <div class="d-flex gap-2 overflow-auto pb-2" id="buyerShowList"></div>
+	                <div class="d-flex gap-2 overflow-auto pb-2" id="buyerShowList" style="scrollbar-width: thin; scroll-snap-type: x mandatory;">
+	                    <div class="text-muted text-center" style="min-width: 100px;">暂无买家秀</div>
+	                </div>
 	            </div>
 	            
-	            <!-- 最新评价（可选） -->
+	            <!-- 最新评价列表 -->
 	            <div class="mb-3">
 	                <div class="d-flex justify-content-between align-items-center mb-2">
-	                    <h6 class="fw-bold mb-0"><i class="fas fa-star me-2 text-warning"></i>最新评价</h6>
-	                    <button class="btn btn-sm btn-link text-decoration-none p-0" onclick="viewAllReviews()">查看全部</button>
+	                    <h6 class="fw-bold mb-0"><i class="fas fa-star me-2" style="color: #FF6B35;"></i>最新评价</h6>
+	                    <button class="btn btn-sm btn-link text-decoration-none p-0" style="color: #FF6B35;" onclick="viewAllReviews()">查看全部 <i class="fas fa-chevron-right ms-1 small"></i></button>
 	                </div>
-	                <div id="latestReviews" class="bg-light rounded p-2" style="max-height: 150px; overflow-y: auto;"></div>
+	                <div id="latestReviews" class="rounded-3" style="max-height: 300px; overflow-y: auto;">
+	                    <!-- 评价将动态填充 -->
+	                </div>
+	            </div>
+	            
+	            <!-- 评价输入区域 - 下单后才能评价 -->
+	            <div class="mb-3 p-3 rounded-3" id="reviewInputArea" style="background: #F8F9FA; display: none; border: 1px solid #FFE0B2;">
+	                <div class="d-flex justify-content-between align-items-center mb-2">
+	                    <h6 class="fw-bold mb-0"><i class="fas fa-edit me-2" style="color: #FF6B35;"></i>发表评价</h6>
+	                    <span class="badge bg-light text-secondary">下单后可评价</span>
+	                </div>
+	                <div class="mb-2">
+	                    <div class="rating-input mb-2" id="ratingStars">
+	                        <span class="me-2">评分：</span>
+	                        <i class="far fa-star star-input" data-score="1" style="font-size: 1.3rem; cursor: pointer; color: #ccc;"></i>
+	                        <i class="far fa-star star-input" data-score="2" style="font-size: 1.3rem; cursor: pointer; color: #ccc;"></i>
+	                        <i class="far fa-star star-input" data-score="3" style="font-size: 1.3rem; cursor: pointer; color: #ccc;"></i>
+	                        <i class="far fa-star star-input" data-score="4" style="font-size: 1.3rem; cursor: pointer; color: #ccc;"></i>
+	                        <i class="far fa-star star-input" data-score="5" style="font-size: 1.3rem; cursor: pointer; color: #ccc;"></i>
+	                    </div>
+	                    <textarea class="form-control" id="reviewInputContent" rows="2" placeholder="分享您的使用感受..." style="border-radius: 12px; resize: none;"></textarea>
+	                    <div class="d-flex justify-content-between align-items-center mt-2">
+	                        <div class="d-flex gap-2" id="reviewInputImages">
+	                            <div class="review-upload-btn" onclick="document.getElementById('reviewInputFile').click()" style="width: 60px; height: 60px; border: 1px dashed #ccc; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; background: white;">
+	                                <i class="fas fa-camera text-secondary"></i>
+	                            </div>
+	                            <input type="file" id="reviewInputFile" accept="image/*" style="display: none;" onchange="handleInlineReviewImageUpload(this)">
+	                        </div>
+	                        <button class="btn btn-sm px-4" style="background: #FF6B35; color: white; border: none; border-radius: 20px;" onclick="submitInlineReview()">发表评价</button>
+	                    </div>
+	                </div>
 	            </div>
 	            
 	            <!-- 物流追踪 -->
