@@ -4208,7 +4208,7 @@
 		const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNucWx6d3d0bGttZWZsdmhlemZrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3MjkzMzIsImV4cCI6MjA5MjMwNTMzMn0.j7euYzI1zuiPYnZIdr0i-vxgzf7bzTi-9_rahusdKhQ';  // 从 Supabase 获取
 		
 		// 创建 Supabase 客户端
-		const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+		var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 		
 		// 加载所有用户
 		function loadAllUsers() {
