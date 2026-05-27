@@ -538,7 +538,7 @@
             max-width: 800px;
         }
         .auth-close {
-            position: absolute;
+            position: fixed;
             top: 15px;
             right: 15px;
             background: #f5f5f5;
@@ -553,6 +553,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 100001;
         }
         .auth-close:hover {
             background: #e0e0e0;
@@ -1617,7 +1618,16 @@
 		        margin: 10px auto;
 		    }
 		    .auth-content {
-		        max-width: 95%;
+		        background: white;
+		        border-radius: 25px;
+		        padding: 30px;
+		        max-width: 600px;
+		        width: 95%;
+		        max-height: 90vh;
+		        overflow-y: auto;
+		        position: relative;
+		        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+		        margin-top: 20px; 
 		    }
 		    
 		    /* 表单 */
@@ -2515,8 +2525,16 @@
 		        height: 35px !important;
 		        font-size: 0.8rem !important;
 		    }
+		    .auth-close {
+		        top: 10px !important;
+		        right: 10px !important;
+		        width: 32px !important;
+		        height: 32px !important;
+		        font-size: 1.2rem !important;
+		        background: rgba(0,0,0,0.6) !important;
+		        color: white !important;
+		    }
 		}
-		
     </style>
 </head>
 <body>
