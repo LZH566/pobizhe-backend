@@ -2538,6 +2538,19 @@
 		        color: white !important;
 		    }
 		}
+		
+		/* 认证标准弹窗滚动条美化 */
+		#certifyStandardModal ::-webkit-scrollbar {
+		    width: 5px;
+		}
+		#certifyStandardModal ::-webkit-scrollbar-track {
+		    background: #f1f1f1;
+		    border-radius: 10px;
+		}
+		#certifyStandardModal ::-webkit-scrollbar-thumb {
+		    background: #2E7D32;
+		    border-radius: 10px;
+		}
     </style>
 </head>
 <body>
@@ -5458,6 +5471,90 @@
 		    document.getElementById('traceModal').style.display = 'flex';
 		}
 		function closeTraceModal() { document.getElementById('traceModal').style.display = 'none'; }
+		
+		// 显示完整认证标准弹窗
+		function showCertifyStandard() {
+		    const modalHtml = `
+		        <div id="certifyStandardModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:100000;display:flex;align-items:center;justify-content:center;">
+		            <div style="background:white; border-radius:20px; max-width:500px; width:90%; max-height:85vh; overflow-y:auto; padding:20px; position:relative;">
+		                <button onclick="closeCertifyStandardModal()" style="position:absolute; top:10px; right:15px; background:none; border:none; font-size:24px; cursor:pointer;">&times;</button>
+		                
+		                <h3 style="color:#2E7D32; text-align:center; margin-bottom:20px;">
+		                    <i class="fas fa-medal"></i> 乡村好物认证标准
+		                </h3>
+		                
+		                <div style="background:#E8F5E9; border-radius:15px; padding:15px; margin-bottom:20px;">
+		                    <h4 style="color:#2E7D32; margin-bottom:10px;">📋 认证等级</h4>
+		                    <p><strong>⭐ 一级认证（乡村好物）</strong> - 满足以下全部4项标准</p>
+		                </div>
+		                
+		                <div style="margin-bottom:20px;">
+		                    <h4 style="color:#2E7D32; border-left:4px solid #2E7D32; padding-left:12px; margin-bottom:15px;">🌾 一、产地溯源标准</h4>
+		                    <ul style="line-height:1.8; padding-left:20px;">
+		                        <li>必须提供精确到村镇的产地信息</li>
+		                        <li>需上传村委会盖章的产地证明或土地承包合同</li>
+		                        <li>支持消费者扫码查询详细产地信息</li>
+		                        <li>产地信息包含土壤、气候等自然条件说明</li>
+		                    </ul>
+		                </div>
+		                
+		                <div style="margin-bottom:20px;">
+		                    <h4 style="color:#2E7D32; border-left:4px solid #2E7D32; padding-left:12px; margin-bottom:15px;">🔬 二、品质检测标准</h4>
+		                    <ul style="line-height:1.8; padding-left:20px;">
+		                        <li>农药残留检测：所有指标低于国家标准限值</li>
+		                        <li>重金属检测：铅、镉、汞、砷等符合国标</li>
+		                        <li>添加剂检测：无违规添加物</li>
+		                        <li>微生物检测：致病菌不得检出</li>
+		                        <li>检测报告需由CMA认证机构出具</li>
+		                    </ul>
+		                </div>
+		                
+		                <div style="margin-bottom:20px;">
+		                    <h4 style="color:#2E7D32; border-left:4px solid #2E7D32; padding-left:12px; margin-bottom:15px;">📱 三、全程溯源标准</h4>
+		                    <ul style="line-height:1.8; padding-left:20px;">
+		                        <li>一物一码，独立溯源码</li>
+		                        <li>支持扫码查看：产地、生产者、检测报告、包装日期</li>
+		                        <li>可追溯种植/养殖过程关键节点</li>
+		                        <li>物流运输过程温度、湿度可查（生鲜类）</li>
+		                    </ul>
+		                </div>
+		                
+		                <div style="margin-bottom:20px;">
+		                    <h4 style="color:#2E7D32; border-left:4px solid #2E7D32; padding-left:12px; margin-bottom:15px;">📦 四、环保包装标准</h4>
+		                    <ul style="line-height:1.8; padding-left:20px;">
+		                        <li>使用可降解或可回收包装材料</li>
+		                        <li>生鲜产品使用食品级保鲜包装</li>
+		                        <li>包装上印有回收说明或环保标识</li>
+		                        <li>减少过度包装，符合绿色包装要求</li>
+		                    </ul>
+		                </div>
+		                
+		                <div style="background:#FFF8E1; border-radius:15px; padding:15px; margin:20px 0;">
+		                    <h4 style="color:#FF8F00; margin-bottom:10px;">🏅 三品一标加分项</h4>
+		                    <p>拥有以下认证可获平台推荐流量扶持：</p>
+		                    <ul style="line-height:1.8; padding-left:20px;">
+		                        <li>🌿 绿色食品认证</li>
+		                        <li>🌱 有机食品认证</li>
+		                        <li>✅ 无公害农产品认证</li>
+		                        <li>📍 地理标志产品认证</li>
+		                    </ul>
+		                </div>
+		                
+		                <div style="text-align:center; margin-top:20px;">
+		                    <button onclick="closeCertifyStandardModal()" style="background:linear-gradient(135deg,#2E7D32,#4CAF50); color:white; border:none; padding:10px 30px; border-radius:25px; cursor:pointer;">我知道了</button>
+		                </div>
+		            </div>
+		        </div>
+		    `;
+		    
+		    document.body.insertAdjacentHTML('beforeend', modalHtml);
+		}
+		
+		// 关闭认证标准弹窗
+		function closeCertifyStandardModal() {
+		    const modal = document.getElementById('certifyStandardModal');
+		    if (modal) modal.remove();
+		}
 		
 		// 渲染认证专区（带溯源码按钮）
 		function loadCertifiedZone() {
