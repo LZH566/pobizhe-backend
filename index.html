@@ -1910,9 +1910,12 @@
 		    
 		    /* 价格容器 - 让价格和按钮在同一行 */
 		    .product-body .d-flex.justify-content-between {
-		        flex-wrap: nowrap !important;
-		        gap: 4px;
-		        align-items: center;
+		            display: flex !important;
+		            flex-direction: row !important;
+		            align-items: center !important;
+		            justify-content: space-between !important;
+		            flex-wrap: nowrap !important;
+		            gap: 4px !important;
 		    }
 		    
 		    /* 商品卡片底部按钮区域 */
@@ -2107,47 +2110,90 @@
 		        border-radius: 12px !important;
 		        overflow: hidden !important;
 		        height: auto !important;
+		        display: flex !important;
+		        flex-direction: column !important;
 		    }
 		    .product-img {
-		        height: 130px !important;
+		        height: 120px !important;
 		        object-fit: cover !important;
 		    }
 		    .product-body {
-		        padding: 10px !important;
+		        padding: 8px !important;
+		        flex: 1 !important;
 		    }
 		    .product-name {
-		        font-size: 0.85rem !important;
+		        font-size: 0.75rem !important;
 		        font-weight: 600 !important;
-		        margin: 5px 0 !important;
-		        white-space: nowrap !important;
-		        overflow: hidden !important;
-		        text-overflow: ellipsis !important;
+		        margin: 3px 0 !important;
+		        white-space: normal !important;
+		        word-break: break-word !important;
+		        overflow: visible !important;
+		        line-height: 1.3;
 		    }
 		    .product-body .text-muted.small {
-		        font-size: 0.65rem !important;
+		        font-size: 0.6rem !important;
 		        white-space: nowrap !important;
 		        overflow: hidden !important;
 		        text-overflow: ellipsis !important;
+		        margin: 2px 0;
 		    }
+		    
+		    /* 关键修复：价格和按钮同一行 */
+		    .product-body .d-flex.justify-content-between {
+		        display: flex !important;
+		        flex-direction: row !important;
+		        align-items: center !important;
+		        justify-content: space-between !important;
+		        margin-top: 5px !important;
+		        flex-wrap: nowrap !important;
+		        gap: 4px !important;
+		    }
+		    
 		    .product-price {
-		        font-size: 1rem !important;
+		        font-size: 0.85rem !important;
+		        white-space: nowrap !important;
+		        flex-shrink: 0 !important;
+		    }
+		    
+		    .product-body .d-flex.gap-1 {
+		        display: flex !important;
+		        flex-direction: row !important;
+		        gap: 3px !important;
+		        flex-shrink: 0 !important;
+		        flex-wrap: nowrap !important;
+		    }
+		    
+		    .product-body .btn-warning {
+		        font-size: 0.55rem !important;
+		        padding: 4px 8px !important;
+		        min-width: 46px !important;
+		        background: linear-gradient(135deg, #FF8F00, #FFA726) !important;
+		        color: white !important;
+		        border: none !important;
+		        border-radius: 20px !important;
 		        white-space: nowrap !important;
 		    }
-		    .product-body .btn-sm {
-		        padding: 4px 8px !important;
-		        font-size: 0.6rem !important;
-		        min-width: 50px !important;
+		    
+		    .product-body .btn-outline-warning {
+		        font-size: 0.5rem !important;
+		        padding: 3px 6px !important;
+		        min-width: 42px !important;
+		        white-space: nowrap !important;
+		        border-radius: 20px !important;
 		    }
+		    
 		    .product-badge {
-		        font-size: 0.55rem !important;
-		        padding: 2px 6px !important;
+		        font-size: 0.5rem !important;
+		        padding: 2px 5px !important;
 		        top: 5px !important;
 		        left: 5px !important;
 		    }
 		    .certify-tag {
-		        font-size: 0.55rem !important;
-		        padding: 2px 6px !important;
+		        font-size: 0.5rem !important;
+		        padding: 2px 5px !important;
 		        white-space: nowrap !important;
+		        display: inline-block !important;
+		        margin-top: 4px;
 		    }
 		    
 		    /* ========== 认证专区优化 ========== */
@@ -5386,20 +5432,20 @@
 		    grid.innerHTML = displayProducts.map(p => `
 		        <div class="col-md-6 col-lg-4">
 		            <div class="product-card">
-		                ${p.isCertified ? `<span class="product-badge certified" style="position:absolute; top:10px; right:10px; background:#FFD966;"><i class="fas fa-medal"></i> 乡村好物认证</span>` : `<span class="product-badge">${p.badge}</span>`}
+		                ${p.isCertified ? `<span class="product-badge certified" style="position:absolute; top:5px; right:5px; background:#FFD966; font-size:0.6rem; padding:2px 6px;"><i class="fas fa-medal"></i> 认证</span>` : `<span class="product-badge" style="font-size:0.6rem; padding:2px 6px;">${p.badge}</span>`}
 		                <img src="${p.image}" class="product-img" alt="${p.name}" onerror="this.src='https://placehold.co/400x200?text=图片加载失败'">
-		                <div class="product-body p-3" onclick="openProductDetail(${p.id})" style="cursor:pointer;">
-		                    <h5 class="product-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name} ${p.isCertified ? '<i class="fas fa-check-circle text-warning"></i>' : ''}</h5>
-		                    <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fas fa-store"></i> ${p.seller}</div>
-		                    <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><i class="fas fa-map-marker-alt"></i> ${p.address}</div>
-		                    <div class="d-flex justify-content-between align-items-center mt-2">
-		                        <span class="product-price" style="white-space: nowrap;">¥${p.price.toFixed(2)}/${p.unit}</span>
-		                        <div class="d-flex gap-1">
-		                            ${p.isCertified ? `<button class="btn btn-sm btn-outline-warning" onclick="event.stopPropagation();viewTrace('${p.traceCode}')" style="white-space: nowrap; border-radius: 20px; padding: 4px 10px; font-size: 0.7rem; min-width: 60px;"><i class="fas fa-qrcode me-1"></i>溯源</button>` : ''}
-		                            <button class="btn btn-sm btn-warning" onclick="event.stopPropagation();openProductDetail('${p.id}')" style="white-space: nowrap; border-radius: 20px; padding: 4px 10px; font-size: 0.7rem; min-width: 60px; background: linear-gradient(135deg, #FF8F00, #FFA726); color: white; border: none;"><i class="fas fa-eye me-1"></i>购买</button>
+		                <div class="product-body p-2" onclick="openProductDetail(${p.id})" style="cursor:pointer;">
+		                    <h5 class="product-name" style="font-size:0.75rem; font-weight:600; margin:3px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${p.name} ${p.isCertified ? '<i class="fas fa-check-circle text-warning" style="font-size:0.65rem;"></i>' : ''}</h5>
+		                    <div class="text-muted small" style="font-size:0.6rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><i class="fas fa-store"></i> ${p.seller}</div>
+		                    <div class="text-muted small" style="font-size:0.6rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"><i class="fas fa-map-marker-alt"></i> ${p.address}</div>
+		                    <div class="d-flex justify-content-between align-items-center mt-2" style="gap:4px; flex-wrap:nowrap;">
+		                        <span class="product-price" style="font-size:0.85rem; white-space:nowrap; flex-shrink:0;">¥${p.price.toFixed(2)}/${p.unit}</span>
+		                        <div class="d-flex gap-1" style="flex-shrink:0;">
+		                            ${p.isCertified ? `<button class="btn btn-sm btn-outline-warning" onclick="event.stopPropagation();viewTrace('${p.traceCode}')" style="white-space:nowrap; border-radius:20px; padding:2px 6px; font-size:0.5rem; min-width:42px;"><i class="fas fa-qrcode me-1"></i>溯源</button>` : ''}
+		                            <button class="btn btn-sm btn-warning" onclick="event.stopPropagation();openProductDetail(${p.id})" style="white-space:nowrap; border-radius:20px; padding:3px 8px; font-size:0.55rem; min-width:46px; background:linear-gradient(135deg, #FF8F00, #FFA726); color:white; border:none;"><i class="fas fa-eye me-1"></i>购买</button>
 		                        </div>
 		                    </div>
-		                    ${p.isCertified ? `<div class="mt-2"><span class="certify-tag"><i class="fas fa-shield-alt"></i> 溯源可查·品质保障</span></div>` : ''}
+		                    ${p.isCertified ? `<div class="mt-1"><span class="certify-tag" style="font-size:0.5rem; padding:2px 5px;"><i class="fas fa-shield-alt"></i> 溯源可查</span></div>` : ''}
 		                </div>
 		            </div>
 		        </div>
