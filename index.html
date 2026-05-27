@@ -6262,7 +6262,24 @@
 		// 打开商品详情页（增强版）
 		function openProductDetail(id) {
 		    const product = products.find(p => p.id == id);
-		    if (!product) return;
+		    if (product) {
+		        // 已售数量
+		        document.getElementById('detailSalesCount').innerText = product.salesCount || 0;
+		        // 好评度 (如果没有评价，默认为100%)
+		        document.getElementById('detailGoodRate').innerText = (product.goodRate || 100) + '%';
+		        // 评价总数
+		        document.getElementById('detailReviewCount').innerText = product.reviewCount || 0;
+		        
+		        // 渲染买家秀
+		        const buyerShowContainer = document.getElementById('buyerShowList');
+		        if (product.buyerShowImages && product.buyerShowImages.length > 0) {
+		            buyerShowContainer.innerHTML = product.buyerShowImages.map(img => 
+		                `<img src="${img}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px;" onclick="viewFullImage('${img}')">`
+		            ).join('');
+		        } else {
+		            buyerShowContainer.innerHTML = '<div class="text-muted">暂无买家秀</div>';
+		        }
+		    }
 		    
 		    currentDetailProduct = product;
 		    
@@ -7844,36 +7861,163 @@
 		    input.value = '';
 		}
 		
-		function submitReview(orderId) {
+		// 打开评价弹窗
+		function openReviewModal(orderId) {
 		    const order = userOrders.find(o => o.id === orderId);
 		    if (!order) return;
 		    
-		    const content = document.getElementById('reviewContent')?.value || '';
+		    currentReviewOrder = order;
+		    pendingReviewImages = [];
 		    
-		    // 获取评分
-		    const ratingContainers = document.querySelectorAll('.rating-stars');
-		    for (let i = 0; i < ratingContainers.length; i++) {
-		        const container = ratingContainers[i];
-		        const rating = container.dataset.rating;
-		        if (rating && order.items[i]) {
-		            const product = order.items[i];
-		            
-		            if (!productReviews[product.id]) productReviews[product.id] = [];
-		            
-		            productReviews[product.id].push({
-		                user: (currentUser?.nickname || currentUser?.name || '匿名用户').slice(0, 2) + '***',
-		                rating: parseInt(rating),
-		                content: content,
-		                images: [...pendingReviewImages],
-		                date: new Date().toLocaleDateString(),
-		                orderId: orderId
-		            });
+		    let productsHtml = '';
+		    order.items.forEach((item, idx) => {
+		        productsHtml += `
+		            <div class="d-flex align-items-center mb-3 p-2 border rounded">
+		                <img src="${item.image}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
+		                <div class="ms-2 flex-grow-1">
+		                    <div class="fw-bold small">${item.name}</div>
+		                    <div class="rating-stars" data-product-index="${idx}">
+		                        ${[1,2,3,4,5].map(s => `<i class="far fa-star star-rating" data-score="${s}" style="cursor:pointer; font-size:1.2rem; margin-right:3px;"></i>`).join('')}
+		                    </div>
+		                </div>
+		            </div>
+		        `;
+		    });
+		    
+		    const modalHtml = `
+		        <div id="reviewModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:100002;display:flex;align-items:center;justify-content:center;">
+		            <div class="bg-white rounded-4 p-4" style="width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto;">
+		                <div class="d-flex justify-content-between mb-3">
+		                    <h5 class="fw-bold">评价商品</h5>
+		                    <button class="btn-close" onclick="closeReviewModal()"></button>
+		                </div>
+		                <div id="reviewProductsList">${productsHtml}</div>
+		                <div class="mb-3">
+		                    <label class="form-label fw-bold">评价内容</label>
+		                    <textarea id="reviewContent" class="form-control" rows="3" placeholder="分享您的使用体验..."></textarea>
+		                </div>
+		                <div class="mb-3">
+		                    <label class="form-label fw-bold">晒图（可选）</label>
+		                    <div class="d-flex gap-2 flex-wrap" id="reviewImageContainer">
+		                        <div class="review-img-upload" onclick="document.getElementById('reviewImageInput').click()" 
+		                             style="width: 80px; height: 80px; border: 2px dashed #ccc; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+		                            <i class="fas fa-plus text-secondary"></i>
+		                        </div>
+		                    </div>
+		                    <input type="file" id="reviewImageInput" accept="image/*" style="display: none;" onchange="handleReviewImageUpload(this)">
+		                </div>
+		                <button class="btn btn-custom w-100" onclick="submitReview('${orderId}')">提交评价</button>
+		            </div>
+		        </div>
+		    `;
+		    
+		    document.body.insertAdjacentHTML('beforeend', modalHtml);
+		    
+		    // 绑定评分事件
+		    document.querySelectorAll('.rating-stars').forEach(container => {
+		        const stars = container.querySelectorAll('.star-rating');
+		        stars.forEach(star => {
+		            star.onclick = function() {
+		                const score = parseInt(this.dataset.score);
+		                stars.forEach((s, i) => {
+		                    if (i < score) {
+		                        s.className = 'fas fa-star star-rating';
+		                        s.style.color = '#FFC107';
+		                    } else {
+		                        s.className = 'far fa-star star-rating';
+		                        s.style.color = '#ccc';
+		                    }
+		                });
+		                container.dataset.rating = score;
+		            };
+		        });
+		    });
+		}
+		
+		function closeReviewModal() {
+		    const modal = document.getElementById('reviewModal');
+		    if (modal) modal.remove();
+		}
+		
+		function handleReviewImageUpload(input) {
+		    const file = input.files[0];
+		    if (!file) return;
+		    const reader = new FileReader();
+		    reader.onload = function(e) {
+		        pendingReviewImages.push(e.target.result);
+		        const container = document.getElementById('reviewImageContainer');
+		        const imgDiv = document.createElement('div');
+		        imgDiv.style.cssText = 'width: 80px; height: 80px; position: relative;';
+		        imgDiv.innerHTML = `
+		            <img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
+		            <button class="btn btn-sm btn-danger rounded-circle position-absolute top-0 end-0" style="width: 20px; height: 20px; padding: 0; font-size: 12px;" onclick="this.parentElement.remove()">&times;</button>
+		        `;
+		        container.insertBefore(imgDiv, container.firstChild);
+		    };
+		    reader.readAsDataURL(file);
+		    input.value = '';
+		}
+		
+		// 提交评价
+		function submitReview(orderId) {
+		    const order = userOrders.find(o => o.id === orderId);
+		    if (!order) return;
+		
+		    const content = document.getElementById('reviewContent')?.value || '';
+		    const ratingElements = document.querySelectorAll('.rating-stars');
+		    let totalRating = 0;
+		    let ratingCount = 0;
+		
+		    // 收集评分
+		    for (let i = 0; i < ratingElements.length; i++) {
+		        const rating = ratingElements[i].dataset.rating;
+		        if (rating) {
+		            totalRating += parseInt(rating);
+		            ratingCount++;
 		        }
 		    }
+		
+		    if (ratingCount === 0) {
+		        showToast('请为商品评分');
+		        return;
+		    }
+		
+		    const averageRating = totalRating / ratingCount;
+		    const productId = order.items[0].id; // 假设评价第一个商品，实际可以遍历所有商品
+		    const product = products.find(p => p.id == productId);
 		    
+		    if (product) {
+		        // 更新评价总数和好评度
+		        product.reviewCount = (product.reviewCount || 0) + 1;
+		        // 简单计算好评度：按5星制，4星及以上算好评
+		        const goodReviews = (product.goodReviews || 0) + (averageRating >= 4 ? 1 : 0);
+		        product.goodReviews = goodReviews;
+		        product.goodRate = Math.round((goodReviews / product.reviewCount) * 100);
+		        
+		        // 添加买家秀
+		        if (pendingReviewImages && pendingReviewImages.length > 0) {
+		            if (!product.buyerShowImages) product.buyerShowImages = [];
+		            product.buyerShowImages.push(...pendingReviewImages);
+		        }
+		        
+		        // 保存商品数据
+		        saveProducts(products);
+		    }
+		    
+		    // 标记订单已评价
 		    order.reviewed = true;
-		    saveProductReviews();
 		    saveToStorage();
+		    
+		    // 保存评价详情（可选，用于显示在评价列表中）
+		    if (!productReviews[productId]) productReviews[productId] = [];
+		    productReviews[productId].push({
+		        user: currentUser?.name || '匿名用户',
+		        rating: averageRating,
+		        content: content,
+		        images: pendingReviewImages,
+		        date: new Date().toLocaleDateString()
+		    });
+		    saveProductReviews();
 		    
 		    closeReviewModal();
 		    renderOrders();
@@ -10771,17 +10915,21 @@
 		// 订单支付确认（支持购物车和直接购买）
 		async function confirmPaymentOrder() {
 		    
-		    // ========== 新增：更新商品销量的函数 ==========
 		    function updateProductSales(orderItems) {
 		        for (const item of orderItems) {
 		            const product = products.find(p => p.id == item.id);
 		            if (product) {
+		                // 增加销量
 		                product.salesCount = (product.salesCount || 0) + item.quantity;
+		                // 初始好评率 (可以后续根据评价动态计算，这里设置默认值)
+		                if (product.reviewCount === undefined) product.reviewCount = 0;
+		                // 销量增加后，可以重新计算好评率，这里先保持原有逻辑
 		            }
 		        }
-		        // 保存到本地存储
-		        localStorage.setItem('pobizhe_products', JSON.stringify(products));
-		        console.log('✅ 商品销量已更新:', orderItems);
+		        // 保存更新后的商品数据
+		        localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
+		        // 同步到后端（如果有）
+		        syncProductsToBackend(products);
 		    }
 			
 		    // ========== 新增：同步订单到后端的函数 ==========
@@ -10994,7 +11142,7 @@
 	                <p class="text-muted small mb-0" id="detailDesc" style="line-height: 1.6;"></p>
 	            </div>
 	            
-	            <!-- 商品统计数据行 -->
+	            <!-- 统计数据行 -->
 	            <div class="row g-2 mb-3" id="detailStats">
 	                <div class="col-4 text-center">
 	                    <div class="p-2 bg-light rounded">
@@ -11022,10 +11170,10 @@
 	                    <h6 class="fw-bold mb-0"><i class="fas fa-camera me-2 text-primary"></i>买家秀</h6>
 	                    <small class="text-muted" id="buyerShowCount">0张晒图</small>
 	                </div>
-	                <div class="d-flex gap-2 overflow-auto pb-2" id="buyerShowList" style="scrollbar-width: thin;"></div>
+	                <div class="d-flex gap-2 overflow-auto pb-2" id="buyerShowList"></div>
 	            </div>
 	            
-	            <!-- 最新评价 -->
+	            <!-- 最新评价（可选） -->
 	            <div class="mb-3">
 	                <div class="d-flex justify-content-between align-items-center mb-2">
 	                    <h6 class="fw-bold mb-0"><i class="fas fa-star me-2 text-warning"></i>最新评价</h6>
