@@ -895,11 +895,19 @@
         const container = document.getElementById('usersList');
         container.innerHTML = '<div class="loading"><i class="fas fa-spinner fa-spin me-2"></i>加载用户中...</div>';
         
-        // 直接从 localStorage 加载用户数据（不请求后端）
+        // 从后端 API 加载用户数据
         try {
-            const saved = localStorage.getItem('pobizhe_all_users');
-            allUsers = saved ? JSON.parse(saved) : [];
-            console.log(`从本地加载了 ${allUsers.length} 个用户`);
+            const API_BASE = localStorage.getItem('ADMIN_API_BASE') || 'https://pobizhe-backend.vercel.app';
+            const response = await fetch(`${API_BASE}/api/users`);
+            const result = await response.json();
+            
+            if (result.success && result.data) {
+                allUsers = result.data;
+                console.log(`从后端加载了 ${allUsers.length} 个用户`);
+            } else {
+                allUsers = [];
+                console.log('后端无用户数据');
+            }
         } catch (error) {
             console.error('加载用户失败:', error);
             allUsers = [];
@@ -976,7 +984,7 @@
                                     ? (user.isApplying ? '<span class="status status-pending">商家(待审核)</span>' : '<span class="status status-approved">商家</span>') 
                                     : '<span class="status status-completed">顾客</span>'}
                             </td>
-                            <td style="padding:12px;">${user.registerDate ? new Date(user.registerDate).toLocaleDateString() : '-'}</td>
+                            <td style="padding:12px;">${user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'}</td>
                             <td style="padding:12px;">
                                 <button class="btn-sm btn-delete" onclick="deleteUser('${user.userId}')">删除</button>
                             </td>
@@ -1001,14 +1009,23 @@
     async function deleteUser(userId) {
         if (!confirm('确定删除这个用户吗？')) return;
         
-        // 直接从本地删除
-        const index = allUsers.findIndex(u => u.userId === userId);
-        if (index !== -1) {
-            allUsers.splice(index, 1);
-            // 保存回 localStorage
-            localStorage.setItem('pobizhe_all_users', JSON.stringify(allUsers));
-            renderUsers();
-            showToast('用户已删除');
+        try {
+            const API_BASE = localStorage.getItem('ADMIN_API_BASE') || 'https://pobizhe-backend.vercel.app';
+            const response = await fetch(`${API_BASE}/api/users/${userId}`, {
+                method: 'DELETE'
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                // 重新加载用户列表
+                loadUsers();
+                showToast('用户已删除');
+            } else {
+                alert('删除失败');
+            }
+        } catch (error) {
+            console.error('删除用户失败:', error);
+            alert('网络错误');
         }
     }
     
@@ -1072,13 +1089,19 @@
     // ========== 数据统计 ==========
     function loadStatistics() {
         const totalOrders = allOrders.length;
-        const totalSales = allOrders.reduce((sum, o) => sum + o.total, 0);
+        const totalSales = allOrders.reduce((sum, o) => sum + (o.total_amount || o.total || o.final_amount || 0), 0);
         const totalUsers = allUsers.length;
         const totalProducts = allProducts.length;
         
         const today = new Date().toLocaleDateString();
-        const todayOrders = allOrders.filter(o => o.date === today).length;
-        const todaySales = allOrders.filter(o => o.date === today).reduce((sum, o) => sum + o.total, 0);
+        const todayOrders = allOrders.filter(o => {
+            const orderDate = o.date || (o.created_at ? new Date(o.created_at).toLocaleDateString() : '');
+            return orderDate === today;
+        }).length;
+        const todaySales = allOrders.filter(o => {
+            const orderDate = o.date || (o.created_at ? new Date(o.created_at).toLocaleDateString() : '');
+            return orderDate === today;
+        }).reduce((sum, o) => sum + (o.total_amount || o.total || o.final_amount || 0), 0);
         
         const merchants = allUsers.filter(u => u.type === 'merchant').length;
         const customers = allUsers.filter(u => u.type === 'customer').length;
