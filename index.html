@@ -4316,8 +4316,71 @@
 		    }
 		}
 		
+		// ========== 新增：从后端同步用户数据 ==========
+		async function syncUsersFromBackend() {
+		    try {
+		        const API_URL = 'https://pobizhe-backend.vercel.app';
+		        const response = await fetch(`${API_URL}/api/users`);
+		        const result = await response.json();
+		        
+		        if (result.success && result.data && result.data.length > 0) {
+		            let updatedCount = 0;
+		            
+		            // 合并后端用户数据到 allUsers
+		            for (const backendUser of result.data) {
+		                const localIndex = allUsers.findIndex(u => u.phone === backendUser.phone);
+		                
+		                if (localIndex !== -1) {
+		                    // 更新本地用户（特别是 type 和 verified 状态）
+		                    const oldStatus = allUsers[localIndex].isApplying;
+		                    const newStatus = backendUser.is_applying || false;
+		                    
+		                    allUsers[localIndex] = {
+		                        ...allUsers[localIndex],
+		                        type: backendUser.type,
+		                        verified: backendUser.verified || false,
+		                        isApplying: backendUser.is_applying || false,
+		                        merchantInfo: backendUser.merchant_info || allUsers[localIndex].merchantInfo
+		                    };
+		                    
+		                    if (oldStatus !== newStatus) {
+		                        updatedCount++;
+		                        console.log(`用户 ${backendUser.phone} 状态更新: 待审核=${newStatus}`);
+		                    }
+		                } else {
+		                    // 添加新用户（如果本地没有）
+		                    allUsers.push({
+		                        userId: backendUser.user_id,
+		                        account: backendUser.account,
+		                        name: backendUser.name,
+		                        nickname: backendUser.nickname || backendUser.name,
+		                        phone: backendUser.phone,
+		                        password: backendUser.password || '123456', // 默认密码，实际应从后端获取或提示重置
+		                        type: backendUser.type || 'customer',
+		                        verified: backendUser.verified || false,
+		                        isApplying: backendUser.is_applying || false,
+		                        merchantInfo: backendUser.merchant_info,
+		                        registerDate: backendUser.created_at || new Date().toISOString()
+		                    });
+		                    updatedCount++;
+		                }
+		            }
+		            
+		            if (updatedCount > 0) {
+		                saveAllUsers();
+		                console.log(`✅ 用户数据已从后端同步，更新了 ${updatedCount} 条记录`);
+		            }
+		        } else {
+		            console.log('后端暂无用户数据，使用本地数据');
+		        }
+		    } catch (error) {
+		        console.error('从后端同步用户失败:', error);
+		        // 网络错误时不影响本地登录
+		    }
+		}
+		
 		// 登录处理
-		function handleLogin() {
+		async function handleLogin() {
 		    const account = document.getElementById('loginAccount').value.trim();
 		    const password = document.getElementById('loginPassword').value;
 		    const rememberMe = document.getElementById('rememberMe').checked;
@@ -4327,16 +4390,13 @@
 		        return;
 		    }
 		    
-		    // 关键修复：确保 allUsers 已经加载
-		    if (!allUsers || allUsers.length === 0) {
-		        loadAllUsers();  // 重新加载
-		    }
+		    // ========== 关键修改：先从后端同步最新用户状态 ==========
+		    await syncUsersFromBackend();
 		    
 		    // 查找用户
 		    const user = allUsers.find(u => u.account === account && u.password === password);
 		    
 		    if (!user) {
-		        // 调试：查找是否存在该账号
 		        const accountExists = allUsers.some(u => u.account === account);
 		        if (accountExists) {
 		            showToast('密码错误');
@@ -4356,6 +4416,7 @@
 		        type: user.type,
 		        address: user.address,
 		        verified: user.verified || false,
+				isApplying: user.isApplying || false,
 		        merchantInfo: user.merchantInfo,
 		        registerDate: user.registerDate
 		    };
@@ -6007,6 +6068,7 @@
                 if (typeof loadMerchantApplications === 'function') loadMerchantApplications();
                 if (typeof loadProductReviews === 'function') loadProductReviews();
                 if (typeof checkPaymentResult === 'function') checkPaymentResult();
+				if (typeof syncUsersFromBackend === 'function') syncUsersFromBackend();
             }, 200);
         });
         

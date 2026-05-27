@@ -211,6 +211,16 @@ app.post("/api/merchant/review/:id", async (req, res) => {
     const { status, reviewRemark } = req.body;
     const id = parseInt(req.params.id);
 
+    // 先获取申请信息
+    const { data: application, error: getError } = await supabase
+      .from("merchant_applications")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (getError) throw getError;
+
+    // 更新申请状态
     const { error } = await supabase
       .from("merchant_applications")
       .update({
@@ -221,6 +231,68 @@ app.post("/api/merchant/review/:id", async (req, res) => {
       .eq("id", id);
 
     if (error) throw error;
+
+    // ========== 关键修复：如果审核通过，同步更新 users 表 ==========
+    if (status === "approved") {
+      // 查找对应的用户
+      const { data: existingUser, error: userError } = await supabase
+        .from("users")
+        .select("*")
+        .eq("phone", application.phone)
+        .single();
+
+      if (!userError && existingUser) {
+        // 更新用户为商家，并清除待审核标记
+        const { error: updateError } = await supabase
+          .from("users")
+          .update({
+            type: "merchant",
+            is_applying: false,
+            verified: true,
+            merchant_info: {
+              shopName: application.shop_name,
+              origin: application.origin,
+              categories: application.category ? application.category.split('、') : [],
+              settlementPeriod: application.settlement_period,
+              bankCard: application.bank_card,
+              bankName: application.bank_name,
+              entityType: application.entity_type
+            },
+            updated_at: new Date().toISOString()
+          })
+          .eq("phone", application.phone);
+
+        if (updateError) {
+          console.error("更新用户状态失败:", updateError);
+        } else {
+          console.log(`✅ 用户 ${application.phone} 已更新为商家`);
+        }
+      } else {
+        // 如果用户不存在于 users 表，创建新用户
+        const { error: insertError } = await supabase
+          .from("users")
+          .insert([
+            {
+              user_id: Date.now().toString(),
+              name: application.name,
+              phone: application.phone,
+              account: `S${application.phone.slice(-6)}${Math.floor(Math.random() * 10000)}`,
+              type: "merchant",
+              is_applying: false,
+              verified: true,
+              merchant_info: {
+                shopName: application.shop_name,
+                origin: application.origin
+              },
+              created_at: new Date().toISOString()
+            }
+          ]);
+
+        if (insertError) {
+          console.error("创建用户失败:", insertError);
+        }
+      }
+    }
 
     res.json({
       success: true,
