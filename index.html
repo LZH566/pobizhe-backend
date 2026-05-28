@@ -2560,6 +2560,40 @@
 		    justify-content: center;
 		    position: relative;
 		}
+		
+		/* 评价进度条样式 */
+		.progress {
+		    background-color: #e9ecef;
+		    border-radius: 10px;
+		    overflow: hidden;
+		}
+		.progress-bar {
+		    transition: width 0.3s ease;
+		}
+		
+		/* 评价卡片 hover 效果 */
+		#latestReviews .border-bottom {
+		    transition: all 0.2s;
+		}
+		#latestReviews .border-bottom:hover {
+		    background-color: #fafafa;
+		}
+		
+		/* 买家秀滑动区域 */
+		#buyerShowList {
+		    scroll-snap-type: x mandatory;
+		}
+		#buyerShowList > div {
+		    scroll-snap-align: start;
+		}
+		
+		/* 评价标签按钮切换效果 */
+		#reviewTags .btn {
+		    transition: all 0.2s ease;
+		}
+		#reviewTags .btn:hover {
+		    transform: translateY(-1px);
+		}
     </style>
 </head>
 <body>
@@ -2579,9 +2613,9 @@
             <a class="navbar-brand" href="#">
                 <i class="fas fa-seedling me-2"></i>破壁者
             </a>
-	        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
-                <span class="navbar-toggler-icon"></span>
-            </button>
+	        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+	            <span class="navbar-toggler-icon"></span>
+	        </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item">
@@ -9566,7 +9600,6 @@
 		    const file = event.target.files[0];
 		    if (!file) return;
 		    
-		    // 显示加载状态
 		    const uploadDiv = document.querySelector(`.product-img-upload[data-product="${productId}"][data-img="${imgIndex}"]`);
 		    if (uploadDiv) {
 		        uploadDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
@@ -9574,14 +9607,12 @@
 		    }
 		    
 		    try {
-		        // 上传到 Supabase
+		        // 尝试上传到 Supabase
 		        const imageUrl = await uploadProductImage(file, productId, imgIndex);
 		        
-		        // 存储 URL 而不是 base64
 		        if (!merchantProductImages[productId]) merchantProductImages[productId] = {};
 		        merchantProductImages[productId][imgIndex] = imageUrl;
 		        
-		        // 更新UI显示
 		        if (uploadDiv) {
 		            uploadDiv.style.background = `url(${imageUrl}) center/cover no-repeat`;
 		            uploadDiv.style.border = '2px solid #2E7D32';
@@ -9592,17 +9623,29 @@
 		            uploadDiv.appendChild(checkIcon);
 		        }
 		        
-		        // 验证图片数量
 		        validateProductImages(productId);
 		        showToast('图片上传成功');
 		    } catch (error) {
 		        console.error('上传失败:', error);
-		        showToast('图片上传失败，请重试');
-		        // 恢复原样
-		        if (uploadDiv) {
-		            uploadDiv.innerHTML = '<i class="fas fa-plus text-secondary"></i><small>图片' + imgIndex + '</small>';
-		            uploadDiv.style.background = '#f8f9fa';
-		        }
+		        // fallback: 使用 base64 存储
+		        const reader = new FileReader();
+		        reader.onload = function(e) {
+		            const base64Url = e.target.result;
+		            if (!merchantProductImages[productId]) merchantProductImages[productId] = {};
+		            merchantProductImages[productId][imgIndex] = base64Url;
+		            
+		            if (uploadDiv) {
+		                uploadDiv.style.background = `url(${base64Url}) center/cover no-repeat`;
+		                uploadDiv.style.border = '2px solid #2E7D32';
+		                uploadDiv.innerHTML = '';
+		                const checkIcon = document.createElement('i');
+		                checkIcon.className = 'fas fa-check-circle text-success';
+		                checkIcon.style.fontSize = '24px';
+		                uploadDiv.appendChild(checkIcon);
+		            }
+		            showToast('图片上传成功（本地存储）');
+		        };
+		        reader.readAsDataURL(file);
 		    }
 		}
 		
