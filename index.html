@@ -2551,6 +2551,15 @@
 		    background: #2E7D32;
 		    border-radius: 10px;
 		}
+		
+		/* 图片加载失败时的样式 */
+		img[onerror] {
+		    background-color: #f5f5f5;
+		    display: flex;
+		    align-items: center;
+		    justify-content: center;
+		    position: relative;
+		}
     </style>
 </head>
 <body>
@@ -5120,7 +5129,12 @@
                 image: './images/yantai-apple.jpeg', seller: '山东·张农户', 
                 badge: '新鲜采摘', address: '山东省烟台市栖霞县蛇窝泊镇',
                 salesCount: 328, goodRate: 98, reviewCount: 156,
-                buyerShowImages: [], isCertified: true, 
+                buyerShowImages: [
+		            './images/buyer/apple1.jpg', 
+		            './images/buyer/apple2.jpg',
+		            './images/buyer/apple3.jpg'	
+				], 
+				isCertified: true, 
                 traceCode: 'RX-1', certifyDate: '2025-03-20',
                 originCert: '烟台栖霞核心产区',
                 inspectReport: '农药残留未检出',
@@ -5370,27 +5384,107 @@
 		};
 		
 		// 初始化示例评价数据
+		// 初始化示例评价数据 - 丰富每个商品的评价内容
 		function initProductReviews() {
 		    const sampleReviews = {
+		        // 烟台红富士苹果 (id: 1)
 		        1: [
-		            { user: '张***生', rating: 5, content: '苹果很甜，水分足，包装也很好，没有坏果！', images: ['./images/review1.jpg'], date: '2025-05-19' },
-		            { user: '李***姐', rating: 5, content: '第二次购买了，家里人都说好吃，会继续回购', images: [], date: '2025-05-18' },
-		            { user: '王***妈', rating: 4, content: '果子新鲜，就是有几个稍微小了点', images: ['./images/review2.jpg'], date: '2025-05-17' }
+		            { user: '爱吃苹果的小熊', rating: 5, content: '苹果很甜，水分足，包装也很好，没有坏果！个头均匀，红彤彤的看着就喜庆。吃完再来回购！', images: [], date: '2025-05-19' },
+		            { user: '甜甜圈不甜', rating: 5, content: '第二次购买了，家里人都说好吃，比超市买的新鲜多了，会继续回购的，支持农民伯伯！', images: [], date: '2025-05-18' },
+		            { user: '南方有乔木', rating: 4, content: '果子新鲜，就是有几个稍微小了点，但口感不错，甜脆可口，总体满意。', images: [], date: '2025-05-17' },
+		            { user: '山间一壶酒', rating: 5, content: '苹果收到啦，包装严实没有一个坏的，又大又红，脆甜多汁，孩子特别爱吃！', images: [], date: '2025-05-20' }
 		        ],
+		        // 东北五常大米 (id: 2)
 		        2: [
-		            { user: '赵***叔', rating: 5, content: '大米很香，煮出来的饭软糯可口', images: [], date: '2025-05-19' }
+		            { user: '东北大米饭真香', rating: 5, content: '大米很香，煮出来的饭软糯可口，有小时候的味道，熬粥也很好喝，五星好评！', images: [], date: '2025-05-19' },
+		            { user: '厨房小能手', rating: 5, content: '确实是五常大米，口感Q弹，米香味浓，比超市便宜，以后就在这家买了。', images: [], date: '2025-05-18' }
 		        ],
+		        // 赣南脐橙 (id: 3)
+		        3: [
+		            { user: '橙子味的夏天', rating: 5, content: '橙子水分超级足，很甜没有渣，皮薄肉厚，一咬全是汁水，非常满意！', images: [], date: '2025-05-20' },
+		            { user: '小确幸的日常', rating: 5, content: '收到就尝了一个，很甜很新鲜，孩子一口气吃了两个，橙香味很浓，会回购。', images: [], date: '2025-05-19' }
+		        ],
+		        // 云南野生菌 (id: 4)
+		        4: [
+		            { user: '山野觅食记', rating: 5, content: '菌子很干爽，泡发后很鲜美，炖汤特别好喝，山珍美味名不虚传！', images: [], date: '2025-05-18' }
+		        ],
+		        // 新疆红枣 (id: 5)
+		        5: [
+		            { user: '养生小达人', rating: 5, content: '红枣个头很大，肉厚核小，甜甜的很好吃，泡水煮粥都很棒，下次还来。', images: [], date: '2025-05-17' },
+		            { user: '一杯红枣茶', rating: 4, content: '品质不错，就是有几个稍微有点干，但整体还是很满意的，性价比高。', images: [], date: '2025-05-16' }
+		        ],
+		        // 土鸡蛋 (id: 6)
+		        6: [
+		            { user: '厨房小白逆袭记', rating: 5, content: '鸡蛋发来完好没有碎的，每个都用泡沫隔开了，很用心。蛋黄颜色很深，炒出来很香，是正宗土鸡蛋！', images: ['./images/egg-sample.jpg'], date: '2025-05-27' },
+		            { user: '麻麻的爱心便当', rating: 5, content: '鸡蛋很新鲜，打开蛋黄饱满不散，煮着吃很香，比超市买的普通鸡蛋好吃多了。', images: [], date: '2025-05-26' },
+		            { user: '吃货的自我修养', rating: 5, content: '包装非常好，一个都没坏，蛋壳干净，蛋黄颜色金黄，给孩子吃很放心。', images: [], date: '2025-05-25' }
+		        ],
+		        // 洛川苹果 (id: 7)
 		        7: [
-		            { user: '刘***姐', rating: 5, content: '洛川苹果名不虚传，脆甜多汁！', images: ['./images/review3.jpg'], date: '2025-05-20' },
-		            { user: '陈***生', rating: 5, content: '包装很用心，苹果完好无损', images: [], date: '2025-05-18' }
+		            { user: '苹果派大星', rating: 5, content: '洛川苹果名不虚传，脆甜多汁！一口咬下去嘎嘣脆，水分特别足，非常好吃！', images: [], date: '2025-05-20' },
+		            { user: '每天一个苹果', rating: 5, content: '包装很用心，苹果完好无损，每个都套了网套，果子很新鲜，甜度很高。', images: [], date: '2025-05-18' }
+		        ],
+		        // 西湖龙井茶 (id: 8)
+		        8: [
+		            { user: '茶香四溢', rating: 5, content: '茶叶很香，泡出来汤色清亮，口感醇厚，是正宗的龙井，物有所值。', images: [], date: '2025-05-19' }
+		        ],
+		        // 宁夏枸杞 (id: 9)
+		        9: [
+		            { user: '保温杯里泡枸杞', rating: 5, content: '枸杞颗粒饱满，颜色自然红润，泡水喝味道不错，每天泡一杯对眼睛好。', images: [], date: '2025-05-18' }
+		        ],
+		        // 海南芒果 (id: 10)
+		        10: [
+		            { user: '芒果控的日常', rating: 5, content: '芒果很甜，水分足，核薄肉厚，切开全是果肉，孩子特别喜欢吃。', images: [], date: '2025-05-17' }
+		        ],
+		        // 内蒙古牛肉干 (id: 11)
+		        11: [
+		            { user: '追剧小零食', rating: 5, content: '牛肉干很有嚼劲，越嚼越香，是正宗的内蒙古风味，追剧神器！', images: [], date: '2025-05-16' }
+		        ],
+		        // 福建铁观音 (id: 12)
+		        12: [
+		            { user: '品茶人生', rating: 5, content: '铁观音香气扑鼻，回味甘甜，泡了好几泡还有味道，品质很好。', images: [], date: '2025-05-15' }
+		        ],
+		        // 阳澄湖大闸蟹 (id: 13)
+		        13: [
+		            { user: '螃蟹重度患者', rating: 5, content: '螃蟹很鲜活，个个都很饱满，蟹黄很多，味道鲜美，顺丰冷链快运很靠谱。', images: [], date: '2025-05-14' }
+		        ],
+		        // 贵州辣椒 (id: 14)
+		        14: [
+		            { user: '无辣不欢', rating: 5, content: '辣椒很香，做辣椒油特别好吃，辣味纯正，是贵州特产的味道。', images: [], date: '2025-05-13' }
+		        ],
+		        // 西藏青稞 (id: 15)
+		        15: [
+		            { user: '高原追梦人', rating: 5, content: '青稞米煮粥很好喝，有独特的香味，营养价值高，很健康。', images: [], date: '2025-05-12' }
 		        ]
 		    };
 		    
+		    // 合并已有的评价数据
 		    for (let id in sampleReviews) {
 		        if (!productReviews[id]) {
 		            productReviews[id] = sampleReviews[id];
+		        } else {
+		            // 如果已有评价，合并新评价（避免重复）
+		            const existingUsers = new Set(productReviews[id].map(r => r.user));
+		            for (const newReview of sampleReviews[id]) {
+		                if (!existingUsers.has(newReview.user)) {
+		                    productReviews[id].push(newReview);
+		                }
+		            }
 		        }
 		    }
+		    
+		    // 确保每个商品都有评价数据（至少1条）
+		    for (let i = 1; i <= 15; i++) {
+		        if (!productReviews[i] || productReviews[i].length === 0) {
+		            const defaultUsers = ['星星点灯', '随风飘荡', '微微一笑', '平凡之路', '海阔天空'];
+		            const randomUser = defaultUsers[Math.floor(Math.random() * defaultUsers.length)];
+		            productReviews[i] = [
+		                { user: randomUser, rating: 5, content: '商品质量很好，物流也很快，卖家服务态度好，五星好评！', images: [], date: new Date().toLocaleDateString() }
+		            ];
+		        }
+		    }
+		    
+		    saveProductReviews();
 		}
 		
 		// 保存评价到本地存储
@@ -6310,16 +6404,22 @@
 		    document.getElementById('detailGoodRate').textContent = goodRate + '%';
 		    document.getElementById('detailReviewCount').textContent = totalReviews;
 		    
-		    // ========== 渲染买家秀 ==========
+		    // ========== 渲染买家秀（使用可靠占位图）==========
 		    const allBuyerImages = [];
 		    reviews.forEach(review => {
 		        if (review.images && review.images.length > 0) {
-		            allBuyerImages.push(...review.images);
+		            // 过滤掉无效的图片路径
+		            const validImages = review.images.filter(img => img && img.startsWith('data:') || img.startsWith('http'));
+		            if (validImages.length > 0) {
+		                allBuyerImages.push(...validImages);
+		            }
 		        }
 		    });
-		    // 加上商品自带的买家秀
-		    if (product.buyerShowImages && product.buyerShowImages.length > 0) {
-		        allBuyerImages.push(...product.buyerShowImages);
+		    
+		    // 如果没有买家秀图片，使用商品图片作为默认展示
+		    if (allBuyerImages.length === 0 && product.image) {
+		        // 用商品图片作为示例买家秀（让页面不空）
+		        allBuyerImages.push(product.image);
 		    }
 		    
 		    const buyerShowContainer = document.getElementById('buyerShowList');
@@ -6329,7 +6429,8 @@
 		        buyerShowCountSpan.textContent = allBuyerImages.length + '张晒图';
 		        buyerShowContainer.innerHTML = allBuyerImages.slice(0, 6).map(img => `
 		            <div style="width: 80px; height: 80px; flex-shrink: 0; cursor: pointer;" onclick="viewFullImage('${img}')">
-		                <img src="${img}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #eee;">
+		                <img src="${img}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px; border: 1px solid #eee;" 
+		                     onerror="this.src='https://picsum.photos/id/108/80/80'">
 		            </div>
 		        `).join('');
 		    } else {
