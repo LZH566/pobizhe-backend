@@ -6528,15 +6528,18 @@
 		    const container = document.getElementById('latestReviews');
 		    if (!container) return;
 		    
+		    // 确保 reviews 是数组
+		    const reviewsArray = Array.isArray(reviews) ? reviews : [];
+		    
 		    // 计算各星级数量
 		    let goodCount = 0, midCount = 0, badCount = 0, withImageCount = 0;
-		    reviews.forEach(r => {
+		    reviewsArray.forEach(r => {
 		        if (r.rating >= 4) goodCount++;
 		        else if (r.rating === 3) midCount++;
 		        else badCount++;
 		        if (r.images && r.images.length > 0) withImageCount++;
 		    });
-		    const total = reviews.length;
+		    const total = reviewsArray.length;
 		    
 		    // 更新进度条
 		    const goodProgress = document.getElementById('goodProgress');
@@ -6650,10 +6653,28 @@
 		        return;
 		    }
 		    
-		    const hasPurchased = userOrders.some(order => 
-		        (order.status === 'shipped' || order.status === 'completed') &&
-		        order.items.some(item => item.id == productId)
-		    );
+		    // 确保 items 是数组
+		    const hasPurchased = userOrders.some(order => {
+		        // 检查订单状态
+		        if (order.status !== 'shipped' && order.status !== 'completed') return false;
+		        
+		        // 确保 items 是数组
+		        let items = order.items;
+		        if (!items) return false;
+		        
+		        // 如果 items 不是数组，尝试转换
+		        if (!Array.isArray(items)) {
+		            // 如果是对象，转为数组
+		            if (typeof items === 'object') {
+		                items = Object.values(items);
+		            } else {
+		                return false;
+		            }
+		        }
+		        
+		        // 检查是否包含该商品
+		        return items.some(item => item.id == productId);
+		    });
 		    
 		    reviewArea.style.display = hasPurchased ? 'block' : 'none';
 		}
@@ -11952,6 +11973,13 @@
 	            <p class="mb-2"><i class="fab fa-weixin me-1" style="color: #07C160;"></i> 扫码添加星推官好友</p>
 	            <div id="starQrcode" style="display: flex; justify-content: center; margin: 10px 0;"></div>
 	            <p class="text-muted small mt-2">长按识别二维码，添加好友后支付</p>
+	            
+	            <!-- 新增：客服电话 -->
+	            <div class="mt-3 pt-2 border-top" style="border-color: #eee !important;">
+	                <p class="mb-1 small" style="color: #666;"><i class="fas fa-phone-alt me-1" style="color: #2E7D32;"></i> 咨询电话：</p>
+	                <p class="mb-1 small fw-bold" style="color: #2E7D32;">客服1：18271190345</p>
+	                <p class="mb-0 small fw-bold" style="color: #2E7D32;">客服2：18366227703</p>
+	            </div>
 	        </div>
 	        
 	        <!-- 售后保障 -->
