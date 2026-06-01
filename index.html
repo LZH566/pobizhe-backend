@@ -2805,7 +2805,7 @@
                 
                 <!-- 左侧：图片区域 (占 4 列) -->
                 <div class="col-lg-3 col-md-4 mb-4 mb-md-0 text-center">
-                    <img src="./images/222.jpg" alt="宣传图" class="img-fluid rounded-3 shadow-lg" 
+                    <img src="./images/222.png" alt="宣传图" class="img-fluid rounded-3 shadow-lg" 
                          style="max-height: 280px; object-fit: cover; border: 4px solid rgba(255,255,255,0.3);">
                 </div>
                 
@@ -7544,6 +7544,11 @@
 
         // ========== 支付功能 ==========
         function openPayment() {
+			if (isOfflineMode || !navigator.onLine) {
+			    showOfflineWarning();
+			    return;
+			}
+			
             if (shoppingCart.length === 0) {
                 showToast('购物车为空');
                 return;
@@ -7653,6 +7658,10 @@
 		}
 
         function confirmPayment() {
+		    if (isOfflineMode || !navigator.onLine) {
+		        showOfflineWarning();
+		        return;
+		    }
             // ========== 优先处理立即购买模式 ==========
             if (window.tempDirectBuyOrder) {
                 const tempOrder = window.tempDirectBuyOrder;
@@ -10009,6 +10018,10 @@
 		
 		// 确认直接购买 - 修改为跳转到支付选择页面
 		function confirmDirectBuy() {
+		    if (isOfflineMode || !navigator.onLine) {
+		        showOfflineWarning();
+		        return;
+		    }
 		    // ========== 重新加载最新地址 ==========
 		    const saved = localStorage.getItem('pobizhe_addresses');
 		    if (saved) {
@@ -10071,6 +10084,11 @@
 		
 		// 新增：为直接购买打开支付页面
 		function openPaymentForDirectBuy(subtotal, shippingFee, total) {
+		    if (isOfflineMode || !navigator.onLine) {
+		        showOfflineWarning();
+		        return;
+		    }
+			
 		    // 重新加载最新地址
 		    const saved = localStorage.getItem('pobizhe_addresses');
 		    if (saved) {
@@ -10747,6 +10765,25 @@
             toast.style.display = 'block';
             setTimeout(() => { toast.style.display = 'none'; }, 2500);
         }
+		
+		// 显示离线提示弹窗
+		function showOfflineWarning() {
+		    // 如果已经有弹窗，先移除
+		    const existingModal = document.getElementById('offlineWarningModal');
+		    if (existingModal) existingModal.remove();
+		    
+		    const modalHtml = `
+		        <div id="offlineWarningModal" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:100002;display:flex;align-items:center;justify-content:center;">
+		            <div style="background:white; border-radius:20px; max-width:320px; width:85%; padding:25px; text-align:center;">
+		                <div style="font-size: 3rem; margin-bottom: 15px;">📡</div>
+		                <h5 style="color: #333; margin-bottom: 10px;">网络连接失败</h5>
+		                <p class="text-muted small" style="margin-bottom: 20px;">当前网络不佳，请检查网络连接后重试</p>
+		                <button onclick="document.getElementById('offlineWarningModal').remove()" style="background: linear-gradient(135deg, #FF8F00, #FFA726); color:white; border:none; padding:8px 25px; border-radius:25px;">我知道了</button>
+		            </div>
+		        </div>
+		    `;
+		    document.body.insertAdjacentHTML('beforeend', modalHtml);
+		}
 
         // 平滑滚动
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -11951,7 +11988,7 @@
 	            <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #FFD700, #FFA500); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
 	                <i class="fas fa-star" style="font-size: 35px; color: white;"></i>
 	            </div>
-	            <h4 style="color: #2E7D32;">乡村星推官 · 陈女士</h4>
+	            <h4 style="color: #2E7D32;">乡村电商陪跑员 · 陈女士</h4>
 	            <p class="text-muted small">官方认证助农主播</p>
 	            <span class="badge" style="background: #FFD700; color: #8B6914; padding: 4px 12px; border-radius: 20px; font-size: 11px;">
 	                <i class="fas fa-check-circle"></i> 已认证
@@ -11966,7 +12003,7 @@
 	        
 	        <!-- 二维码 -->
 	        <div class="mb-3">
-	            <p class="mb-2"><i class="fab fa-weixin me-1" style="color: #07C160;"></i> 扫码添加星推官好友</p>
+	            <p class="mb-2"><i class="fab fa-weixin me-1" style="color: #07C160;"></i> 扫码添加陪跑员好友</p>
 	            <div id="starQrcode" style="display: flex; justify-content: center; margin: 10px 0;"></div>
 	            <p class="text-muted small mt-2">长按识别二维码，添加好友后支付</p>
 	            
