@@ -5417,16 +5417,17 @@
 		    // 格式: productId: [ { user: '用***户', rating: 5, content: '很好吃！', images: [], date: '2025-05-20' } ]
 		};
 		
-		// 初始化示例评价数据
 		// 初始化示例评价数据 - 丰富每个商品的评价内容
 		function initProductReviews() {
 		    const sampleReviews = {
-		        // 烟台红富士苹果 (id: 1)
+		        // 烟台红富士苹果 (id: 1) - 添加买家秀图片
 		        1: [
-		            { user: '爱吃苹果的小熊', rating: 5, content: '苹果很甜，水分足，包装也很好，没有坏果！个头均匀，红彤彤的看着就喜庆。吃完再来回购！', images: [], date: '2025-05-19' },
-		            { user: '甜甜圈不甜', rating: 5, content: '第二次购买了，家里人都说好吃，比超市买的新鲜多了，会继续回购的，支持农民伯伯！', images: [], date: '2025-05-18' },
-		            { user: '南方有乔木', rating: 4, content: '果子新鲜，就是有几个稍微小了点，但口感不错，甜脆可口，总体满意。', images: [], date: '2025-05-17' },
-		            { user: '山间一壶酒', rating: 5, content: '苹果收到啦，包装严实没有一个坏的，又大又红，脆甜多汁，孩子特别爱吃！', images: [], date: '2025-05-20' }
+		            { user: '爱吃苹果的小熊', rating: 5, content: '苹果很甜，水分足，包装也很好，没有坏果！个头均匀，红彤彤的看着就喜庆。', 
+		              images: ['./images/buyer/apple2.jpg', './images/buyer/apple3.jpg', './images/buyer/apple4.jpg'], date: '2025-05-19' },
+		            { user: '甜甜圈不甜', rating: 5, content: '第二次购买了，家里人都说好吃，比超市买的新鲜多了。', 
+		              images: [], date: '2025-05-18' },
+		            { user: '南方有乔木', rating: 4, content: '果子新鲜，就是有几个稍微小了点，但口感不错。', 
+		              images: [], date: '2025-05-17' }
 		        ],
 		        // 东北五常大米 (id: 2)
 		        2: [
