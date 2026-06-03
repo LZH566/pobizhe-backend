@@ -5625,8 +5625,32 @@
 		        <hr><div class="text-center"><small class="text-success">👇 手机扫码查看完整溯源报告 👇</small></div>
 		    `;
 		    document.getElementById('traceDetailContent').innerHTML = detailHtml;
-		    // 生成可扫描的二维码（消费者扫码即可查看认证详情）
-		    generateTraceQRCode(traceUrl, 'traceQrcodeContainer');
+		    const qrContainer = document.getElementById('traceQrcodeContainer');
+		    if (qrContainer) {
+		        // 根据商品不同显示不同的图片
+		        let imageUrl = './images/buyer/egg111.jpg';  // 默认图片
+		        
+		        // 可以根据商品显示不同图片
+		        if (product.name === '土鸡蛋') {
+		            imageUrl = './images/buyer/egg111.jpg';
+		        } else if (product.name === '烟台红富士苹果') {
+		            imageUrl = './images/buyer/apple2.jpg';
+		        } else if (product.name === '东北五常大米') {
+		            imageUrl = './images/buyer/rice1.jpg';
+		        }
+		        // 可以继续添加其他商品的对应图片
+		        
+		        qrContainer.innerHTML = `
+		            <div style="text-align: center;">
+		                <img src="${imageUrl}" 
+		                     style="width: 180px; height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid #ddd; cursor: pointer;" 
+		                     onclick="viewFullImage('${imageUrl}')"
+		                     onerror="this.src='https://placehold.co/180x180?text=认证图片'">
+		                <p class="text-muted small mt-2">认证实拍图（点击放大）</p>
+		            </div>
+		        `;
+		        qrContainer.style.display = 'block';
+		    }
 		    document.getElementById('traceModal').style.display = 'flex';
 		}
 		function closeTraceModal() { document.getElementById('traceModal').style.display = 'none'; }
