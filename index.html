@@ -5155,7 +5155,7 @@
         // 商品数据（15 个）
         // ========== 商品数据持久化 ==========
         const PRODUCTS_STORAGE_KEY = 'pobizhe_all_products';
-        const certifiedIds = [1, 2, 3, 5, 7, 9, 12, 15];
+        const certifiedIds = [1, 2, 3, 5, 6, 7, 9, 12, 15];
         // 默认商品数据
         const DEFAULT_PRODUCTS = [
             { 
@@ -5210,7 +5210,16 @@
                 image: './images/egg.jpg', seller: '四川·刘农户', 
                 badge: '散养土鸡', address: '四川省绵阳市三台县',
                 salesCount: 2345, goodRate: 95, reviewCount: 892,
-                buyerShowImages: [], isCertified: false
+                buyerShowImages: [
+                    './images/buyer/egg1.jpg',
+                    './images/buyer/egg2.jpg'
+                ], 
+                isCertified: true,  // 改为 true
+                traceCode: 'RX-6',  // 添加溯源码
+                certifyDate: '2025-05-20',  // 添加认证日期
+                originCert: '四川绵阳三台·生态养殖基地',  // 添加产地认证
+                inspectReport: '无抗生素、无激素、沙门氏菌未检出',  // 添加检测报告
+                packaging: '珍珠棉托+纸箱包装'  // 添加包装标准
             },
             { 
                 id: 7, name: '洛川苹果', price: 6.5, unit: '斤', 
@@ -5450,9 +5459,12 @@
 		        ],
 		        // 土鸡蛋 (id: 6)
 		        6: [
-		            { user: '厨房小白逆袭记', rating: 5, content: '鸡蛋发来完好没有碎的，每个都用泡沫隔开了，很用心。蛋黄颜色很深，炒出来很香，是正宗土鸡蛋！', images: ['./images/egg-sample.jpg'], date: '2025-05-27' },
-		            { user: '麻麻的爱心便当', rating: 5, content: '鸡蛋很新鲜，打开蛋黄饱满不散，煮着吃很香，比超市买的普通鸡蛋好吃多了。', images: [], date: '2025-05-26' },
-		            { user: '吃货的自我修养', rating: 5, content: '包装非常好，一个都没坏，蛋壳干净，蛋黄颜色金黄，给孩子吃很放心。', images: [], date: '2025-05-25' }
+		            { user: '厨房小白逆袭记', rating: 5, content: '鸡蛋发来完好没有碎的，每个都用泡沫隔开了，很用心。蛋黄颜色很深，炒出来很香，是正宗土鸡蛋！', 
+		              images: ['./images/buyer/egg1.jpg', './images/buyer/egg2.jpg'], date: '2025-05-27' },
+		            { user: '麻麻的爱心便当', rating: 5, content: '鸡蛋很新鲜，打开蛋黄饱满不散，煮着吃很香，比超市买的普通鸡蛋好吃多了。', 
+		              images: [], date: '2025-05-26' },
+		            { user: '吃货的自我修养', rating: 5, content: '包装非常好，一个都没坏，蛋壳干净，蛋黄颜色金黄，给孩子吃很放心。', 
+		              images: [], date: '2025-05-25' }
 		        ],
 		        // 洛川苹果 (id: 7)
 		        7: [
@@ -5585,6 +5597,23 @@
 		    const product = products.find(p => p.traceCode === traceCode);
 		    if(!product){ showToast('未找到溯源信息'); return; }
 		    const traceUrl = product.traceUrl || `https://pobizhe.com/certify/${traceCode}`;
+		    
+		    // 获取商品认证图片（如果有的话）
+		    let certImagesHtml = '';
+		    if (product.buyerShowImages && product.buyerShowImages.length > 0) {
+		        certImagesHtml = `
+		            <div class="mt-3">
+		                <strong class="small">📸 认证实拍图：</strong>
+		                <div class="d-flex gap-2 mt-2 flex-wrap">
+		                    ${product.buyerShowImages.slice(0, 4).map(img => `
+		                        <img src="${img}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; cursor: pointer;" 
+		                             onclick="viewFullImage('${img}')" onerror="this.src='https://placehold.co/80x80?text=暂无图片'">
+		                    `).join('')}
+		                </div>
+		            </div>
+		        `;
+		    }
+		    
 		    const detailHtml = `
 		        <div class="mb-2"><strong>产品名称:</strong> ${product.name}</div>
 		        <div class="mb-2"><strong>溯源码:</strong> <span class="badge bg-light text-dark">${product.traceCode}</span></div>
@@ -5592,6 +5621,7 @@
 		        <div class="mb-2"><strong>认证日期:</strong> ${product.certifyDate}</div>
 		        <div class="mb-2"><strong>品质检测:</strong> ${product.inspectReport}</div>
 		        <div class="mb-2"><strong>包装标准:</strong> ${product.packaging}</div>
+		        ${certImagesHtml}
 		        <hr><div class="text-center"><small class="text-success">👇 手机扫码查看完整溯源报告 👇</small></div>
 		    `;
 		    document.getElementById('traceDetailContent').innerHTML = detailHtml;
